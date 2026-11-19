@@ -1,46 +1,78 @@
 # Vitrina de Proyectos
 
-> Ningún proyecto se pierde.
+> Los proyectos de la UTEQ, revisados y verificados, en un solo lugar.
 
-Vitrina de Proyectos es una plataforma web académica donde los estudiantes de Ingeniería de Software publican, verifican y reutilizan los proyectos que desarrollan en sus cursos, para continuar lo que ya se hizo en lugar de empezar de cero cada semestre.
+Vitrina de Proyectos es una aplicación web para que la universidad reúna y muestre los proyectos que hacen sus estudiantes. Los estudiantes los suben, los docentes los revisan y, cuando cumplen, quedan **verificados** y visibles para cualquiera que quiera conocer el trabajo de la UTEQ.
 
-**Estado del proyecto:** en desarrollo.
+No es un ejercicio de clase: la app se construye para quedar en uso en la universidad una vez termine el curso.
 
-## El problema
+**Estado del proyecto:** en desarrollo durante un curso intensivo de dos semanas (noviembre 2026).
 
-Muchos proyectos universitarios se pierden al terminar el semestre. Cada curso vuelve a construir soluciones similares, nadie sabe si lo antiguo funciona o está completo, y se pierde la memoria de lo que ya se hizo. Este proyecto propone un lugar único para publicar, comprobar y reutilizar ese trabajo.
+## ¿Para qué sirve?
+
+Hoy los proyectos de los estudiantes quedan dispersos: en repositorios personales, en una memoria USB o en el correo del docente. Cuando alguien quiere saber qué se hace en la universidad (un estudiante nuevo, un docente de otra carrera, una empresa o un visitante) no hay dónde verlo, ni forma de saber si un proyecto fue revisado de verdad.
+
+Vitrina resuelve eso con tres cosas:
+
+- **Un lugar único** donde quedan todos los proyectos, con su repositorio, tecnologías y documentación.
+- **Un proceso de revisión claro**: cada proyecto pasa por un docente antes de mostrarse.
+- **Un sello de verificación**: lo que aparece en la vitrina pública fue revisado y aprobado por la universidad.
 
 ## ¿Cómo funciona?
 
-Un estudiante sube su proyecto con sus tecnologías, el enlace al repositorio y la documentación. El sistema lo evalúa automáticamente con el Health Score y luego un docente lo revisa. Según el resultado, el proyecto queda publicado, se devuelve con observaciones para que lo corrijan o se envía al Cementerio. Una vez publicado, cualquier usuario puede consultarlo con filtros, comentarlo, calificarlo y adoptarlo para continuar su desarrollo.
+1. **Subida.** El estudiante registra su proyecto: descripción, tecnologías, enlace al repositorio y documentación.
+2. **Evaluación automática.** El sistema calcula el Health Score del repositorio como apoyo para el revisor.
+3. **Revisión docente.** Un docente o revisor lo revisa y decide:
+   - **Verificar y publicar**: el proyecto entra a la vitrina pública con su sello.
+   - **Devolver con observaciones**: el equipo lo corrige y lo vuelve a enviar.
+   - **Enviar al Cementerio**: no se borra, pero queda marcado como abandonado o incompleto.
+4. **Consulta.** Cualquier persona puede explorar los proyectos verificados con filtros por carrera, tecnología o año.
 
-## Funcionalidades principales
+## Funcionalidades
 
-**Publicación y búsqueda.** Subida de proyectos con tecnologías, repositorio y documentación, y búsqueda por filtros para encontrar lo que ya existe.
+### Núcleo
 
-**Health Score.** Una puntuación de 0 a 100 que analiza el README, la licencia, las pruebas, las dependencias y la actividad del repositorio. Según el puntaje, el proyecto se clasifica como Vivo (verde), Dormido (amarillo) o Zombi (rojo).
+**Publicación de proyectos.** Los estudiantes suben sus proyectos con tecnologías, repositorio y documentación, y pueden editarlos mientras no estén verificados.
 
-**Revisión docente.** El docente o revisor verifica cada proyecto y decide si se publica, se devuelve con observaciones o se envía al Cementerio.
+**Revisión docente.** El docente o revisor tiene una bandeja con los proyectos pendientes, deja observaciones y decide si se verifica, se devuelve o se envía al Cementerio.
 
-**Cementerio y Resurrección.** Los proyectos abandonados no se borran: conservan su historia y el Cementerio explica qué les faltó. Otro equipo puede pulsar «Resucitar» y continuarlos.
+**Vitrina pública.** Listado de proyectos verificados con búsqueda y filtros, abierto a visitantes sin necesidad de cuenta.
 
-**Árbol genealógico.** Cada proyecto muestra de dónde viene, qué continuaciones tuvo, cuántas generaciones lo siguieron y cuál fue su impacto.
+### Complementos
+
+**Health Score.** Un puntaje de 0 a 100 que analiza el README, la licencia, las pruebas, las dependencias y la actividad del repositorio. Clasifica el proyecto como Vivo (verde), Dormido (amarillo) o Zombi (rojo). Ayuda al revisor, pero no reemplaza su decisión.
+
+**Cementerio y Resurrección.** Los proyectos abandonados conservan su historia y el Cementerio explica qué les faltó. Otro equipo puede pulsar «Resucitar» y continuarlos.
+
+**Árbol genealógico.** Cada proyecto muestra de dónde viene, qué continuaciones tuvo y cuántas generaciones lo siguieron.
 
 **Comunidad.** Comentarios, calificaciones y adopción de proyectos entre estudiantes.
 
 ## Roles
 
-El sistema maneja cuatro roles. El **visitante** consulta proyectos verificados. El **estudiante** publica, edita y adopta proyectos. El **docente/revisor** verifica y solicita correcciones. El **administrador** gestiona usuarios y categorías.
+| Rol | Qué puede hacer |
+|---|---|
+| Visitante | Explorar los proyectos verificados |
+| Estudiante | Subir, editar y adoptar proyectos |
+| Docente / revisor | Revisar, verificar y pedir correcciones |
+| Administrador | Gestionar usuarios, carreras y categorías |
 
 ## Tecnologías
 
-El proyecto está desarrollado en Python con el framework Django y usa PostgreSQL como base de datos. Las dependencias están listadas en `requirements.txt`.
+- **Python** y **Django 6.1**
+- **PostgreSQL** como base de datos
+- **Docker** para el despliegue
+
+Las dependencias de Python están listadas en `requirements.txt`.
 
 ## Requisitos previos
 
-Antes de instalar necesitas tener Python 3.12 o superior, Git y PostgreSQL instalados en tu computador.
+- Python 3.12 o superior
+- Git
+- PostgreSQL
+- Docker y Docker Compose (para el despliegue)
 
-## Instalación
+## Instalación local
 
 Sigue estos pasos en orden desde una terminal.
 
@@ -54,15 +86,15 @@ cd Vitrina-de-proyectos-
 2. Crea y activa un entorno virtual. En Windows con PowerShell:
 
 ```powershell
-python -m venv venv
-venv\Scripts\Activate.ps1
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 ```
 
 En macOS o Linux:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 3. Instala las dependencias:
@@ -77,9 +109,9 @@ pip install -r requirements.txt
 CREATE DATABASE vitrina_db;
 ```
 
-5. Configura las variables de entorno. Copia el archivo de ejemplo y edítalo con tus datos de PostgreSQL:
+5. Configura las variables de entorno. Copia el archivo de ejemplo y edítalo con tus datos:
 
-```bash
+```powershell
 copy .env.example .env
 ```
 
@@ -91,19 +123,38 @@ En macOS o Linux usa `cp .env.example .env`. El archivo `.env` contiene tus cred
 python manage.py migrate
 ```
 
-7. Inicia el servidor de desarrollo:
+7. Crea un superusuario para entrar al panel de administración:
+
+```bash
+python manage.py createsuperuser
+```
+
+8. Inicia el servidor de desarrollo:
 
 ```bash
 python manage.py runserver
 ```
 
-Abre `http://127.0.0.1:8000` en tu navegador y verás la aplicación funcionando.
+Abre `http://127.0.0.1:8000` en tu navegador. El panel de administración está en `http://127.0.0.1:8000/admin/`.
+
+## Despliegue con Docker
+
+> En preparación: el `Dockerfile` y el `docker-compose.yml` todavía no están en el repositorio.
+
+La aplicación se desplegará en contenedores: uno para Django y otro para PostgreSQL. Cuando estén listos los archivos, la app se levantará con:
+
+```bash
+docker compose up --build
+```
 
 ## Variables de entorno
 
 El archivo `.env` necesita estas variables:
 
 ```
+SECRET_KEY=cambia_esta_clave
+DEBUG=True
+
 DB_NAME=vitrina_db
 DB_USER=postgres
 DB_PASSWORD=tu_contraseña
@@ -111,32 +162,35 @@ DB_HOST=localhost
 DB_PORT=5432
 ```
 
+Con Docker, `DB_HOST` debe ser el nombre del servicio de PostgreSQL en `docker-compose.yml` (por ejemplo `db`). En producción, `DEBUG` va en `False`.
+
 ## Estructura del proyecto
 
 ```
 Vitrina-de-proyectos-/
-├── config/            Configuración de Django (settings, urls)
-├── docs/              Documentación del proyecto
-│   └── img/           Capturas y diagramas
-├── manage.py          Utilidad de comandos de Django
-├── requirements.txt   Dependencias de Python
-├── .env.example       Plantilla de variables de entorno
+├── config/              Configuración de Django (settings, urls, wsgi, asgi)
+├── vitrina/             App principal: modelos, vistas, rutas y plantillas
+│   ├── migrations/
+│   ├── models.py
+│   ├── views.py
+│   └── urls.py
+├── manage.py            Utilidad de comandos de Django
+├── requirements.txt     Dependencias de Python
+├── .env.example         Plantilla de variables de entorno   (por crear)
+├── Dockerfile           Imagen de la app                     (por crear)
+├── docker-compose.yml   Servicios: app + PostgreSQL          (por crear)
 └── README.md
 ```
 
-A medida que se agreguen las aplicaciones de Django (usuarios, proyectos, revisión, cementerio y comunidad), cada una tendrá su propia carpeta en la raíz.
-
-## Documentación
-
-La documentación detallada vive en la carpeta [`docs/`](docs/): descripción general, requisitos funcionales y no funcionales por rol, casos de uso, modelo de datos y diagramas.
+Por ahora toda la lógica vive en la app `vitrina`. Si alguna parte crece mucho (por ejemplo el Health Score o la comunidad), se puede separar en su propia app.
 
 ## Flujo de trabajo del equipo
 
-La rama `main` se mantiene estable. Cada funcionalidad se desarrolla en su propia rama (por ejemplo `feature/health-score`) y se integra mediante Pull Request. Los mensajes de commit siguen un estilo común, como `feat: agrega subida de proyectos` o `docs: actualiza README`.
+La rama `main` se mantiene estable. Cada funcionalidad se desarrolla en su propia rama (por ejemplo `feature/revision-docente`) y se integra mediante Pull Request. Los mensajes de commit siguen un estilo común, como `feat: agrega subida de proyectos` o `docs: actualiza README`.
 
-## Equipo
+## Sobre el proyecto
 
-Proyecto del curso de Ingeniería de Software, Universidad de Córdoba.
+Vitrina de Proyectos nace en el curso intensivo de desarrollo web con Django y Docker de la UTEQ. La desarrollan tres estudiantes de la Universidad de Córdoba (Colombia), embajadores en movilidad académica, con una meta clara: dejarle a la UTEQ una herramienta funcionando, no solo un prototipo.
 
 - Dayana Ayala Goez
 - Abelardo Hernandez Ochoa
