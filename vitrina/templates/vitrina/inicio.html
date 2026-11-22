@@ -1,0 +1,105 @@
+{% extends "vitrina/base.html" %}
+
+{% block titulo %}Ideas que merecen ser vistas{% endblock %}
+
+{% block contenido %}
+<section class="portada">
+  <div class="portada__rejilla">
+    <div class="portada__texto">
+      <span class="portada__aro" aria-hidden="true"></span>
+      <div class="portada__sup mono"><span class="punto"></span> Universidad Técnica Estatal de Quevedo</div>
+      <h1>Ideas que merecen ser <em>vistas.</em></h1>
+      <div class="portada__pie">
+        <p>Los proyectos de la UTEQ, revisados y verificados, en un solo lugar. Explora el talento que nace en nuestras aulas.</p>
+        <a href="#proyectos" class="enlace-subrayado">Explorar vitrina ↓</a>
+      </div>
+    </div>
+    <div class="cifras">
+      <div class="cifra cifra--amarilla"><b>{{ total_verificados|default:0 }}</b><span>Proyectos verificados</span></div>
+      <div class="cifra cifra--tinta"><b>{{ total_carreras|default:0 }}</b><span>Carreras creando</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="proyectos" class="seccion">
+  <div class="seccion__interior">
+    <div class="vitrina__cabeza">
+      <div>
+        <p class="mono etiqueta-verde">Vitrina pública</p>
+        <h2>Proyectos destacados</h2>
+      </div>
+      <form class="buscador" method="get" action="{% url 'inicio' %}#proyectos" role="search">
+        {% if carrera_activa %}<input type="hidden" name="carrera" value="{{ carrera_activa }}">{% endif %}
+        <input type="search" name="q" value="{{ q }}" placeholder="Buscar proyecto o tecnología" aria-label="Buscar proyecto o tecnología">
+        <button type="submit">Buscar</button>
+      </form>
+    </div>
+
+    <nav class="filtros" aria-label="Filtrar por carrera">
+      <a href="{% url 'inicio' %}{% if q %}?q={{ q|urlencode }}{% endif %}#proyectos" class="filtro{% if not carrera_activa %} is-activo{% endif %}">Todos</a>
+      {% for carrera in carreras %}
+        <a href="?carrera={{ carrera.id }}{% if q %}&q={{ q|urlencode }}{% endif %}#proyectos" class="filtro{% if carrera_activa == carrera.id|stringformat:'s' %} is-activo{% endif %}">{{ carrera.nombre }}</a>
+      {% endfor %}
+    </nav>
+
+    {% if proyectos %}
+      <div class="tarjetas">
+        {% for proyecto in proyectos %}
+          <article class="tarjeta">
+            <div class="tarjeta__cabeza">
+              <span class="tarjeta__num">PROYECTO/{{ forloop.counter|stringformat:"02d" }}</span>
+              <div class="tarjeta__marca" aria-hidden="true">{{ proyecto.titulo|slice:":2"|upper }}</div>
+            </div>
+            <div class="tarjeta__cuerpo">
+              <p class="mono tarjeta__meta">{{ proyecto.carrera }} · {{ proyecto.anio }}</p>
+              <h3>{{ proyecto.titulo }}</h3>
+              <p class="tarjeta__texto">{{ proyecto.descripcion|truncatechars:140 }}</p>
+              <ul class="tecnologias">
+                {% for tecnologia in proyecto.tecnologias %}<li>{{ tecnologia }}</li>{% endfor %}
+              </ul>
+              <div class="tarjeta__pie">
+                <span>{{ proyecto.autores }}</span>
+                <span class="salud">Vivo · {{ proyecto.puntaje }}</span>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="vacio">
+        <h3>Aún no hay proyectos verificados{% if q or carrera_activa %} con esos filtros{% endif %}.</h3>
+        <p>{% if q or carrera_activa %}Prueba con otra búsqueda o quita los filtros.{% else %}Cuando un docente verifique el primero, aparecerá aquí.{% endif %}</p>
+        {% if q or carrera_activa %}<a href="{% url 'inicio' %}#proyectos" class="btn">Limpiar búsqueda</a>{% endif %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<section id="como-funciona" class="proceso">
+  <div class="proceso__rejilla">
+    <div class="proceso__intro">
+      <p class="mono">Del aula a la vitrina</p>
+      <h2>Publicar también es aprender.</h2>
+      <p>Cada proyecto pasa por un proceso transparente que reconoce el trabajo bien hecho y ayuda a mejorar lo que todavía puede crecer.</p>
+    </div>
+    <ol class="pasos">
+      <li class="paso"><span class="mono paso__num">01/04</span><h3>Sube</h3><p>Registra la descripción, tecnologías, repositorio y documentación.</p></li>
+      <li class="paso"><span class="mono paso__num">02/04</span><h3>Evalúa</h3><p>El sistema calcula el Health Score del repositorio como apoyo.</p></li>
+      <li class="paso"><span class="mono paso__num">03/04</span><h3>Revisa</h3><p>Un docente deja observaciones y decide si el proyecto cumple.</p></li>
+      <li class="paso"><span class="mono paso__num">04/04</span><h3>Publica</h3><p>El proyecto aprobado recibe el sello UTEQ y entra a la vitrina.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="comunidad" class="seccion">
+  <div class="seccion__interior">
+    <div class="cierre" style="margin-top:0;border-top:0;padding-top:0">
+      <div>
+        <h2>¿Tienes un proyecto que mostrar?</h2>
+        <p>Súbelo, recibe retroalimentación y hazlo visible.</p>
+      </div>
+      <a href="#" class="btn btn--primario">Publicar mi proyecto</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

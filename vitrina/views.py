@@ -1,7 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-# Create your views here.
+
 
 def inicio(request):
-    return HttpResponse("Vitrina de Proyectos: Ningun proyecto se pierde")
+    return render(request, "vitrina/inicio.html", {
+        "proyectos": [], "carreras": [], "q": "",
+        "carrera_activa": "", "total_verificados": 0, "total_carreras": 0,
+    })
