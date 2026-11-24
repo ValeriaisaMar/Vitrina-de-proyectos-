@@ -124,6 +124,24 @@
         </ul>
       </section>
 
+      {% if proyecto.publicado and proyecto.codigo %}
+      <section class="tarjeta p-6" aria-labelledby="titulo-verificacion">
+        <h2 id="titulo-verificacion" class="font-extrabold">{% translate "Verificación" %}</h2>
+        <div class="mt-4 flex items-center gap-4">
+          <img src="{% url 'vitrina:qr' proyecto.codigo %}" alt="{% blocktranslate with codigo=proyecto.codigo %}QR de verificación del código {{ codigo }}{% endblocktranslate %}" width="112" height="112" class="h-28 w-28 shrink-0 border-2 border-linea bg-white">
+          <div class="min-w-0">
+            <p class="text-xs font-bold uppercase tracking-wider text-texto-suave">{% translate "Código" %}</p>
+            <p class="whitespace-nowrap font-titulo text-base font-extrabold text-acento">{{ proyecto.codigo }}</p>
+            <a href="{% url 'vitrina:verificar_codigo' proyecto.codigo %}" class="enlace mt-1 inline-block text-sm">{% translate "Página de verificación" %}</a>
+          </div>
+        </div>
+        <div class="mt-5 flex flex-col gap-3">
+          <a href="{% url 'vitrina:certificado' proyecto.codigo %}" class="btn btn-primario w-full">{% translate "Descargar certificado (PDF)" %}</a>
+          <a href="{% url 'vitrina:qr' proyecto.codigo %}?descargar" class="btn btn-secundario w-full">{% translate "Descargar QR (PNG)" %}</a>
+        </div>
+      </section>
+      {% endif %}
+
       <section class="tarjeta-sobria p-6" aria-labelledby="titulo-datos">
         <h2 id="titulo-datos" class="font-extrabold">{% translate "Datos académicos" %}</h2>
         <dl class="mt-4 flex flex-col gap-3 text-sm">
@@ -132,7 +150,6 @@
           <div><dt class="font-bold text-texto-suave">{% translate "Periodo" %}</dt><dd class="mt-0.5">{{ proyecto.periodo }}</dd></div>
           {% if proyecto.aprobado_en %}<div><dt class="font-bold text-texto-suave">{% translate "Aprobado" %}</dt><dd class="mt-0.5">{{ proyecto.aprobado_en|date:"DATE_FORMAT" }}</dd></div>{% endif %}
           {% if proyecto.publicado and proyecto.revisor %}<div><dt class="font-bold text-texto-suave">{% translate "Revisado por" %}</dt><dd class="mt-0.5">{{ proyecto.revisor.nombre_completo }}</dd></div>{% endif %}
-          {% if proyecto.codigo %}<div><dt class="font-bold text-texto-suave">{% translate "Código" %}</dt><dd class="mt-0.5 font-titulo font-extrabold text-acento">{{ proyecto.codigo }}</dd></div>{% endif %}
         </dl>
       </section>
     </aside>

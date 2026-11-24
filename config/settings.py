@@ -152,6 +152,10 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Dirección base para los QR de verificación (opcional). Sirve cuando el servidor se ve desde
+# otros equipos con una dirección distinta, por ejemplo en la demo: http://192.168.1.20:8000
+SITIO_URL = variable("SITIO_URL", "").rstrip("/")
+
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 

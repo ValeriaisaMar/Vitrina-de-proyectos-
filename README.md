@@ -217,6 +217,8 @@ DB_PORT=5432
 
 EMAIL_HOST_USER=vitrinadeproyectosuteq@gmail.com
 EMAIL_HOST_PASSWORD=contraseña_de_aplicación_de_gmail
+
+SITIO_URL=
 ```
 
 - `EMAIL_HOST_PASSWORD` es una **contraseña de aplicación** de Google, no la contraseña normal
@@ -224,6 +226,11 @@ EMAIL_HOST_PASSWORD=contraseña_de_aplicación_de_gmail
 - Si dejas el correo vacío en desarrollo, los correos se muestran en la terminal en lugar de
   enviarse.
 - En producción, `DEBUG` va en `False` y `ALLOWED_HOSTS` lleva el dominio real.
+- `SITIO_URL` es opcional: es la dirección que va dentro de los QR. Vacía, se usa la dirección con
+  la que entras. Para que un celular abra el QR durante la demo, conecta ambos a la misma red,
+  pon la IP del portátil (`SITIO_URL=http://192.168.1.20:8000`), agrégala a `ALLOWED_HOSTS` y
+  arranca con `python manage.py runserver 0.0.0.0:8000`. Un QR que apunta a `127.0.0.1` solo
+  abre en el mismo portátil.
 
 Para generar una `SECRET_KEY`:
 
@@ -235,6 +242,9 @@ python -c "from django.core.management.utils import get_random_secret_key as g; 
 
 Copia el logo oficial como `static/img/logo-uteq.svg` (o `.png`). La plataforma lo detecta sola
 y lo muestra en el encabezado; mientras no exista, se muestra el nombre en texto.
+
+El certificado PDF solo puede usar PNG o JPG: para que el logo salga también en el certificado,
+agrega una copia como `static/img/logo-uteq.png`.
 
 ## Estilos con Tailwind
 

@@ -1,0 +1,12 @@
+{% load i18n formularios %}{# Formulario de código, usado en Verificar y cuando un código no existe. Recibe "form". #}
+<form method="get" action="{% url 'vitrina:verificar' %}" class="flex w-full flex-col gap-2" novalidate>
+  <label for="{{ form.codigo.id_for_label }}" class="text-sm font-bold">{{ form.codigo.label }}</label>
+  <div class="flex flex-col gap-3 sm:flex-row">
+    <input type="text" name="codigo" id="{{ form.codigo.id_for_label }}" value="{{ form.codigo.value|default:'' }}"
+           placeholder="VP-2026-0001" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24"
+           class="min-h-14 w-full min-w-0 flex-1 border-2 border-tinta bg-white px-4 font-titulo text-lg font-bold uppercase tracking-wider text-tinta placeholder:font-normal placeholder:text-[#7a8a81]"
+           {% if form.codigo.errors %}aria-invalid="true" aria-describedby="error-codigo"{% endif %}>
+    <button type="submit" class="btn btn-primario min-h-14 px-8">{% translate "Verificar" %}</button>
+  </div>
+  {% for error in form.codigo.errors %}<p id="error-codigo" class="campo-error">{{ error }}</p>{% endfor %}
+</form>

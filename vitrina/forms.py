@@ -4,6 +4,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from proyectos.models import Asignatura, Proyecto, Tecnologia
+from vitrina.verificacion import normalizar_codigo
 
 ORDENES = [("recientes", _("Más recientes")), ("titulo", _("Nombre (A–Z)"))]
 
@@ -48,3 +49,15 @@ class FormularioFiltros(forms.Form):
         if datos.get("orden") == "titulo":
             return consulta.order_by("titulo")
         return consulta.order_by("-aprobado_en", "-actualizado_en")
+
+
+class FormularioVerificar(forms.Form):
+    """Código que escribe la persona en la página Verificar (módulo 005)."""
+
+    codigo = forms.CharField(label=_("Código de verificación"), max_length=24)
+
+    def clean_codigo(self):
+        codigo = normalizar_codigo(self.cleaned_data["codigo"])
+        if codigo is None:
+            raise forms.ValidationError(_("Escribe un código con la forma VP-2026-0001."))
+        return codigo

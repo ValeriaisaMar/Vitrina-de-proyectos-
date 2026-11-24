@@ -57,15 +57,6 @@ class PortadaTests(TestCase):
         self.assertContains(respuesta, 'alt="UTEQ"')
 
 
-class ProximamenteTests(TestCase):
-    def test_verificar_muestra_proximamente(self):
-        for nombre in ("vitrina:verificar",):
-            respuesta = self.client.get(reverse(nombre))
-            self.assertEqual(respuesta.status_code, 200)
-            self.assertContains(respuesta, "Próximamente")
-            self.assertTemplateUsed(respuesta, "base.html")
-
-
 class EstilosTests(TestCase):
     """Comprueba que el CSS compilado esté en el repositorio y tenga lo que pide la spec."""
 

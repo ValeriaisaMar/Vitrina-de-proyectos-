@@ -375,3 +375,52 @@ correo (y su falla simulada con `mock.patch`) y el admin.
 **Concepto:** `client.force_login(usuario)` inicia sesión en una prueba sin pasar por el
 formulario; es más rápido cuando lo que se prueba no es el inicio de sesión.
 
+---
+
+## Módulo 005 · QR, certificado y verificación
+
+### T001 · Configuración opcional y fuentes para el PDF
+**Qué:** `SITIO_URL` en `.env` (opcional) y las fuentes del sitio en TTF en `static/fonts/pdf/`.
+**Conceptos:**
+- Una variable opcional lleva un valor por defecto (`variable("SITIO_URL", "")`) y se documenta en
+  `.env.example`. Aquí resuelve un problema real de la demo: un QR que apunta a `127.0.0.1` solo
+  funciona en el mismo portátil; con la IP de la red, cualquier celular lo abre.
+- reportlab no lee woff2 (el formato web). Las fuentes se convirtieron una vez a TTF con
+  fontTools, fuera del proyecto, así que no es una dependencia nueva. Unbounded es una fuente
+  *variable* (un solo archivo con todos los grosores); se fijó el grosor 800 para el PDF.
+
+### T002 · Generar archivos en memoria
+**Qué:** `vitrina/verificacion.py` con `normalizar_codigo`, `url_verificacion`, `qr_png` y
+`certificado_pdf`.
+**Conceptos:**
+- `io.BytesIO` es un "archivo" en memoria: la librería escribe ahí y la vista devuelve esos bytes
+  en un `HttpResponse`. No se guarda nada en disco, así que el QR y el PDF nunca quedan
+  desactualizados.
+- En el `canvas` de reportlab se dibuja con coordenadas en puntos (1/72 de pulgada), y el origen
+  (0, 0) está **abajo a la izquierda**, al revés que en la web. `simpleSplit` parte un texto
+  largo en líneas que caben en un ancho.
+- El QR usa corrección de errores nivel M: se sigue leyendo aunque se dañe parte de la imagen.
+- `normalizar_codigo` usa una expresión regular con `fullmatch` para aceptar `vp-2026-0007`,
+  `VP20260007` o con espacios, y rechazar todo lo demás antes de consultar la base de datos.
+
+### T003–T004 · Vistas públicas y descargas
+**Qué:** `verificar`, `verificar_codigo`, `descargar_qr` y `descargar_certificado`.
+**Conceptos:**
+- Un formulario GET que, si es válido, **redirige** a la URL del código: así el resultado siempre
+  vive en una dirección que se puede compartir.
+- Redirección 301 de `vp-2026-0001` a `VP-2026-0001`: una sola dirección "oficial" por código.
+- `render(..., status=404)`: la página de "código no válido" se ve bonita pero responde 404, para
+  que navegadores y buscadores sepan que no existe.
+- `Content-Disposition: attachment; filename=...` hace que el navegador descargue el archivo con
+  ese nombre en vez de abrirlo.
+- Las descargas filtran con `Proyecto.objects.publicados()`: un proyecto no aprobado no tiene
+  QR ni certificado aunque alguien escriba su código a mano.
+
+### T006 · Pruebas y revisión visual
+**Qué:** 18 pruebas nuevas (209 en total): formas válidas e inválidas del código, que la página
+no muestre correos ni comentarios internos, que el texto raro en la URL salga escapado, que el
+PNG y el PDF sean de verdad PNG y PDF (`Pillow` abre la imagen; el PDF empieza por `%PDF-`) y que
+`SITIO_URL` cambie la dirección del QR (`override_settings`).
+Las capturas a 390 px mostraron que el campo del código desbordaba la pantalla: un `<input>` tiene
+un ancho mínimo propio y hay que permitirle encogerse con `min-w-0 w-full`.
+
