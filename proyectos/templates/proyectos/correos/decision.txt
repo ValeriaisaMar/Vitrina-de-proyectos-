@@ -1,0 +1,11 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with titulo=proyecto.titulo docente=evento.actor.nombre_completo %}{{ docente }} revisó tu proyecto «{{ titulo }}».{% endblocktranslate %}
+
+{% if evento.estado_nuevo == "aprobado" %}{% blocktranslate with codigo=proyecto.codigo %}¡Fue aprobado! Ya aparece en la vitrina con el código {{ codigo }}.{% endblocktranslate %}{% elif evento.estado_nuevo == "con_observaciones" %}{% translate "Pidió algunos cambios. Corrige el proyecto y vuelve a enviarlo." %}{% else %}{% translate "Decidió no aprobarlo." %}{% endif %}
+{% if evento.comentario %}
+{% translate "Comentario del docente:" %}
+{{ evento.comentario }}
+{% endif %}
+{% translate "Ver el proyecto:" %} {{ enlace }}
+
+{% translate "Vitrina de Proyectos · UTEQ" %}
+{% endautoescape %}

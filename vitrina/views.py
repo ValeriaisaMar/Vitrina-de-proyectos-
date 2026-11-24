@@ -11,8 +11,10 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import gettext as _
 
+from cuentas.models import Rol
 from proyectos.models import Estado, Proyecto, Tecnologia
-from proyectos.permisos import puede_editar, puede_ver
+from proyectos.permisos import puede_editar, puede_ver, puede_ver_historial
+from proyectos.servicios import puede_cambiar
 from vitrina.forms import FormularioFiltros
 
 POR_PAGINA = 12
@@ -93,10 +95,19 @@ def detalle(request, slug):
     proyecto = get_object_or_404(Proyecto.objects.con_relaciones(), slug=slug)
     if not puede_ver(request.user, proyecto):
         raise Http404  # para los demás, el proyecto "no existe"
+    ver_historial = puede_ver_historial(request.user, proyecto)
     return render(request, "vitrina/detalle.html", {
         "proyecto": proyecto,
         "autorias": proyecto.autorias.select_related("usuario"),
         "puede_editar": puede_editar(request.user, proyecto),
+        "puede_enviar": puede_cambiar(request.user, proyecto, Estado.ENVIADO),
+        "es_docente": request.user.is_authenticated and request.user.rol in (Rol.PROFESOR, Rol.ADMIN),
+        # El historial y las observaciones son internos: no se muestran al público
+        "eventos": proyecto.eventos.select_related("actor") if ver_historial else None,
+        "observacion": (
+            proyecto.ultima_decision
+            if ver_historial and proyecto.estado in (Estado.CON_OBSERVACIONES, Estado.RECHAZADO) else None
+        ),
     })
 
 

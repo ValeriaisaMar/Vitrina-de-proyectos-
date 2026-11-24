@@ -29,3 +29,11 @@ def puede_eliminar(usuario, proyecto):
         and proyecto.estado == Estado.BORRADOR
         and proyecto.autorias.filter(usuario=usuario, es_creador=True).exists()
     )
+
+
+def puede_ver_historial(usuario, proyecto):
+    """El historial lo ven los autores, los profesores y los admins; el público no."""
+    if not usuario.is_authenticated:
+        return False
+    return usuario.rol in (Rol.PROFESOR, Rol.ADMIN) or proyecto.es_autor(usuario)
+

@@ -47,3 +47,40 @@ class DetalleTests(TestCase):
 
     def test_slug_inexistente(self):
         self.assertEqual(self.client.get("/proyecto/no-existe/").status_code, 404)
+
+
+class DetalleRevisionTests(TestCase):
+    """Lo que el módulo 004 agrega al detalle: botones de autor, observaciones e historial."""
+
+    def setUp(self):
+        from proyectos.servicios import cambiar_estado
+
+        self.cambiar = cambiar_estado
+        self.ana = crear_usuario("ana@correo.com")
+        self.profe = crear_usuario("profe@correo.com", rol=Rol.PROFESOR, nombres="Carla", apellidos="Vera")
+        self.proyecto = crear_proyecto(self.ana)
+        self.cambiar(self.proyecto, Estado.ENVIADO, self.ana)
+        self.cambiar(self.proyecto, Estado.EN_REVISION, self.profe)
+
+    def test_el_autor_ve_la_observacion_y_puede_reenviar(self):
+        self.cambiar(self.proyecto, Estado.CON_OBSERVACIONES, self.profe, "Agrega capturas")
+        self.client.force_login(self.ana)
+        respuesta = self.client.get(self.proyecto.get_absolute_url())
+        self.assertContains(respuesta, "Agrega capturas")
+        self.assertContains(respuesta, "Carla Vera pidió cambios")
+        self.assertContains(respuesta, "Reenviar a revisión")
+        self.assertContains(respuesta, "Historial")
+
+    def test_el_publico_no_ve_el_historial_de_un_aprobado(self):
+        self.cambiar(self.proyecto, Estado.APROBADO, self.profe, "Comentario interno")
+        respuesta = self.client.get(self.proyecto.get_absolute_url())
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertNotContains(respuesta, "Comentario interno")
+        self.assertNotContains(respuesta, "titulo-historial")
+        self.proyecto.refresh_from_db()
+        self.assertContains(respuesta, self.proyecto.codigo)
+
+    def test_el_docente_tiene_enlace_a_la_revision(self):
+        self.client.force_login(self.profe)
+        respuesta = self.client.get(self.proyecto.get_absolute_url())
+        self.assertContains(respuesta, f"/proyectos/{self.proyecto.slug}/revisar/")

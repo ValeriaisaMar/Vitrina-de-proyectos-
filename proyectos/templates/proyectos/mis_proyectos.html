@@ -39,6 +39,7 @@
                   <div class="flex justify-end gap-4 font-semibold">
                     <a class="enlace" href="{{ p.get_absolute_url }}">{% translate "Ver" %}</a>
                     {% if fila.editable %}<a class="enlace" href="{% url 'proyectos:editar' p.slug %}">{% translate "Editar" %}</a>{% endif %}
+                    {% if fila.enviable %}<a class="enlace" href="{% url 'proyectos:enviar' p.slug %}">{% if p.estado == "con_observaciones" %}{% translate "Reenviar" %}{% else %}{% translate "Enviar" %}{% endif %}</a>{% endif %}
                     {% if fila.eliminable %}<a class="font-semibold text-rechazado-texto underline underline-offset-4 dark:text-[#f4a19a]" href="{% url 'proyectos:eliminar' p.slug %}">{% translate "Eliminar" %}</a>{% endif %}
                   </div>
                 </td>

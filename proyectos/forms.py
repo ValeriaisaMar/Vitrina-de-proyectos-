@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from cuentas.models import Rol
-from proyectos.models import MAX_AUTORES, MAX_IMAGENES, MAX_TECNOLOGIAS, Asignatura, Imagen, Proyecto, Tecnologia
+from proyectos.models import MAX_AUTORES, MAX_IMAGENES, MAX_TECNOLOGIAS, Asignatura, Estado, Imagen, Proyecto, Tecnologia
 from proyectos.validadores import validar_imagen
 
 Usuario = get_user_model()
@@ -227,3 +227,41 @@ class FormularioProyecto(forms.ModelForm):
         """Si se cambió o se quitó el PDF, borra el archivo anterior del disco."""
         if self._pdf_anterior and self._pdf_anterior != proyecto.documento_pdf.name:
             proyecto.documento_pdf.storage.delete(self._pdf_anterior)
+
+
+# ---------------------------------------------------------------- Revisión (módulo 004)
+
+
+class FormularioEnvio(forms.Form):
+    """Mensaje opcional del autor al enviar o reenviar el proyecto."""
+
+    comentario = forms.CharField(
+        label=_("Mensaje para el docente"), required=False, max_length=1000,
+        widget=forms.Textarea(attrs={"rows": 3}),
+        help_text=_("Opcional. Si lo reenvías, cuenta qué corregiste."),
+    )
+
+
+class FormularioDecision(forms.Form):
+    """Decisión del docente sobre un proyecto en revisión."""
+
+    decision = forms.ChoiceField(
+        label=_("Decisión"),
+        choices=[
+            (Estado.APROBADO, _("Aprobar")),
+            (Estado.CON_OBSERVACIONES, _("Pedir cambios")),
+            (Estado.RECHAZADO, _("Rechazar")),
+        ],
+        widget=forms.RadioSelect,
+    )
+    comentario = forms.CharField(
+        label=_("Comentario para los autores"), required=False, max_length=2000,
+        widget=forms.Textarea(attrs={"rows": 5}),
+        help_text=_("Obligatorio si pides cambios o rechazas. Los autores lo reciben por correo."),
+    )
+
+    def clean(self):
+        datos = super().clean()
+        if datos.get("decision") in (Estado.CON_OBSERVACIONES, Estado.RECHAZADO) and not datos.get("comentario", "").strip():
+            self.add_error("comentario", _("Escribe un comentario para explicar la decisión."))
+        return datos

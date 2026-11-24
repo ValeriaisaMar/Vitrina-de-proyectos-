@@ -1,0 +1,16 @@
+{% extends "cuentas/correos/base_correo.html" %}
+{% load i18n %}
+{% block titulo %}{% include "proyectos/correos/decision_asunto.txt" %}{% endblock %}
+{% block encabezado %}{% if evento.estado_nuevo == "aprobado" %}{% translate "¡Tu proyecto fue aprobado!" %}{% elif evento.estado_nuevo == "con_observaciones" %}{% translate "Tu proyecto tiene observaciones" %}{% else %}{% translate "Tu proyecto no fue aprobado" %}{% endif %}{% endblock %}
+{% block contenido %}
+  <p style="margin:0 0 16px;">{% blocktranslate with titulo=proyecto.titulo docente=evento.actor.nombre_completo %}{{ docente }} revisó tu proyecto «{{ titulo }}».{% endblocktranslate %}</p>
+  <p style="margin:0 0 16px;">{% if evento.estado_nuevo == "aprobado" %}{% blocktranslate with codigo=proyecto.codigo %}¡Fue aprobado! Ya aparece en la vitrina con el código {{ codigo }}.{% endblocktranslate %}{% elif evento.estado_nuevo == "con_observaciones" %}{% translate "Pidió algunos cambios. Corrige el proyecto y vuelve a enviarlo." %}{% else %}{% translate "Decidió no aprobarlo." %}{% endif %}</p>
+  {% if evento.comentario %}
+  <p style="margin:0 0 6px;font-size:13px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#025a27;">{% translate "Comentario del docente" %}</p>
+  <div style="margin:0 0 8px;padding:14px 16px;border-left:4px solid #025a27;background:#f4f7f5;white-space:pre-line;">{{ evento.comentario }}</div>
+  {% endif %}
+{% endblock %}
+{% block boton_url %}{{ enlace }}{% endblock %}
+{% block boton_texto %}{% translate "Ver el proyecto" %}{% endblock %}
+{% block enlace_texto %}{{ enlace }}{% endblock %}
+{% block pie %}{% translate "Recibes este correo porque eres autor de este proyecto en la Vitrina de Proyectos de la UTEQ." %}{% endblock %}

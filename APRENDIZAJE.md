@@ -303,3 +303,75 @@ una por tarjeta (el problema "N+1").
 Pillow en memoria; `override_settings(MEDIA_ROOT=...)` manda los archivos a una carpeta temporal que
 se borra al terminar, para no ensuciar `media/`.
 
+---
+
+## Módulo 004 · Revisión e historial
+
+### T001 · Un historial que no se puede cambiar
+**Qué:** `EventoEstado` guarda cada cambio (estado anterior, nuevo, quién, comentario y fecha).
+**Conceptos:**
+- `self._state.adding` dice si el objeto se está creando. En `save()` usamos eso para rechazar
+  cualquier modificación de un evento ya guardado, y `delete()` lanza un error siempre.
+- `on_delete=PROTECT` hacia el proyecto: un proyecto con historial no se puede borrar. Así se
+  cumple la regla "un proyecto que salió de Borrador no se elimina" también en la base de datos.
+- Límite honesto: `EventoEstado.objects.filter(...).update(...)` se salta `save()`. Por eso el
+  admin de Django además lo muestra de solo lectura y nadie usa `update()` sobre el historial.
+
+### T002 · Una sola puerta para cambiar el estado
+**Qué:** `proyectos/servicios.py` con la tabla `TRANSICIONES` y la función `cambiar_estado()`.
+**Conceptos:**
+- **Capa de servicio:** la regla de negocio vive en un solo lugar. Las vistas no saben qué
+  transiciones existen; solo llaman al servicio y reaccionan a sus excepciones.
+- **La regla como datos:** el diccionario `(desde, hacia) → quién` es la tabla de la
+  constitución escrita en Python. Agregar una transición es agregar una línea.
+- **`select_for_update()`** dentro de `transaction.atomic()` bloquea la fila del proyecto hasta
+  terminar. Si dos profesores pulsan "Tomar" a la vez, el segundo espera, lee el estado real
+  (ya En revisión) y recibe `TransicionNoPermitida`. Sin el bloqueo, los dos "ganarían".
+- **Código VP con contador:** `Consecutivo` guarda el último número de cada año. Bloquear esa
+  fila y sumarle uno es seguro; "buscar el último código y sumar uno" falla con dos
+  aprobaciones simultáneas.
+
+### T003 · El admin de Django también obedece
+**Qué:** estado, revisor, código y fecha de aprobación son de solo lectura en el admin; el
+historial se ve pero no se edita; no se borran proyectos enviados.
+**Concepto:** el panel de Django es otra puerta de entrada. Si no se cierra, cualquiera con
+acceso al admin podría aprobar sin revisión. `has_change_permission` y `has_delete_permission`
+controlan lo que permite cada modelo; la acción masiva "borrar seleccionados" se quita porque
+no pregunta proyecto por proyecto.
+
+### T005–T007 · Enviar, bandeja, tomar y decidir
+**Qué:** vistas `enviar`, `bandeja`, `tomar` y `revisar`.
+**Conceptos:**
+- `annotate(fecha=Max("eventos__creado_en", filter=Q(...)))` calcula en la misma consulta la
+  fecha de envío de cada proyecto, para ordenar la bandeja por quien más lleva esperando.
+- `@require_POST` en `tomar`: cambia datos, así que no se acepta por GET (un enlace o un
+  rastreador no puede tomar proyectos sin querer).
+- El formulario valida el comentario para mostrar el error junto al campo, y el servicio lo
+  vuelve a validar: la regla no depende de que la vista se acuerde.
+- `gettext_lazy` para textos definidos al importar el módulo (el diccionario de mensajes): con
+  `gettext` normal quedarían traducidos en el idioma de quien cargó el servidor primero.
+
+### T008 · Correo de la decisión
+**Qué:** `avisar_decision()` escribe a todos los autores con el resultado y el comentario.
+**Conceptos:** se envía después de guardar; si falla, la decisión no se deshace y la vista avisa
+al docente. `translation.override("es")` asegura que el correo salga en español aunque el
+docente esté usando la página en inglés.
+
+### T010 · Detalle con observaciones e historial
+**Qué:** los autores ven la última observación destacada y los botones Editar y Reenviar; autores
+y docentes ven la línea de tiempo. El público no ve ni el historial ni los comentarios internos.
+**Concepto:** el mismo `include` (`_historial.html`) se reutiliza en el detalle y en la ficha de
+revisión: una sola plantilla, un solo lugar para corregir.
+
+### Ajuste del encabezado
+Con un botón más ("Bandeja"), el encabezado se partía en dos líneas a 1280 px. Se agrupó la cuenta
+en un menú (`<details>`, que funciona sin JavaScript) y `whitespace-nowrap` evita que los textos
+se partan. Las capturas en varios anchos sirven justo para detectar esto.
+
+### T011 · Pruebas
+**Qué:** 47 pruebas nuevas (192 en total): cada transición permitida y prohibida, cada permiso,
+el bloqueo con un objeto desactualizado, el código consecutivo, el historial inmutable, el
+correo (y su falla simulada con `mock.patch`) y el admin.
+**Concepto:** `client.force_login(usuario)` inicia sesión en una prueba sin pasar por el
+formulario; es más rápido cuando lo que se prueba no es el inicio de sesión.
+
