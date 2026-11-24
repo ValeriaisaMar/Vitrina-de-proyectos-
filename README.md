@@ -216,6 +216,17 @@ EMAIL_HOST_PASSWORD=contraseña_de_aplicación_de_gmail
   enviarse.
 - En producción, `DEBUG` va en `False` y `ALLOWED_HOSTS` lleva el dominio real.
 
+Para generar una `SECRET_KEY`:
+
+```bash
+python -c "from django.core.management.utils import get_random_secret_key as g; print(g())"
+```
+
+## Logo
+
+Copia el logo oficial como `static/img/logo-uteq.svg` (o `.png`). La plataforma lo detecta sola
+y lo muestra en el encabezado; mientras no exista, se muestra el nombre en texto.
+
 ## Estilos con Tailwind
 
 El CSS compilado (`static/css/app.css`) está en el repositorio, así que **no necesitas Tailwind
