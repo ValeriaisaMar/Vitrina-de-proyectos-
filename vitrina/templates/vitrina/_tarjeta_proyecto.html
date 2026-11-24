@@ -1,0 +1,28 @@
+{% load i18n %}{# Tarjeta de un proyecto publicado. Recibe "p" (Proyecto con relaciones precargadas). #}
+<article class="tarjeta group relative flex flex-col transition-transform duration-150 hover:-translate-x-1 hover:-translate-y-1">
+  <div class="relative aspect-[16/9] overflow-hidden border-b-2 border-linea bg-uteq-tinte">
+    {% with portada=p.portada %}
+      {% if portada %}
+        <img src="{{ portada.archivo.url }}" alt="" loading="lazy" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]">
+      {% else %}
+        <div class="flex h-full w-full items-center justify-center" aria-hidden="true">
+          <span class="font-titulo text-6xl font-extrabold text-uteq-verde/25 dark:text-uteq-verde">{{ p.titulo|slice:":1"|upper }}</span>
+        </div>
+      {% endif %}
+    {% endwith %}
+    <span class="insignia insignia-aprobado absolute left-3 top-3">✓ {% translate "Verificado" %}</span>
+  </div>
+  <div class="flex flex-1 flex-col gap-3 p-5">
+    <h3 class="font-titulo text-lg font-bold leading-snug">
+      <a href="{{ p.get_absolute_url }}" class="after:absolute after:inset-0 focus-visible:outline-none">{{ p.titulo }}</a>
+    </h3>
+    <p class="line-clamp-3 text-sm leading-relaxed text-texto-suave">{{ p.resumen }}</p>
+    <ul class="flex flex-wrap gap-1.5" aria-label="{% translate 'Tecnologías' %}">
+      {% for t in p.tecnologias.all|slice:":3" %}<li class="border border-linea-suave px-2 py-0.5 text-xs font-semibold">{{ t.nombre }}</li>{% endfor %}
+      {% with n=p.tecnologias.all|length %}{% if n > 3 %}<li class="px-1 py-0.5 text-xs font-semibold text-texto-suave">+{{ n|add:"-3" }}</li>{% endif %}{% endwith %}
+    </ul>
+    <p class="mt-auto border-t-2 border-linea-suave pt-3 text-xs font-semibold text-texto-suave">
+      {{ p.asignatura.nombre }} · {{ p.periodo }}
+    </p>
+  </div>
+</article>

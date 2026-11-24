@@ -316,6 +316,14 @@
   .aviso-warning { background: var(--color-revision); color: #4a3700; }
   .aviso-info { background: var(--color-enviado); color: #16306e; }
 
+  /* Casillas con forma de etiqueta (tecnologías): la casilla real queda oculta pero accesible */
+  .etiquetas input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+
   /* Detalles de marca */
   .subrayado-amarillo {
     background-image: linear-gradient(transparent 66%, var(--color-uteq-amarillo) 66%, var(--color-uteq-amarillo) 92%, transparent 92%);

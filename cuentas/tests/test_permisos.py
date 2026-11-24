@@ -17,6 +17,7 @@ urlpatterns = [
     path("revision/", solo_revisores),
     path("i18n/", include("django.conf.urls.i18n")),
     path("cuentas/", include("cuentas.urls")),
+    path("proyectos/", include("proyectos.urls")),
     path("", include("vitrina.urls")),
 ]
 

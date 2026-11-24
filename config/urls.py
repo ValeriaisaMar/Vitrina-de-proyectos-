@@ -14,6 +14,8 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     # Registro, activación, inicio de sesión, recuperación y perfil (módulo 002)
     path("cuentas/", include("cuentas.urls")),
+    # Proyectos de los estudiantes: mis proyectos, crear, editar y eliminar (módulo 003)
+    path("proyectos/", include("proyectos.urls")),
     path("", include("vitrina.urls")),
 ]
 

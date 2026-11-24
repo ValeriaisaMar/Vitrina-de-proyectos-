@@ -85,6 +85,42 @@
   </div>
 </section>
 
+{# ---------------------------------------------------------------- Cifras y destacados #}
+{% if cifras.verificados %}
+<section class="border-b-2 border-linea bg-uteq-profundo text-white" aria-label="{% translate 'La vitrina en cifras' %}">
+  <dl class="contenedor grid gap-8 py-10 sm:grid-cols-3">
+    <div class="flex flex-col-reverse gap-1"><dt class="text-sm font-semibold text-uteq-claro">{% translate "Proyectos verificados" %}</dt><dd class="font-titulo text-4xl font-extrabold text-uteq-amarillo">{{ cifras.verificados }}</dd></div>
+    <div class="flex flex-col-reverse gap-1"><dt class="text-sm font-semibold text-uteq-claro">{% translate "Estudiantes autores" %}</dt><dd class="font-titulo text-4xl font-extrabold text-white">{{ cifras.autores }}</dd></div>
+    <div class="flex flex-col-reverse gap-1"><dt class="text-sm font-semibold text-uteq-claro">{% translate "Tecnologías usadas" %}</dt><dd class="font-titulo text-4xl font-extrabold text-white">{{ cifras.tecnologias }}</dd></div>
+  </dl>
+</section>
+
+<section class="bg-seccion py-20 lg:py-24" aria-labelledby="titulo-destacados">
+  <div class="contenedor">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="etiqueta-seccion">{% translate "Recién verificados" %}</p>
+        <h2 id="titulo-destacados" class="mt-3 text-3xl font-extrabold sm:text-4xl">{% translate "Proyectos destacados" %}</h2>
+      </div>
+      <a href="{% url 'vitrina:explorar' %}" class="enlace">{% translate "Ver todos los proyectos" %} →</a>
+    </div>
+    <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      {% for p in destacados %}{% include "vitrina/_tarjeta_proyecto.html" %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% else %}
+<section class="border-b-2 border-linea bg-seccion py-14" aria-labelledby="titulo-primero">
+  <div class="contenedor flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 id="titulo-primero" class="text-2xl font-extrabold">{% translate "La vitrina está lista para su primer proyecto" %}</h2>
+      <p class="mt-2 text-texto-suave">{% translate "Sube el tuyo y sé de los primeros en tener el sello de la carrera." %}</p>
+    </div>
+    <a href="{% if user.is_authenticated %}{% url 'proyectos:crear' %}{% else %}{% url 'cuentas:registro' %}{% endif %}" class="btn btn-primario">{% translate "Subir mi proyecto" %}</a>
+  </div>
+</section>
+{% endif %}
+
 {# ---------------------------------------------------------------- Cómo funciona #}
 <section id="como-funciona" class="scroll-mt-24 bg-fondo py-20 lg:py-24" aria-labelledby="titulo-como">
   <div class="contenedor">

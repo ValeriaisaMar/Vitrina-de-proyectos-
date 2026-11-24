@@ -236,3 +236,70 @@ cierre al cambiar la contraseña.
 **Conceptos:** `mail.outbox` guarda los correos enviados durante la prueba; `override_settings`
 cambia un ajuste solo dentro de la prueba (por ejemplo, un plazo vencido); `mock.patch` simula
 que el servidor de correo falla; una prueba puede tener sus propias URLs con `ROOT_URLCONF`.
+
+---
+
+## Módulo 003 · Proyectos, Explorar y detalle
+
+### T001 · Modelos con relaciones
+**Qué:** `Proyecto` se relaciona con `Asignatura` (muchos a uno), `Tecnologia` (muchos a muchos)
+y con los usuarios a través de `Autoria`.
+**Conceptos:**
+- `ForeignKey(on_delete=PROTECT)`: no se puede borrar una asignatura que ya tiene proyectos.
+- `ManyToManyField(through="Autoria")`: cuando la relación necesita datos propios (quién es el
+  creador), se usa un modelo intermedio en vez de la tabla automática de Django.
+- `TextChoices` para los estados: un solo lugar define el valor guardado y el texto que se muestra.
+- Un `QuerySet` propio (`Proyecto.objects.publicados()`) pone la regla "solo aprobados es público"
+  en un único sitio, y todas las vistas la reutilizan.
+
+### T002 · Validar archivos de verdad
+**Qué:** `validar_pdf` lee los primeros 5 bytes y exige `%PDF-`; las imágenes pasan por Pillow.
+**Concepto:** la extensión la elige quien sube el archivo; el contenido no miente. Los archivos se
+guardan con un nombre aleatorio (`uuid`), así nadie adivina rutas ni pisa archivos ajenos.
+
+### T003 · Migración de datos
+**Qué:** `0002_datos_iniciales` carga las 53 asignaturas de la malla de Ingeniería de Software de la
+UTEQ y 42 tecnologías.
+**Concepto:** `RunPython` ejecuta código dentro de una migración. Se usa `apps.get_model(...)` y no
+el modelo importado, porque la migración debe funcionar con el modelo *tal como era* en ese punto.
+Tiene función de reversa para poder deshacerla.
+
+### T005 · Un formulario que guarda varias cosas
+**Qué:** `FormularioProyecto` guarda el proyecto, sus tecnologías, autores e imágenes, y la vista lo
+llama dentro de `transaction.atomic()`.
+**Conceptos:**
+- `clean_<campo>()` valida un campo; `clean()` valida combinaciones (máximo 4 imágenes contando
+  las que ya hay y las que se quitan).
+- `save_m2m()` hace falta cuando se guarda con `commit=False`.
+- **Bug que encontraron las pruebas:** el formulario preguntaba "¿quién es el creador?" mirando si
+  el proyecto tenía `pk`. Justo después de `save()` ya tiene `pk` pero todavía no tiene autores, y
+  el creador salía vacío. La solución fue decidirlo en `__init__`, antes de guardar. Por esto se
+  escriben pruebas: el error no se veía al leer el código.
+
+### T006 · Permisos en un solo archivo
+**Qué:** `permisos.py` con `puede_ver`, `puede_editar` y `puede_eliminar`.
+**Concepto:** las plantillas usan estas funciones para ocultar botones y las vistas para responder
+403. Ocultar un botón no protege nada; la comprobación en la vista sí. Un borrador ajeno responde
+404 y no 403, para no confirmar que existe.
+
+### T009 · Buscar y filtrar con GET
+**Qué:** Explorar usa un formulario `method="get"`, `Q(...) | Q(...)` para buscar en varios campos,
+`.distinct()` y `Paginator`.
+**Conceptos:** con GET los filtros quedan en la URL y se pueden compartir o guardar. Al buscar a
+través de relaciones muchos a muchos un proyecto puede salir repetido; `distinct()` lo evita. La
+etiqueta `{% querystring pagina=2 %}` (nueva en Django) cambia un parámetro y conserva los demás.
+Los valores raros en la URL (`?pagina=9999`, `?tecnologia=abc`) no rompen la página: el formulario
+los descarta y `get_page()` corrige el número.
+
+### T013 · Portada con datos reales
+**Qué:** las cifras usan `aggregate`/`count` sobre los proyectos publicados y la portada muestra los
+tres más recientes o una invitación si todavía no hay ninguno.
+**Concepto:** `select_related` y `prefetch_related` traen las relaciones en pocas consultas en vez de
+una por tarjeta (el problema "N+1").
+
+### T015 · Pruebas
+**Qué:** 52 pruebas nuevas (145 en total).
+**Conceptos:** `SimpleUploadedFile` simula un archivo subido; las imágenes de prueba se crean con
+Pillow en memoria; `override_settings(MEDIA_ROOT=...)` manda los archivos a una carpeta temporal que
+se borra al terminar, para no ensuciar `media/`.
+
