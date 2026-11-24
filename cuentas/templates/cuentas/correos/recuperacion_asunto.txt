@@ -1,0 +1,1 @@
+{% load i18n %}{% translate "Crea una contraseña nueva para la Vitrina de Proyectos" %}

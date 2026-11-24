@@ -1,0 +1,17 @@
+{% extends "cuentas/base_tarjeta.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Enlace no válido" %}{% endblock %}
+
+{% block tarjeta %}
+<span class="insignia insignia-rechazado">{% translate "Enlace no válido" %}</span>
+<h1 class="mt-5 text-3xl font-extrabold">{% translate "Este enlace ya no sirve" %}</h1>
+<p class="mt-4 leading-relaxed text-texto-suave">{% translate "Puede que ya lo hayas usado, que hayan pasado más de 24 horas o que esté incompleto. Si tu cuenta ya está activa, solo inicia sesión." %}</p>
+
+<form method="post" action="{% url 'cuentas:reenviar' %}" class="mt-8 flex flex-col gap-5" novalidate>
+  {% csrf_token %}
+  {% include "componentes/campo.html" with campo=form.email %}
+  <button type="submit" class="btn btn-primario">{% translate "Enviarme un enlace nuevo" %}</button>
+</form>
+<p class="mt-6 text-sm"><a class="enlace" href="{% url 'cuentas:entrar' %}">{% translate "Iniciar sesión" %}</a></p>
+{% endblock %}

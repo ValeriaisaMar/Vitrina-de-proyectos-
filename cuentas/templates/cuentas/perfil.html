@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Mi perfil" %}{% endblock %}
+
+{% block contenido %}
+<section class="bg-seccion py-12 sm:py-16">
+  <div class="contenedor grid gap-8 lg:grid-cols-[1fr_1.4fr]">
+
+    <div class="tarjeta-sobria h-fit p-6 sm:p-8">
+      <div class="flex h-16 w-16 items-center justify-center border-2 border-linea bg-uteq-verde font-titulo text-xl font-extrabold text-white" aria-hidden="true">{{ user.nombres|slice:":1" }}{{ user.apellidos|slice:":1" }}</div>
+      <h1 class="mt-5 text-2xl font-extrabold">{{ user.nombre_completo }}</h1>
+      <dl class="mt-6 flex flex-col gap-4 text-sm">
+        <div>
+          <dt class="font-bold text-texto-suave">{% translate "Correo" %}</dt>
+          <dd class="mt-1 break-all font-semibold">{{ user.email }}</dd>
+        </div>
+        <div>
+          <dt class="font-bold text-texto-suave">{% translate "Rol" %}</dt>
+          <dd class="mt-1.5"><span class="insignia {% if user.es_admin %}insignia-aprobado{% elif user.es_profesor %}insignia-en_revision{% else %}insignia-enviado{% endif %}">{{ user.get_rol_display }}</span></dd>
+        </div>
+        <div>
+          <dt class="font-bold text-texto-suave">{% translate "Miembro desde" %}</dt>
+          <dd class="mt-1 font-semibold">{{ user.fecha_registro|date:"DATE_FORMAT" }}</dd>
+        </div>
+      </dl>
+      <p class="mt-6 text-sm text-texto-suave">{% translate "Para cambiar tu correo o tu rol, escríbele a un administrador." %}</p>
+    </div>
+
+    <div class="tarjeta-sobria p-6 sm:p-8">
+      <h2 class="text-xl font-extrabold">{% translate "Tus datos" %}</h2>
+      <form method="post" class="mt-6 flex flex-col gap-5" novalidate>
+        {% csrf_token %}
+        <div class="grid gap-5 sm:grid-cols-2">
+          {% include "componentes/campo.html" with campo=form.nombres %}
+          {% include "componentes/campo.html" with campo=form.apellidos %}
+        </div>
+        <div><button type="submit" class="btn btn-primario">{% translate "Guardar cambios" %}</button></div>
+      </form>
+
+      <hr class="my-8 border-t-2 border-linea-suave">
+      <h2 class="text-xl font-extrabold">{% translate "Contraseña" %}</h2>
+      <p class="mt-2 text-texto-suave">{% translate "Te pediremos la actual para confirmar que eres tú." %}</p>
+      <a href="{% url 'cuentas:cambiar_contrasena' %}" class="btn btn-secundario mt-5">{% translate "Cambiar contraseña" %}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

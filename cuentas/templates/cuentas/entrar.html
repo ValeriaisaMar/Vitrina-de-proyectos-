@@ -1,0 +1,46 @@
+{% extends "cuentas/base_acceso.html" %}
+{% load i18n formularios %}
+
+{% block titulo %}{% translate "Iniciar sesión" %}{% endblock %}
+{% block panel_titulo %}{% translate "Tu trabajo merece ser visto." %}{% endblock %}
+{% block panel_texto %}{% translate "Entra para subir proyectos, seguir su revisión y descargar tu QR y certificado." %}{% endblock %}
+
+{% block formulario %}
+{% include "cuentas/_pestanas.html" with activa="entrar" %}
+
+<div class="tarjeta-sobria p-6 sm:p-8">
+  <h2 class="text-2xl font-extrabold">{% translate "Bienvenido de nuevo" %}</h2>
+  <p class="mt-2 text-texto-suave">{% translate "Usa el correo con el que te registraste." %}</p>
+
+  {% if bloqueado %}
+    <div class="mt-6">{% blocktranslate asvar texto_bloqueo with minutos=minutos %}Demasiados intentos fallidos. Espera {{ minutos }} minutos antes de intentar de nuevo.{% endblocktranslate %}{% include "componentes/aviso.html" with tipo="error" texto=texto_bloqueo %}</div>
+  {% elif form.non_field_errors %}
+    <div class="mt-6">{% include "componentes/aviso.html" with tipo="error" texto=form.non_field_errors.0 %}</div>
+    {% if form.cuenta_inactiva %}
+      <p class="mt-3 text-sm"><a class="enlace" href="{% url 'cuentas:reenviar' %}">{% translate "Reenviar el enlace de activación" %}</a></p>
+    {% endif %}
+  {% endif %}
+
+  <form method="post" action="{% url 'cuentas:entrar' %}" class="mt-6 flex flex-col gap-5" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {% include "componentes/campo.html" with campo=form.username %}
+    <div class="flex flex-col">
+      <div class="mb-1.5 flex items-baseline justify-between gap-3">
+        <label for="{{ form.password.id_for_label }}" class="campo-etiqueta mb-0">{{ form.password.label }}</label>
+        <a class="text-sm font-semibold text-acento underline-offset-4 hover:underline" href="{% url 'cuentas:recuperar' %}">{% translate "¿La olvidaste?" %}</a>
+      </div>
+      {{ form.password|control }}
+    </div>
+    <label class="flex min-h-11 items-center gap-3 text-sm font-medium">
+      {{ form.recordar|control }} {{ form.recordar.label }}
+    </label>
+    <button type="submit" class="btn btn-primario w-full">{% translate "Entrar" %}</button>
+  </form>
+</div>
+
+<p class="mt-5 text-sm text-texto-suave">
+  {% translate "¿No te llegó el correo de activación?" %}
+  <a class="enlace" href="{% url 'cuentas:reenviar' %}">{% translate "Pedir uno nuevo" %}</a>
+</p>
+{% endblock %}

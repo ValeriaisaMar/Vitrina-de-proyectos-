@@ -1,0 +1,12 @@
+{% extends "cuentas/correos/base_correo.html" %}
+{% load i18n %}
+{% block titulo %}{% translate "Activa tu cuenta" %}{% endblock %}
+{% block encabezado %}{% blocktranslate with nombre=usuario.nombres %}Hola, {{ nombre }}{% endblocktranslate %}{% endblock %}
+{% block contenido %}
+<p style="margin:0 0 12px;">{% translate "Gracias por registrarte en la Vitrina de Proyectos de Ingeniería de Software de la UTEQ." %}</p>
+<p style="margin:0;">{% translate "Para activar tu cuenta, pulsa el botón:" %}</p>
+{% endblock %}
+{% block boton_url %}{{ enlace }}{% endblock %}
+{% block boton_texto %}{% translate "Activar mi cuenta" %}{% endblock %}
+{% block enlace_texto %}{{ enlace }}{% endblock %}
+{% block pie %}{% blocktranslate with horas=horas %}El enlace vence en {{ horas }} horas y sirve una sola vez.{% endblocktranslate %} {% translate "Si no creaste esta cuenta, ignora este correo." %}{% endblock %}

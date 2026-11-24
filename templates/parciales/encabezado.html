@@ -25,14 +25,14 @@
 
       <div class="hidden items-center gap-2 lg:flex">
         {% if user.is_authenticated %}
-          <span class="text-sm font-semibold text-texto-suave">{% blocktranslate with nombre=user.nombres %}Hola, {{ nombre }}{% endblocktranslate %}</span>
-          <form method="post" action="{% url 'logout' %}">
+          <a href="{% url 'cuentas:perfil' %}" class="btn btn-fantasma" title="{% translate 'Mi perfil' %}">{% blocktranslate with nombre=user.nombres %}Hola, {{ nombre }}{% endblocktranslate %}</a>
+          <form method="post" action="{% url 'cuentas:salir' %}">
             {% csrf_token %}
             <button type="submit" class="btn btn-secundario">{% translate "Cerrar sesión" %}</button>
           </form>
         {% else %}
-          <a href="{% url 'login' %}" class="btn btn-fantasma">{% translate "Iniciar sesión" %}</a>
-          <a href="{% url 'login' %}" class="btn btn-primario">{% translate "Crear cuenta" %}</a>
+          <a href="{% url 'cuentas:entrar' %}" class="btn btn-fantasma">{% translate "Iniciar sesión" %}</a>
+          <a href="{% url 'cuentas:registro' %}" class="btn btn-primario">{% translate "Crear cuenta" %}</a>
         {% endif %}
       </div>
 
@@ -47,13 +47,14 @@
           </nav>
           <div class="mt-4 flex flex-col gap-3">
             {% if user.is_authenticated %}
-              <form method="post" action="{% url 'logout' %}">
+              <a href="{% url 'cuentas:perfil' %}" class="btn btn-secundario w-full">{% translate "Mi perfil" %}</a>
+              <form method="post" action="{% url 'cuentas:salir' %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-secundario w-full">{% translate "Cerrar sesión" %}</button>
               </form>
             {% else %}
-              <a href="{% url 'login' %}" class="btn btn-primario w-full">{% translate "Crear cuenta" %}</a>
-              <a href="{% url 'login' %}" class="btn btn-secundario w-full">{% translate "Iniciar sesión" %}</a>
+              <a href="{% url 'cuentas:registro' %}" class="btn btn-primario w-full">{% translate "Crear cuenta" %}</a>
+              <a href="{% url 'cuentas:entrar' %}" class="btn btn-secundario w-full">{% translate "Iniciar sesión" %}</a>
             {% endif %}
             <div class="sm:hidden">{% include "parciales/selector_idioma.html" %}</div>
           </div>

@@ -1,0 +1,12 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with nombre=usuario.nombres %}Hola, {{ nombre }}:{% endblocktranslate %}
+
+{% translate "Gracias por registrarte en la Vitrina de Proyectos de Ingeniería de Software de la UTEQ." %}
+{% translate "Para activar tu cuenta, abre este enlace:" %}
+
+{{ enlace }}
+
+{% blocktranslate with horas=horas %}El enlace vence en {{ horas }} horas y sirve una sola vez.{% endblocktranslate %}
+{% translate "Si no creaste esta cuenta, ignora este correo." %}
+
+— {% translate "Vitrina de Proyectos · UTEQ" %}
+{% endautoescape %}

@@ -1,0 +1,18 @@
+{% extends "cuentas/base_tarjeta.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Cambiar contraseña" %}{% endblock %}
+
+{% block tarjeta %}
+<h1 class="text-3xl font-extrabold">{% translate "Cambiar contraseña" %}</h1>
+<form method="post" class="mt-8 flex flex-col gap-5" novalidate>
+  {% csrf_token %}
+  {% include "componentes/campo.html" with campo=form.old_password %}
+  {% include "componentes/campo.html" with campo=form.new_password1 %}
+  {% include "componentes/campo.html" with campo=form.new_password2 %}
+  <div class="flex flex-wrap gap-4">
+    <button type="submit" class="btn btn-primario">{% translate "Cambiar contraseña" %}</button>
+    <a href="{% url 'cuentas:perfil' %}" class="btn btn-fantasma">{% translate "Cancelar" %}</a>
+  </div>
+</form>
+{% endblock %}

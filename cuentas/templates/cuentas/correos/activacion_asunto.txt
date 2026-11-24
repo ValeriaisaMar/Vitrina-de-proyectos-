@@ -1,0 +1,1 @@
+{% load i18n %}{% translate "Activa tu cuenta de la Vitrina de Proyectos" %}

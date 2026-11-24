@@ -12,8 +12,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # Cambio de idioma: el selector ES/EN envía un POST a /i18n/setlang/
     path("i18n/", include("django.conf.urls.i18n")),
-    # Temporal: inicio y cierre de sesión de Django. El módulo 002 lo reemplaza por la app cuentas.
-    path("cuentas/", include("django.contrib.auth.urls")),
+    # Registro, activación, inicio de sesión, recuperación y perfil (módulo 002)
+    path("cuentas/", include("cuentas.urls")),
     path("", include("vitrina.urls")),
 ]
 
