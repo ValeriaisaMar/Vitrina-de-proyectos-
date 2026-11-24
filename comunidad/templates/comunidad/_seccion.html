@@ -1,0 +1,92 @@
+{% load i18n %}{% comment %}
+Sección "Comunidad" de la ficha de un proyecto aprobado. Recibe "proyecto" y "comunidad"
+(el diccionario de comunidad/consultas.py). Todo funciona con formularios POST, sin JavaScript.
+{% endcomment %}
+{% with c=comunidad %}
+<section id="comunidad" class="tarjeta-sobria scroll-mt-24 p-6 sm:p-8" aria-labelledby="titulo-comunidad">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h2 id="titulo-comunidad" class="text-xl font-extrabold">{% translate "Comunidad" %}</h2>
+    <div class="flex flex-wrap items-center gap-3">
+      {% if c.puede_dar_me_gusta %}
+        <form method="post" action="{% url 'comunidad:me_gusta' proyecto.slug %}">
+          {% csrf_token %}
+          <button type="submit" aria-pressed="{% if c.le_gusta %}true{% else %}false{% endif %}"
+                  class="btn {% if c.le_gusta %}btn-primario{% else %}btn-secundario{% endif %} gap-2">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="{% if c.le_gusta %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.3 5 6.8 5c2 0 3.6 1.1 5.2 3 1.6-1.9 3.2-3 5.2-3 3.5 0 5.6 3.6 4.3 6.8C19.5 16.4 12 21 12 21z"/></svg>
+            {% translate "Me gusta" %} <span class="tabular-nums">· {{ c.total_me_gusta }}</span>
+          </button>
+        </form>
+      {% else %}
+        <span class="inline-flex min-h-11 items-center gap-2 border-2 border-linea-suave px-4 font-bold">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.3 5 6.8 5c2 0 3.6 1.1 5.2 3 1.6-1.9 3.2-3 5.2-3 3.5 0 5.6 3.6 4.3 6.8C19.5 16.4 12 21 12 21z"/></svg>
+          {% blocktranslate with n=c.total_me_gusta %}{{ n }} me gusta{% endblocktranslate %}
+        </span>
+      {% endif %}
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'comunidad:favorito' proyecto.slug %}">
+          {% csrf_token %}
+          <button type="submit" aria-pressed="{% if c.es_favorito %}true{% else %}false{% endif %}" class="btn btn-secundario gap-2">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="{% if c.es_favorito %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+            {% if c.es_favorito %}{% translate "Guardado" %}{% else %}{% translate "Guardar" %}{% endif %}
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if not user.is_authenticated %}
+    <p class="mt-4 text-sm text-texto-suave">
+      <a class="enlace" href="{% url 'cuentas:entrar' %}?next={{ proyecto.get_absolute_url|urlencode }}%23comunidad">{% translate "Inicia sesión" %}</a>
+      {% translate "para dar me gusta, guardar el proyecto o comentar." %}
+    </p>
+  {% endif %}
+
+  <h3 class="mt-8 text-sm font-bold uppercase tracking-wider text-texto-suave">
+    {% blocktranslate with n=c.comentarios|length %}Comentarios ({{ n }}){% endblocktranslate %}
+  </h3>
+
+  {% if user.is_authenticated %}
+    <form id="comentar" method="post" action="{% url 'comunidad:comentar' proyecto.slug %}" class="mt-4 flex scroll-mt-24 flex-col gap-3">
+      {% csrf_token %}
+      <label for="id_texto" class="sr-only">{{ c.form.texto.label }}</label>
+      <textarea name="texto" id="id_texto" rows="3" maxlength="1000" required class="campo-control" placeholder="{% translate 'Escribe un comentario respetuoso…' %}"></textarea>
+      <button type="submit" class="btn btn-primario self-start">{% translate "Publicar" %}</button>
+    </form>
+  {% endif %}
+
+  {% if c.comentarios %}
+    <ul class="mt-6 flex flex-col gap-4">
+      {% for com in c.comentarios %}
+        <li id="comentario-{{ com.pk }}" class="scroll-mt-24 border-2 p-4 {% if com.oculto %}border-dashed border-linea-suave opacity-75{% else %}border-linea{% endif %}">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span class="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-linea bg-uteq-tinte text-xs font-extrabold text-uteq-verde dark:bg-uteq-verde dark:text-white" aria-hidden="true">{{ com.autor.nombres|slice:":1" }}{{ com.autor.apellidos|slice:":1" }}</span>
+            <span class="font-bold">{{ com.autor.nombre_completo }}</span>
+            {% if com.autor_id in c.ids_autores %}<span class="insignia insignia-aprobado">{% translate "Autor" %}</span>{% endif %}
+            {% if com.oculto %}<span class="insignia insignia-rechazado">{% translate "Oculto" %}</span>{% endif %}
+            <time class="text-sm text-texto-suave" datetime="{{ com.creado_en|date:'c' }}">{{ com.creado_en|date:"DATE_FORMAT" }}</time>
+          </div>
+          <p class="mt-3 break-words leading-relaxed">{{ com.texto|linebreaksbr }}</p>
+          {% if c.moderador or com.autor_id == user.pk %}
+            <div class="mt-3 flex flex-wrap gap-4 text-sm font-semibold">
+              {% if c.moderador %}
+                <form method="post" action="{% url 'comunidad:ocultar' com.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="underline underline-offset-4">{% if com.oculto %}{% translate "Mostrar" %}{% else %}{% translate "Ocultar" %}{% endif %}</button>
+                </form>
+              {% endif %}
+              {% if com.autor_id == user.pk %}
+                <form method="post" action="{% url 'comunidad:borrar' com.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="text-rechazado-texto underline underline-offset-4 dark:text-[#f4a19a]">{% translate "Borrar" %}</button>
+                </form>
+              {% endif %}
+            </div>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="mt-4 text-sm text-texto-suave">{% translate "Todavía no hay comentarios. ¡Sé quien abra la conversación!" %}</p>
+  {% endif %}
+</section>
+{% endwith %}

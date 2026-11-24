@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from proyectos.models import Asignatura, Proyecto, Tecnologia
 from vitrina.verificacion import normalizar_codigo
 
-ORDENES = [("recientes", _("Más recientes")), ("titulo", _("Nombre (A–Z)"))]
+ORDENES = [("recientes", _("Más recientes")), ("populares", _("Más gustados")), ("titulo", _("Nombre (A–Z)"))]
 
 
 class FormularioFiltros(forms.Form):
@@ -29,7 +29,7 @@ class FormularioFiltros(forms.Form):
 
     def filtrar(self, consulta):
         """Aplica a la consulta los filtros que pasaron la validación; los inválidos se ignoran."""
-        from django.db.models import Q
+        from django.db.models import Count, Q
 
         datos = self.cleaned_data if self.is_bound and self.is_valid() else getattr(self, "cleaned_data", {})
         if texto := (datos.get("q") or "").strip():
@@ -45,9 +45,13 @@ class FormularioFiltros(forms.Form):
         if periodo := datos.get("periodo"):
             consulta = consulta.filter(periodo=periodo)
 
-        consulta = consulta.distinct()
+        # distinct=True: los filtros por tecnología o autor agregan filas repetidas y el conteo
+        # de me gusta se inflaría sin él (módulo 007)
+        consulta = consulta.distinct().annotate(total_me_gusta=Count("me_gustas", distinct=True))
         if datos.get("orden") == "titulo":
             return consulta.order_by("titulo")
+        if datos.get("orden") == "populares":
+            return consulta.order_by("-total_me_gusta", "-aprobado_en")
         return consulta.order_by("-aprobado_en", "-actualizado_en")
 
 

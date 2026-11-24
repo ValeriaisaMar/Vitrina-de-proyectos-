@@ -56,7 +56,7 @@ Borrador ─► Enviado ─► En revisión ─┬─► Aprobado (público, con
 | 004 Revisión | Bandeja de profesores, decisiones con comentario, historial de estados |
 | 005 Verificación | Código `VP`, QR descargable, certificado PDF y página pública de verificación |
 | 006 Paneles | Panel del estudiante, del profesor y de administración (usuarios y roles) |
-| 007 Comunidad | Me gusta, favoritos y comentarios moderados por el autor y el admin |
+| 007 Comunidad | Me gusta, favoritos (privados) y comentarios que pueden ocultar los autores del proyecto y el admin |
 
 ## Roles
 
