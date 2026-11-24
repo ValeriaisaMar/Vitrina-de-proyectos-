@@ -1,0 +1,2 @@
+Copia aquí el logo oficial como logo-uteq.svg (o logo-uteq.png).
+La plataforma lo detecta sola y lo muestra en el encabezado.

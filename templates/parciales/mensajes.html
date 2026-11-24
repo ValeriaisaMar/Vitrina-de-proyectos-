@@ -1,0 +1,8 @@
+{# Mensajes de Django (messages.success, messages.error…) con el componente aviso. #}
+{% if messages %}
+<div class="contenedor mt-4 flex flex-col gap-2" role="status">
+  {% for mensaje in messages %}
+    {% include "componentes/aviso.html" with tipo=mensaje.tags texto=mensaje %}
+  {% endfor %}
+</div>
+{% endif %}

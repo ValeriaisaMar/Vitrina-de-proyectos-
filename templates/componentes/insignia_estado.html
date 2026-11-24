@@ -1,0 +1,10 @@
+{% comment %}
+Insignia con el estado de un proyecto.
+
+Uso:
+  {% include "componentes/insignia_estado.html" with estado="en_revision" texto="En revisión" %}
+
+estado: borrador | enviado | en_revision | con_observaciones | aprobado | rechazado
+texto:  el nombre legible del estado (en el módulo 003 sale de proyecto.get_estado_display).
+{% endcomment %}
+<span class="insignia insignia-{{ estado }}">{{ texto }}</span>

@@ -1,0 +1,14 @@
+{% comment %}
+Aviso de color según su tipo.
+
+Uso:
+  {% include "componentes/aviso.html" with tipo="success" texto="Proyecto enviado." %}
+
+tipo: success | error | warning | info (los mismos nombres que usan los mensajes de Django).
+{% endcomment %}
+<div class="aviso aviso-{{ tipo|default:'info' }}">
+  <svg aria-hidden="true" class="mt-0.5 shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    {% if tipo == "success" %}<path d="m5 12 5 5 9-10"/>{% elif tipo == "error" %}<path d="M6 6l12 12M18 6 6 18"/>{% else %}<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.01"/>{% endif %}
+  </svg>
+  <p>{{ texto }}</p>
+</div>

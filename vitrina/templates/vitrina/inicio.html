@@ -1,104 +1,123 @@
-{% extends "vitrina/base.html" %}
+{% extends "base.html" %}
+{% load i18n %}
 
-{% block titulo %}Ideas que merecen ser vistas{% endblock %}
+{% block titulo %}{% translate "Inicio" %}{% endblock %}
 
 {% block contenido %}
-<section class="portada">
-  <div class="portada__rejilla">
-    <div class="portada__texto">
-      <span class="portada__aro" aria-hidden="true"></span>
-      <div class="portada__sup mono"><span class="punto"></span> Universidad Técnica Estatal de Quevedo</div>
-      <h1>Ideas que merecen ser <em>vistas.</em></h1>
-      <div class="portada__pie">
-        <p>Los proyectos de la UTEQ, revisados y verificados, en un solo lugar. Explora el talento que nace en nuestras aulas.</p>
-        <a href="#proyectos" class="enlace-subrayado">Explorar vitrina ↓</a>
+
+{# ---------------------------------------------------------------- Portada #}
+<section class="relative overflow-hidden border-b-2 border-linea bg-uteq-verde text-white" aria-labelledby="titulo-portada">
+  <div class="contenedor grid items-center gap-14 py-16 lg:grid-cols-[1.1fr_1fr] lg:py-24">
+
+    <div class="flex flex-col gap-6">
+      <span class="animate-entrar self-start border-2 border-tinta bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-tinta">
+        {% translate "Facultad de Ciencias de la Computación" %}
+      </span>
+
+      <h1 id="titulo-portada" class="animate-entrar text-[2.35rem] font-extrabold leading-[1.04] sm:text-5xl lg:text-[3.6rem]" style="animation-delay:.1s">
+        {% translate "Proyectos de Ingeniería de Software," %}
+        <span class="underline decoration-uteq-amarillo decoration-[6px] underline-offset-[10px]">{% translate "verificados" %}</span>
+        {% translate "y a la vista." %}
+      </h1>
+
+      <p class="animate-entrar max-w-xl text-lg leading-relaxed text-uteq-claro" style="animation-delay:.2s">
+        {% translate "Sube tu proyecto, recibe la revisión de un docente y compártelo con un código y un QR que cualquiera puede comprobar." %}
+      </p>
+
+      <div class="animate-entrar flex flex-wrap gap-4 pt-2" style="animation-delay:.3s">
+        <a href="{% url 'vitrina:explorar' %}" class="btn btn-claro">
+          {% translate "Explorar proyectos" %}
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="{% url 'login' %}" class="btn btn-contorno-claro">{% translate "Subir mi proyecto" %}</a>
       </div>
+
+      <ul class="animate-entrar flex flex-wrap gap-x-6 gap-y-2 pt-2 text-sm font-semibold text-uteq-claro" style="animation-delay:.4s">
+        <li class="flex items-center gap-2"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ecb932" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>{% translate "Revisión docente" %}</li>
+        <li class="flex items-center gap-2"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ecb932" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>{% translate "Historial de cada paso" %}</li>
+        <li class="flex items-center gap-2"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ecb932" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>{% translate "QR verificable" %}</li>
+      </ul>
     </div>
-    <div class="cifras">
-      <div class="cifra cifra--amarilla"><b>{{ total_verificados|default:0 }}</b><span>Proyectos verificados</span></div>
-      <div class="cifra cifra--tinta"><b>{{ total_carreras|default:0 }}</b><span>Carreras creando</span></div>
+
+    {# Composición animada: ilustra el recorrido de un proyecto (decorativa) #}
+    <div class="relative mx-auto h-[400px] w-full max-w-[480px] sm:h-[440px]" aria-hidden="true">
+      <svg class="animate-girar absolute left-1/2 top-1/2 -ml-[210px] -mt-[210px]" width="420" height="420" viewBox="0 0 420 420">
+        <circle cx="210" cy="210" r="196" fill="none" stroke="#cfe3d6" stroke-opacity=".35" stroke-width="2" stroke-dasharray="4 12"/>
+        <circle cx="210" cy="210" r="140" fill="none" stroke="#ecb932" stroke-opacity=".55" stroke-width="2" stroke-dasharray="2 16"/>
+        <circle cx="210" cy="14" r="7" fill="#ecb932"/>
+        <circle cx="70" cy="210" r="5" fill="#ffffff"/>
+      </svg>
+
+      {# Tarjeta de proyecto #}
+      <div class="animate-flotar absolute left-0 top-4 w-[236px] border-2 border-tinta bg-white p-3 text-tinta shadow-[6px_6px_0_0_#0f1f17] sm:left-2" style="--giro:-3deg">
+        <div class="flex h-24 items-center justify-center border-2 border-tinta bg-uteq-tinte">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#025a27" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="1"/><path d="M8 21h8M12 17v4M9 9l-2 2 2 2M15 9l2 2-2 2"/></svg>
+        </div>
+        <div class="mt-3 h-3 w-4/5 bg-tinta"></div>
+        <div class="mt-2 h-2 w-full bg-borrador"></div>
+        <div class="mt-1.5 h-2 w-3/5 bg-borrador"></div>
+        <div class="mt-3 flex items-center justify-between">
+          <span class="insignia insignia-aprobado">{% translate "Aprobado" %}</span>
+          <span class="h-2 w-10 bg-borrador"></span>
+        </div>
+      </div>
+
+      {# Historial #}
+      <div class="animate-flotar-lento absolute right-0 top-28 w-[210px] border-2 border-tinta bg-white p-3 text-tinta shadow-[6px_6px_0_0_#ecb932] sm:right-2" style="--giro:2deg">
+        <p class="mb-2 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-uteq-verde">{% translate "Historial" %}</p>
+        <ol class="flex flex-col gap-2">
+          <li><span class="insignia insignia-enviado">{% translate "Enviado" %}</span></li>
+          <li><span class="insignia insignia-en_revision">{% translate "En revisión" %}</span></li>
+          <li><span class="insignia insignia-aprobado">{% translate "Aprobado" %}</span></li>
+        </ol>
+      </div>
+
+      {# Sello con QR #}
+      <div class="animate-sello absolute bottom-2 left-[14%] flex items-center gap-3 border-2 border-tinta bg-uteq-profundo p-3 pr-5 text-white shadow-[6px_6px_0_0_#0f1f17]">
+        <svg width="62" height="62" viewBox="0 0 21 21" shape-rendering="crispEdges" class="bg-white p-1"><path fill="#0f1f17" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h2v2H8zM0 8h2v1H0zM3 8h3v1H3zM7 9h3v1H7zM11 8h2v2h-2zM14 8h2v1h-2zM17 8h4v1h-4zM1 10h2v2H1zM4 11h3v1H4zM9 11h2v3H9zM12 11h3v1h-3zM16 10h2v3h-2zM19 11h2v1h-2zM8 13h1v2H8zM11 14h3v1h-3zM15 14h1v3h-1zM18 14h3v1h-3zM8 16h3v1H8zM12 16h2v2h-2zM17 17h4v1h-4zM8 18h2v3H8zM11 19h3v1h-3zM15 19h2v2h-2zM19 19h2v2h-2z"/></svg>
+        <span class="flex flex-col">
+          <span class="text-[0.68rem] font-bold tracking-[0.12em] text-uteq-amarillo">{% translate "SELLO VERIFICADO" %}</span>
+          <span class="font-titulo text-sm font-bold">{% translate "Escanea y comprueba" %}</span>
+          <span class="text-xs text-uteq-claro">VP-AAAA-NNNN</span>
+        </span>
+      </div>
     </div>
   </div>
 </section>
 
-<section id="proyectos" class="seccion">
-  <div class="seccion__interior">
-    <div class="vitrina__cabeza">
-      <div>
-        <p class="mono etiqueta-verde">Vitrina pública</p>
-        <h2>Proyectos destacados</h2>
-      </div>
-      <form class="buscador" method="get" action="{% url 'inicio' %}#proyectos" role="search">
-        {% if carrera_activa %}<input type="hidden" name="carrera" value="{{ carrera_activa }}">{% endif %}
-        <input type="search" name="q" value="{{ q }}" placeholder="Buscar proyecto o tecnología" aria-label="Buscar proyecto o tecnología">
-        <button type="submit">Buscar</button>
-      </form>
-    </div>
+{# ---------------------------------------------------------------- Cómo funciona #}
+<section id="como-funciona" class="scroll-mt-24 bg-fondo py-20 lg:py-24" aria-labelledby="titulo-como">
+  <div class="contenedor">
+    <p class="etiqueta-seccion">{% translate "Cómo funciona" %}</p>
+    <h2 id="titulo-como" class="mt-3 max-w-2xl text-3xl font-extrabold leading-tight sm:text-4xl">
+      {% translate "De tu repositorio a la vitrina en cuatro pasos" %}
+    </h2>
 
-    <nav class="filtros" aria-label="Filtrar por carrera">
-      <a href="{% url 'inicio' %}{% if q %}?q={{ q|urlencode }}{% endif %}#proyectos" class="filtro{% if not carrera_activa %} is-activo{% endif %}">Todos</a>
-      {% for carrera in carreras %}
-        <a href="?carrera={{ carrera.id }}{% if q %}&q={{ q|urlencode }}{% endif %}#proyectos" class="filtro{% if carrera_activa == carrera.id|stringformat:'s' %} is-activo{% endif %}">{{ carrera.nombre }}</a>
+    <ol class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      {% for paso in pasos %}
+      <li class="tarjeta flex flex-col gap-3 p-6 transition-transform duration-150 hover:-translate-x-1 hover:-translate-y-1">
+        <span class="font-titulo text-4xl font-extrabold text-acento">{{ paso.numero }}</span>
+        <h3 class="text-lg font-bold leading-snug">{{ paso.titulo }}</h3>
+        <p class="leading-relaxed text-texto-suave">{{ paso.texto }}</p>
+      </li>
       {% endfor %}
-    </nav>
-
-    {% if proyectos %}
-      <div class="tarjetas">
-        {% for proyecto in proyectos %}
-          <article class="tarjeta">
-            <div class="tarjeta__cabeza">
-              <span class="tarjeta__num">PROYECTO/{{ forloop.counter|stringformat:"02d" }}</span>
-              <div class="tarjeta__marca" aria-hidden="true">{{ proyecto.titulo|slice:":2"|upper }}</div>
-            </div>
-            <div class="tarjeta__cuerpo">
-              <p class="mono tarjeta__meta">{{ proyecto.carrera }} · {{ proyecto.anio }}</p>
-              <h3>{{ proyecto.titulo }}</h3>
-              <p class="tarjeta__texto">{{ proyecto.descripcion|truncatechars:140 }}</p>
-              <ul class="tecnologias">
-                {% for tecnologia in proyecto.tecnologias %}<li>{{ tecnologia }}</li>{% endfor %}
-              </ul>
-              <div class="tarjeta__pie">
-                <span>{{ proyecto.autores }}</span>
-                <span class="salud">Vivo · {{ proyecto.puntaje }}</span>
-              </div>
-            </div>
-          </article>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="vacio">
-        <h3>Aún no hay proyectos verificados{% if q or carrera_activa %} con esos filtros{% endif %}.</h3>
-        <p>{% if q or carrera_activa %}Prueba con otra búsqueda o quita los filtros.{% else %}Cuando un docente verifique el primero, aparecerá aquí.{% endif %}</p>
-        {% if q or carrera_activa %}<a href="{% url 'inicio' %}#proyectos" class="btn">Limpiar búsqueda</a>{% endif %}
-      </div>
-    {% endif %}
-  </div>
-</section>
-
-<section id="como-funciona" class="proceso">
-  <div class="proceso__rejilla">
-    <div class="proceso__intro">
-      <p class="mono">Del aula a la vitrina</p>
-      <h2>Publicar también es aprender.</h2>
-      <p>Cada proyecto pasa por un proceso transparente que reconoce el trabajo bien hecho y ayuda a mejorar lo que todavía puede crecer.</p>
-    </div>
-    <ol class="pasos">
-      <li class="paso"><span class="mono paso__num">01/04</span><h3>Sube</h3><p>Registra la descripción, tecnologías, repositorio y documentación.</p></li>
-      <li class="paso"><span class="mono paso__num">02/04</span><h3>Evalúa</h3><p>El sistema calcula el Health Score del repositorio como apoyo.</p></li>
-      <li class="paso"><span class="mono paso__num">03/04</span><h3>Revisa</h3><p>Un docente deja observaciones y decide si el proyecto cumple.</p></li>
-      <li class="paso"><span class="mono paso__num">04/04</span><h3>Publica</h3><p>El proyecto aprobado recibe el sello UTEQ y entra a la vitrina.</p></li>
     </ol>
   </div>
 </section>
 
-<section id="comunidad" class="seccion">
-  <div class="seccion__interior">
-    <div class="cierre" style="margin-top:0;border-top:0;padding-top:0">
-      <div>
-        <h2>¿Tienes un proyecto que mostrar?</h2>
-        <p>Súbelo, recibe retroalimentación y hazlo visible.</p>
+{# ---------------------------------------------------------------- Invitación #}
+<section class="border-t-2 border-linea bg-seccion py-20" aria-labelledby="titulo-invitacion">
+  <div class="contenedor">
+    <div class="relative flex flex-col gap-8 border-2 border-linea bg-superficie p-8 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
+      <span class="calcomania absolute -top-4 right-6">{% translate "Ingeniería de Software" %}</span>
+      <div class="max-w-2xl">
+        <h2 id="titulo-invitacion" class="text-2xl font-extrabold leading-tight sm:text-3xl">{% translate "¿Tienes un proyecto de la carrera?" %}</h2>
+        <p class="mt-3 text-lg leading-relaxed text-texto-suave">{% translate "Crea tu cuenta con tu correo, súbelo y deja que la vitrina lo muestre con el sello de la UTEQ." %}</p>
       </div>
-      <a href="#" class="btn btn--primario">Publicar mi proyecto</a>
+      <div class="flex flex-wrap gap-4">
+        <a href="{% url 'login' %}" class="btn btn-primario">{% translate "Crear cuenta" %}</a>
+        <a href="{% url 'vitrina:explorar' %}" class="btn btn-secundario">{% translate "Ver la vitrina" %}</a>
+      </div>
     </div>
   </div>
 </section>

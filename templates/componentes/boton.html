@@ -1,0 +1,19 @@
+{% comment %}
+Botón o enlace con estilo de botón.
+
+Uso:
+  {% include "componentes/boton.html" with texto="Guardar" variante="primario" %}
+  {% include "componentes/boton.html" with texto="Explorar" url=enlace variante="secundario" %}
+
+Parámetros:
+  texto     lo que dice el botón (obligatorio)
+  variante  primario | secundario | claro | contorno-claro | peligro | fantasma (por defecto primario)
+  url       si se da, se dibuja un enlace <a>; si no, un <button>
+  tipo      submit | button (solo para <button>; por defecto submit)
+  clase     clases extra de Tailwind
+{% endcomment %}
+{% if url %}
+<a href="{{ url }}" class="btn btn-{{ variante|default:'primario' }} {{ clase }}">{{ texto }}</a>
+{% else %}
+<button type="{{ tipo|default:'submit' }}" class="btn btn-{{ variante|default:'primario' }} {{ clase }}">{{ texto }}</button>
+{% endif %}

@@ -1,0 +1,5 @@
+{% load i18n %}{# Enlaces principales. Recibe "clase" y "clase_activa"; "actual" viene del encabezado. #}
+<a href="{% url 'vitrina:inicio' %}" class="{{ clase }} {% if actual == 'inicio' %}{{ clase_activa }}{% endif %}" {% if actual == 'inicio' %}aria-current="page"{% endif %}>{% translate "Inicio" %}</a>
+<a href="{% url 'vitrina:explorar' %}" class="{{ clase }} {% if actual == 'explorar' %}{{ clase_activa }}{% endif %}" {% if actual == 'explorar' %}aria-current="page"{% endif %}>{% translate "Explorar" %}</a>
+<a href="{% url 'vitrina:verificar' %}" class="{{ clase }} {% if actual == 'verificar' %}{{ clase_activa }}{% endif %}" {% if actual == 'verificar' %}aria-current="page"{% endif %}>{% translate "Verificar QR" %}</a>
+<a href="{% url 'vitrina:inicio' %}#como-funciona" class="{{ clase }}">{% translate "Cómo funciona" %}</a>

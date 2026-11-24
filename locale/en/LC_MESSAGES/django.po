@@ -1,0 +1,359 @@
+# Traducciones al inglés de Vitrina de Proyectos.
+# Se actualiza con makemessages -l en y se compila con compilemessages.
+msgid ""
+msgstr ""
+"Project-Id-Version: Vitrina de Proyectos 1.0\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: templates/parciales/encabezado.html
+msgid "Abrir menú"
+msgstr "Open menu"
+
+#: cuentas/models.py
+msgid "Admin"
+msgstr "Admin"
+
+#: templates/500.html
+msgid "Algo salió mal"
+msgstr "Something went wrong"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Aprobado"
+msgstr "Approved"
+
+#: vitrina/views.py
+msgid "Aquí vas a poder buscar y filtrar los proyectos verificados de la carrera."
+msgstr "Here you'll be able to search and filter the program's verified projects."
+
+#: vitrina/views.py
+msgid "Aquí vas a poder comprobar un proyecto con su código o escaneando su QR."
+msgstr "Here you'll be able to check a project with its code or by scanning its QR."
+
+#: templates/parciales/boton_tema.html
+msgid "Cambiar a modo claro"
+msgstr "Switch to light mode"
+
+#: templates/parciales/boton_tema.html
+msgid "Cambiar a modo oscuro"
+msgstr "Switch to dark mode"
+
+#: templates/parciales/boton_tema.html
+msgid "Cambiar tema"
+msgstr "Change theme"
+
+#: templates/parciales/encabezado.html
+msgid "Cerrar sesión"
+msgstr "Log out"
+
+#: vitrina/views.py
+msgid "Compártelo con QR"
+msgstr "Share it with a QR"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Crea tu cuenta con tu correo, súbelo y deja que la vitrina lo muestre con el sello de la UTEQ."
+msgstr "Create your account with your email, upload it and let the showcase display it with the UTEQ seal."
+
+#: templates/parciales/encabezado.html vitrina/templates/vitrina/inicio.html
+msgid "Crear cuenta"
+msgstr "Sign up"
+
+#: templates/parciales/pie.html
+msgid "Cuenta"
+msgstr "Account"
+
+#: templates/parciales/enlaces_nav.html templates/parciales/pie.html vitrina/templates/vitrina/inicio.html
+msgid "Cómo funciona"
+msgstr "How it works"
+
+#: cuentas/admin.py
+msgid "Datos personales"
+msgstr "Personal details"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "De tu repositorio a la vitrina en cuatro pasos"
+msgstr "From your repository to the showcase in four steps"
+
+#: vitrina/views.py
+msgid "Descarga el QR y el certificado PDF para tu portafolio."
+msgstr "Download the QR and the PDF certificate for your portfolio."
+
+#: vitrina/views.py
+msgid "Descripción, coautores, tecnologías, repositorio y documento PDF."
+msgstr "Description, co-authors, technologies, repository and PDF document."
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "En revisión"
+msgstr "In review"
+
+#: templates/registration/login.html
+msgid "Entrar"
+msgstr "Log in"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Enviado"
+msgstr "Submitted"
+
+#: templates/500.html
+msgid "Error del servidor"
+msgstr "Server error"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Escanea y comprueba"
+msgstr "Scan and check"
+
+#: config/settings.py
+msgid "Español"
+msgstr "Spanish"
+
+#: vitrina/templates/vitrina/proximamente.html
+msgid "Esta sección está en construcción."
+msgstr "This section is under construction."
+
+#: cuentas/models.py
+msgid "Estudiante"
+msgstr "Student"
+
+#: templates/parciales/enlaces_nav.html
+msgid "Explorar"
+msgstr "Explore"
+
+#: templates/parciales/pie.html vitrina/templates/vitrina/inicio.html vitrina/views.py
+msgid "Explorar proyectos"
+msgstr "Explore projects"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Facultad de Ciencias de la Computación"
+msgstr "Faculty of Computer Science"
+
+#: templates/parciales/pie.html
+msgid "Facultad de Ciencias de la Computación · Ingeniería de Software"
+msgstr "Faculty of Computer Science · Software Engineering"
+
+#: cuentas/admin.py
+msgid "Fechas"
+msgstr "Dates"
+
+#: templates/parciales/pie.html
+msgid "Hecho por estudiantes embajadores de la Universidad de Córdoba (Colombia)"
+msgstr "Made by ambassador students from the University of Córdoba (Colombia)"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Historial"
+msgstr "History"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Historial de cada paso"
+msgstr "History of every step"
+
+#: templates/parciales/encabezado.html
+#, python-format
+msgid "Hola, %(nombre)s"
+msgstr "Hi, %(nombre)s"
+
+#: templates/parciales/selector_idioma.html
+msgid "Idioma"
+msgstr "Language"
+
+#: templates/parciales/encabezado.html vitrina/templates/vitrina/inicio.html
+msgid "Ingeniería de Software"
+msgstr "Software Engineering"
+
+#: config/settings.py
+msgid "Inglés"
+msgstr "English"
+
+#: templates/parciales/encabezado.html templates/parciales/pie.html templates/registration/login.html
+msgid "Iniciar sesión"
+msgstr "Log in"
+
+#: templates/parciales/enlaces_nav.html vitrina/templates/vitrina/inicio.html
+msgid "Inicio"
+msgstr "Home"
+
+#: vitrina/views.py
+msgid "Lo aprueba, pide cambios o lo rechaza. Cada paso queda en el historial."
+msgstr "They approve it, request changes or reject it. Every step is kept in the history."
+
+#: templates/404.html
+msgid "No encontramos esta página"
+msgstr "We couldn't find this page"
+
+#: templates/parciales/encabezado.html
+msgid "Principal"
+msgstr "Main"
+
+#: templates/parciales/encabezado.html
+msgid "Principal (móvil)"
+msgstr "Main (mobile)"
+
+#: cuentas/models.py
+msgid "Profesor"
+msgstr "Professor"
+
+#: templates/base.html
+msgid "Proyectos de Ingeniería de Software de la UTEQ, revisados por docentes y verificables con un QR."
+msgstr "UTEQ Software Engineering projects, reviewed by professors and verifiable with a QR."
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Proyectos de Ingeniería de Software,"
+msgstr "Software Engineering projects,"
+
+#: vitrina/templates/vitrina/proximamente.html
+msgid "Próximamente"
+msgstr "Coming soon"
+
+#: templates/404.html
+msgid "Puede que la dirección esté mal escrita o que la página ya no exista."
+msgstr "The address may be misspelled or the page may no longer exist."
+
+#: templates/404.html
+msgid "Página no encontrada"
+msgstr "Page not found"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "QR verificable"
+msgstr "Verifiable QR"
+
+#: vitrina/views.py
+msgid "Queda verificado"
+msgstr "It gets verified"
+
+#: templates/parciales/pie.html
+msgid "Recuperar contraseña"
+msgstr "Reset password"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Revisión docente"
+msgstr "Professor review"
+
+#: cuentas/admin.py
+msgid "Rol y acceso"
+msgstr "Role and access"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "SELLO VERIFICADO"
+msgstr "VERIFIED SEAL"
+
+#: templates/base.html
+msgid "Saltar al contenido"
+msgstr "Skip to content"
+
+#: vitrina/views.py
+msgid "Se publica en la vitrina con el sello de la carrera y un código único."
+msgstr "It's published in the showcase with the program's seal and a unique code."
+
+#: vitrina/views.py
+msgid "Sube tu proyecto"
+msgstr "Upload your project"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Sube tu proyecto, recibe la revisión de un docente y compártelo con un código y un QR que cualquiera puede comprobar."
+msgstr "Upload your project, get reviewed by a professor and share it with a code and a QR that anyone can check."
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Subir mi proyecto"
+msgstr "Upload my project"
+
+#: templates/500.html
+msgid "Tuvimos un problema al cargar esta página. Intenta de nuevo en unos minutos."
+msgstr "We had a problem loading this page. Please try again in a few minutes."
+
+#: vitrina/views.py
+msgid "Un docente lo revisa"
+msgstr "A professor reviews it"
+
+#: templates/parciales/pie.html
+msgid "Universidad Técnica Estatal de Quevedo"
+msgstr "Quevedo State Technical University"
+
+#: templates/registration/login.html
+msgid "Usa el correo con el que te registraste."
+msgstr "Use the email you signed up with."
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Ver la vitrina"
+msgstr "See the showcase"
+
+#: templates/parciales/enlaces_nav.html
+msgid "Verificar QR"
+msgstr "Verify QR"
+
+#: templates/parciales/pie.html
+msgid "Verificar un QR"
+msgstr "Verify a QR"
+
+#: vitrina/views.py
+msgid "Verificar un proyecto"
+msgstr "Verify a project"
+
+#: templates/parciales/pie.html
+msgid "Vitrina"
+msgstr "Showcase"
+
+#: templates/500.html templates/base.html templates/parciales/encabezado.html templates/parciales/pie.html
+msgid "Vitrina de Proyectos"
+msgstr "Project Showcase"
+
+#: templates/parciales/encabezado.html
+msgid "Vitrina de Proyectos, ir al inicio"
+msgstr "Project Showcase, go to home page"
+
+#: templates/404.html templates/500.html vitrina/templates/vitrina/proximamente.html
+msgid "Volver al inicio"
+msgstr "Back to home"
+
+#: cuentas/models.py
+msgid "acceso al panel de Django"
+msgstr "Django admin access"
+
+#: cuentas/models.py
+msgid "activo"
+msgstr "active"
+
+#: cuentas/models.py
+msgid "apellidos"
+msgstr "last names"
+
+#: cuentas/models.py
+msgid "correo electrónico"
+msgstr "email"
+
+#: cuentas/models.py
+msgid "fecha de registro"
+msgstr "sign-up date"
+
+#: cuentas/models.py
+msgid "nombres"
+msgstr "first names"
+
+#: cuentas/models.py
+msgid "rol"
+msgstr "role"
+
+#: cuentas/models.py
+msgid "usuario"
+msgstr "user"
+
+#: cuentas/models.py
+msgid "usuarios"
+msgstr "users"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "verificados"
+msgstr "verified"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "y a la vista."
+msgstr "and on display."
+
+#: templates/registration/login.html
+msgid "¿Olvidaste tu contraseña?"
+msgstr "Forgot your password?"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "¿Tienes un proyecto de la carrera?"
+msgstr "Do you have a project from the program?"

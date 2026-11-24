@@ -1,0 +1,374 @@
+/*
+  Tema de la Vitrina de Proyectos (Tailwind CSS v4).
+
+  Este archivo NO se carga en el navegador: se compila a static/css/app.css con el
+  ejecutable standalone de Tailwind (ver README, sección "Estilos con Tailwind").
+
+  Orden:
+    1. Qué archivos lee Tailwind para saber qué clases se usan.
+    2. Modo oscuro por clase.
+    3. Fuentes locales.
+    4. Tema: colores institucionales, estados, fuentes, sombras y animaciones.
+    5. Tokens que cambian entre modo claro y oscuro.
+    6. Estilos base, componentes y accesibilidad.
+*/
+
+/* 1. Tailwind sin detección automática: solo mira las plantillas y el JS del proyecto. */
+@import "tailwindcss" source(none);
+@source "../../templates";
+@source "../../vitrina/templates";
+@source "../../cuentas/templates";
+@source "../../proyectos/templates";
+@source "../../comunidad/templates";
+@source "../../vitrina/views.py";
+@source "../../vitrina/templatetags";
+@source "../js";
+
+/* 2. dark:… se activa cuando <html> tiene la clase "dark" (la pone static/js/tema.js). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 3. Fuentes servidas desde static/fonts (licencia SIL Open Font License). */
+@font-face {
+  font-family: "Unbounded";
+  src: url("../fonts/unbounded-variable.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("../fonts/archivo-400.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("../fonts/archivo-500.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("../fonts/archivo-600.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("../fonts/archivo-700.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* 4. Tema. Cada variable crea clases: --color-uteq-verde → bg-uteq-verde, text-uteq-verde… */
+@theme {
+  --font-titulo: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+  --font-texto: "Archivo", ui-sans-serif, system-ui, sans-serif;
+
+  /* Colores institucionales, exactos (constitución, principio X) */
+  --color-uteq-verde: #025a27;
+  --color-uteq-amarillo: #ecb932;
+  /* Derivados del verde para fondos, hover y texto sobre verde */
+  --color-uteq-oscuro: #01401b;
+  --color-uteq-profundo: #012e14;
+  --color-uteq-tinte: #e6f0ea;
+  --color-uteq-claro: #cfe3d6;
+  --color-tinta: #0f1f17;
+
+  /* Estados del proyecto: fondo suave + texto oscuro del mismo tono (contraste AA) */
+  --color-borrador: #eef1ef;
+  --color-borrador-texto: #3f4a44;
+  --color-enviado: #e4ebfb;
+  --color-enviado-texto: #1f3f8f;
+  --color-revision: #fbf1d3;
+  --color-revision-texto: #6b4f00;
+  --color-observaciones: #fde7d8;
+  --color-observaciones-texto: #8a3b0a;
+  --color-aprobado: #025a27;
+  --color-aprobado-texto: #ffffff;
+  --color-rechazado: #fbe4e2;
+  --color-rechazado-texto: #a3261d;
+
+  /* Sombras sólidas, la firma del neo-brutalismo */
+  --shadow-duro: 6px 6px 0 0 var(--sombra);
+  --shadow-duro-sm: 4px 4px 0 0 var(--sombra);
+  --shadow-duro-verde: 6px 6px 0 0 var(--color-uteq-verde);
+
+  /* Animaciones de la portada (se apagan con "reducir movimiento") */
+  --animate-flotar: flotar 6s ease-in-out infinite;
+  --animate-flotar-lento: flotar 8s ease-in-out -3s infinite;
+  --animate-entrar: entrar 0.7s ease-out both;
+  --animate-girar: girar 70s linear infinite;
+  --animate-sello: sello 0.8s cubic-bezier(0.2, 0.8, 0.2, 1.2) 0.5s both;
+  --animate-pulso: pulso 2.4s ease-in-out infinite;
+
+  @keyframes flotar {
+    0%, 100% { transform: translateY(0) rotate(var(--giro, 0deg)); }
+    50% { transform: translateY(-14px) rotate(var(--giro, 0deg)); }
+  }
+  @keyframes entrar {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes girar {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes sello {
+    0% { opacity: 0; transform: scale(0.6) rotate(-8deg); }
+    100% { opacity: 1; transform: scale(1) rotate(-4deg); }
+  }
+  @keyframes pulso {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(236 185 50 / 0.6); }
+    50% { box-shadow: 0 0 0 8px rgb(236 185 50 / 0); }
+  }
+}
+
+/* 5. Tokens semánticos: cambian solos en modo oscuro, así casi no se necesita "dark:". */
+@theme inline {
+  --color-fondo: var(--fondo);
+  --color-seccion: var(--seccion);
+  --color-superficie: var(--superficie);
+  --color-texto: var(--texto);
+  --color-texto-suave: var(--texto-suave);
+  --color-linea: var(--linea);
+  --color-linea-suave: var(--linea-suave);
+  --color-acento: var(--acento);
+}
+
+@layer base {
+  :root {
+    --fondo: #ffffff;
+    --seccion: #f4f7f5;
+    --superficie: #ffffff;
+    --texto: #0f1f17;
+    --texto-suave: #4b5b52;
+    --linea: #0f1f17;
+    --linea-suave: #c9d6ce;
+    --sombra: #0f1f17;
+    --acento: #025a27;
+    color-scheme: light;
+  }
+  .dark {
+    --fondo: #0b1410;
+    --seccion: #0f1c16;
+    --superficie: #12201a;
+    --texto: #e8f0eb;
+    --texto-suave: #a9bdb1;
+    --linea: #cfe3d6;
+    --linea-suave: #2a3f33;
+    --sombra: #025a27;
+    --acento: #8fd6a8;
+    color-scheme: dark;
+  }
+
+  html {
+    font-family: var(--font-texto);
+    background-color: var(--fondo);
+    color: var(--texto);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-titulo);
+    letter-spacing: -0.01em;
+  }
+  ::selection {
+    background-color: var(--color-uteq-amarillo);
+    color: var(--color-tinta);
+  }
+  /* Foco siempre visible al navegar con teclado (amarillo: uno de sus pocos usos) */
+  :focus-visible {
+    outline: 3px solid var(--color-uteq-amarillo);
+    outline-offset: 3px;
+  }
+  /* Quita el triángulo del <summary> del menú móvil */
+  summary::-webkit-details-marker { display: none; }
+  summary { list-style: none; }
+}
+
+/* 6. Componentes reutilizables */
+@layer components {
+  .contenedor {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 640px) {
+    .contenedor { padding-inline: 2rem; }
+  }
+
+  /* Botones: borde de 2 px, sombra sólida y efecto de hundirse al hacer clic */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0 1.25rem;
+    border: 2px solid var(--linea);
+    font-weight: 700;
+    font-size: 0.95rem;
+    line-height: 1.1;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+  }
+  .btn:hover { transform: translate(-2px, -2px); }
+  .btn:active { transform: translate(4px, 4px); box-shadow: none; }
+  .btn-primario {
+    background-color: var(--color-uteq-verde);
+    color: #ffffff;
+    box-shadow: var(--shadow-duro-sm);
+  }
+  .btn-primario:hover { background-color: var(--color-uteq-oscuro); }
+  .btn-secundario {
+    background-color: var(--superficie);
+    color: var(--texto);
+    box-shadow: var(--shadow-duro-sm);
+  }
+  /* Para usar sobre fondos verdes */
+  .btn-claro {
+    background-color: #ffffff;
+    color: var(--color-uteq-verde);
+    border-color: var(--color-tinta);
+    box-shadow: 5px 5px 0 0 var(--color-tinta);
+  }
+  .btn-contorno-claro {
+    background-color: transparent;
+    color: #ffffff;
+    border-color: #ffffff;
+    box-shadow: 5px 5px 0 0 var(--color-uteq-profundo);
+  }
+  .btn-peligro {
+    background-color: var(--superficie);
+    color: var(--color-rechazado-texto);
+    border-color: var(--color-rechazado-texto);
+    box-shadow: 4px 4px 0 0 var(--color-rechazado-texto);
+  }
+  .dark .btn-peligro { color: #f4a19a; border-color: #f4a19a; box-shadow: 4px 4px 0 0 #f4a19a; }
+  .btn-fantasma {
+    border-color: transparent;
+    background: transparent;
+    color: var(--acento);
+  }
+  .btn-fantasma:hover, .btn-fantasma:active { transform: none; text-decoration: underline; text-underline-offset: 4px; }
+
+  /* Tarjetas: la expresiva (zona pública) y la sobria (paneles) */
+  .tarjeta {
+    background-color: var(--superficie);
+    border: 2px solid var(--linea);
+    box-shadow: var(--shadow-duro-verde);
+  }
+  .tarjeta-sobria {
+    background-color: var(--superficie);
+    border: 2px solid var(--linea);
+  }
+
+  /* Insignias de estado del proyecto */
+  .insignia {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.6rem;
+    border: 1.5px solid var(--color-tinta);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .insignia-borrador { background: var(--color-borrador); color: var(--color-borrador-texto); }
+  .insignia-enviado { background: var(--color-enviado); color: var(--color-enviado-texto); }
+  .insignia-en_revision { background: var(--color-revision); color: var(--color-revision-texto); }
+  .insignia-con_observaciones { background: var(--color-observaciones); color: var(--color-observaciones-texto); }
+  .insignia-aprobado { background: var(--color-aprobado); color: var(--color-aprobado-texto); }
+  .insignia-rechazado { background: var(--color-rechazado); color: var(--color-rechazado-texto); }
+
+  /* Formularios */
+  .campo-etiqueta { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.35rem; }
+  .campo-control {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.6rem 0.85rem;
+    background-color: var(--superficie);
+    color: var(--texto);
+    border: 2px solid var(--linea);
+    font: inherit;
+  }
+  .campo-control:focus { outline: 3px solid var(--color-uteq-amarillo); outline-offset: 0; }
+  .campo-control[aria-invalid="true"] { border-color: var(--color-rechazado-texto); }
+  .campo-ayuda { font-size: 0.85rem; color: var(--texto-suave); margin-top: 0.35rem; }
+  .campo-error { font-size: 0.85rem; font-weight: 600; color: var(--color-rechazado-texto); margin-top: 0.35rem; }
+  .dark .campo-error { color: #f4a19a; }
+
+  /* Avisos (mensajes de Django) */
+  .aviso {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.85rem 1rem;
+    border: 2px solid var(--color-tinta);
+    font-weight: 500;
+  }
+  .aviso-success { background: var(--color-uteq-tinte); color: #014019; }
+  .aviso-error { background: var(--color-rechazado); color: #7a1a13; }
+  .aviso-warning { background: var(--color-revision); color: #4a3700; }
+  .aviso-info { background: var(--color-enviado); color: #16306e; }
+
+  /* Detalles de marca */
+  .subrayado-amarillo {
+    background-image: linear-gradient(transparent 66%, var(--color-uteq-amarillo) 66%, var(--color-uteq-amarillo) 92%, transparent 92%);
+    padding-inline: 0.08em;
+  }
+  .calcomania {
+    display: inline-block;
+    background-color: var(--color-uteq-amarillo);
+    color: var(--color-tinta);
+    border: 2px solid var(--color-tinta);
+    padding: 0.2rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    transform: rotate(3deg);
+  }
+  .etiqueta-seccion {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--acento);
+  }
+  .enlace {
+    color: var(--acento);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  /* Enlace para saltar al contenido: invisible hasta que recibe el foco */
+  .saltar {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 100;
+    background: var(--color-uteq-amarillo);
+    color: var(--color-tinta);
+    border: 2px solid var(--color-tinta);
+    padding: 0.6rem 1rem;
+    font-weight: 700;
+  }
+  .saltar:focus { top: 1rem; }
+}
+
+/* Accesibilidad: sin animaciones si el sistema pide reducir el movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

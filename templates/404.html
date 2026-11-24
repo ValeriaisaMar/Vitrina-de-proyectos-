@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Página no encontrada" %}{% endblock %}
+
+{% block contenido %}
+<section class="contenedor py-20 lg:py-28">
+  <div class="tarjeta relative mx-auto max-w-2xl p-8 sm:p-12">
+    <span class="calcomania absolute -top-4 right-6">404</span>
+    <h1 class="text-3xl font-extrabold leading-tight sm:text-4xl">{% translate "No encontramos esta página" %}</h1>
+    <p class="mt-4 text-lg leading-relaxed text-texto-suave">{% translate "Puede que la dirección esté mal escrita o que la página ya no exista." %}</p>
+    <a href="{% url 'vitrina:inicio' %}" class="btn btn-primario mt-8">{% translate "Volver al inicio" %}</a>
+  </div>
+</section>
+{% endblock %}
