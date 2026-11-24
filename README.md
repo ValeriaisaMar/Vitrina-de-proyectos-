@@ -196,6 +196,11 @@ Vitrina-de-proyectos-/
    Para probar el registro sin correo real, deja `EMAIL_HOST_PASSWORD` vacío: el correo de
    activación aparece en la terminal donde corre el servidor y puedes copiar el enlace de ahí.
 
+   Las asignaturas de la malla y las tecnologías se cargan solas con `migrate`. Las imágenes y
+   los PDF que suban los estudiantes se guardan en la carpeta `media/`, que no se sube a Git.
+   Hasta que esté el módulo 004 (revisión), para ver un proyecto en Explorar cámbialo a
+   **Aprobado** desde `/admin/` → Proyectos.
+
 ## Variables de entorno
 
 ```ini

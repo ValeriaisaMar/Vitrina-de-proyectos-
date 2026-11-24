@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load i18n formularios %}
+
+{% block titulo %}{% if es_nuevo %}{% translate "Nuevo proyecto" %}{% else %}{% translate "Editar proyecto" %}{% endif %}{% endblock %}
+
+{% block contenido %}
+<section class="bg-seccion py-10 sm:py-14">
+  <div class="contenedor">
+    <nav aria-label="{% translate 'Ruta' %}" class="text-sm text-texto-suave">
+      <a class="enlace" href="{% url 'proyectos:mis_proyectos' %}">{% translate "Mis proyectos" %}</a>
+      <span aria-hidden="true"> / </span>{% if es_nuevo %}{% translate "Nuevo" %}{% else %}{{ proyecto.titulo }}{% endif %}
+    </nav>
+    <h1 class="mt-3 text-3xl font-extrabold sm:text-4xl">{% if es_nuevo %}{% translate "Nuevo proyecto" %}{% else %}{% translate "Editar proyecto" %}{% endif %}</h1>
+    <p class="mt-2 max-w-2xl text-texto-suave">{% translate "Se guarda como borrador. Solo tú y tus coautores lo ven hasta que sea aprobado." %}</p>
+
+    {% if form.errors %}
+      <div class="mt-6">{% translate "Revisa los campos marcados en rojo." as texto_errores %}{% include "componentes/aviso.html" with tipo="error" texto=texto_errores %}</div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="mt-8 grid gap-6 lg:grid-cols-[1fr_20rem]" novalidate>
+      {% csrf_token %}
+      <div class="flex min-w-0 flex-col gap-6">
+
+        <fieldset class="tarjeta-sobria flex flex-col gap-5 p-6 sm:p-8">
+          <legend class="sr-only">{% translate "Lo básico" %}</legend>
+          <h2 class="text-lg font-extrabold">1. {% translate "Lo básico" %}</h2>
+          {% include "componentes/campo.html" with campo=form.titulo %}
+          {% include "componentes/campo.html" with campo=form.resumen %}
+          {% include "componentes/campo.html" with campo=form.descripcion %}
+        </fieldset>
+
+        <fieldset class="tarjeta-sobria flex flex-col gap-5 p-6 sm:p-8">
+          <legend class="sr-only">{% translate "Contexto académico" %}</legend>
+          <h2 class="text-lg font-extrabold">2. {% translate "Contexto académico" %}</h2>
+          <div class="grid gap-5 sm:grid-cols-[2fr_1fr]">
+            {% include "componentes/campo.html" with campo=form.asignatura %}
+            {% include "componentes/campo.html" with campo=form.periodo %}
+          </div>
+        </fieldset>
+
+        <fieldset class="tarjeta-sobria flex flex-col gap-4 p-6 sm:p-8" aria-describedby="ayuda-tecnologias">
+          <legend class="sr-only">{% translate "Tecnologías" %}</legend>
+          <h2 class="text-lg font-extrabold">3. {% translate "Tecnologías" %} <span class="text-texto-suave">*</span></h2>
+          <p id="ayuda-tecnologias" class="campo-ayuda mt-0">{{ form.tecnologias.help_text }}</p>
+          <div class="etiquetas flex flex-wrap gap-2">
+            {% for opcion in form.tecnologias %}
+              <label class="relative inline-flex min-h-10 cursor-pointer items-center border-2 border-linea-suave bg-superficie px-3 text-sm font-semibold transition-colors hover:border-linea has-checked:border-linea has-checked:bg-uteq-verde has-checked:text-white has-focus-visible:outline-3 has-focus-visible:outline-uteq-amarillo">
+                {{ opcion.tag }}{{ opcion.choice_label }}
+              </label>
+            {% endfor %}
+          </div>
+          {% for error in form.tecnologias.errors %}<p class="campo-error">{{ error }}</p>{% endfor %}
+        </fieldset>
+
+        <fieldset class="tarjeta-sobria flex flex-col gap-5 p-6 sm:p-8">
+          <legend class="sr-only">{% translate "Enlaces y documento" %}</legend>
+          <h2 class="text-lg font-extrabold">4. {% translate "Enlaces y documento" %}</h2>
+          {% include "componentes/campo.html" with campo=form.repositorio %}
+          {% include "componentes/campo.html" with campo=form.demo %}
+          {% include "componentes/campo.html" with campo=form.documento_pdf %}
+        </fieldset>
+
+        <fieldset class="tarjeta-sobria flex flex-col gap-5 p-6 sm:p-8">
+          <legend class="sr-only">{% translate "Imágenes" %}</legend>
+          <h2 class="text-lg font-extrabold">5. {% translate "Imágenes" %}</h2>
+          {% if proyecto and proyecto.imagenes.all %}
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {% for imagen in proyecto.imagenes.all %}
+                <label class="flex cursor-pointer flex-col gap-2 border-2 border-linea-suave p-2 has-checked:border-rechazado-texto">
+                  <img src="{{ imagen.archivo.url }}" alt="" class="aspect-video w-full object-cover">
+                  <span class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="quitar_imagenes" value="{{ imagen.pk }}" class="h-5 w-5 accent-uteq-verde">{% translate "Quitar" %}</span>
+                </label>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% include "componentes/campo.html" with campo=form.imagenes %}
+        </fieldset>
+
+        <fieldset class="tarjeta-sobria flex flex-col gap-5 p-6 sm:p-8">
+          <legend class="sr-only">{% translate "Autores" %}</legend>
+          <h2 class="text-lg font-extrabold">6. {% translate "Autores" %}</h2>
+          <p class="text-sm"><span class="font-bold">{% translate "Creador:" %}</span> {% if proyecto %}{{ proyecto.creador.nombre_completo }}{% else %}{{ user.nombre_completo }}{% endif %}</p>
+          {% include "componentes/campo.html" with campo=form.coautores %}
+        </fieldset>
+      </div>
+
+      <aside class="flex flex-col gap-4 lg:sticky lg:top-24 lg:h-fit">
+        <div class="tarjeta p-6">
+          <h2 class="font-extrabold">{% translate "Antes de guardar" %}</h2>
+          <ul class="mt-3 flex flex-col gap-2 text-sm text-texto-suave">
+            <li>→ {% translate "Un buen resumen explica en una frase qué hace el proyecto." %}</li>
+            <li>→ {% translate "Revisa que el repositorio sea público." %}</li>
+            <li>→ {% translate "Las capturas ayudan mucho a que el docente entienda tu trabajo." %}</li>
+          </ul>
+        </div>
+        <button type="submit" class="btn btn-primario w-full">{% if es_nuevo %}{% translate "Crear proyecto" %}{% else %}{% translate "Guardar cambios" %}{% endif %}</button>
+        <a href="{% if proyecto %}{{ proyecto.get_absolute_url }}{% else %}{% url 'proyectos:mis_proyectos' %}{% endif %}" class="btn btn-secundario w-full">{% translate "Cancelar" %}</a>
+      </aside>
+    </form>
+  </div>
+</section>
+{% endblock %}

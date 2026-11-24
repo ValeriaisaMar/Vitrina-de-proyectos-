@@ -25,6 +25,7 @@
 
       <div class="hidden items-center gap-2 lg:flex">
         {% if user.is_authenticated %}
+          {% if user.es_estudiante %}<a href="{% url 'proyectos:mis_proyectos' %}" class="btn btn-secundario">{% translate "Mis proyectos" %}</a>{% endif %}
           <a href="{% url 'cuentas:perfil' %}" class="btn btn-fantasma" title="{% translate 'Mi perfil' %}">{% blocktranslate with nombre=user.nombres %}Hola, {{ nombre }}{% endblocktranslate %}</a>
           <form method="post" action="{% url 'cuentas:salir' %}">
             {% csrf_token %}
@@ -47,6 +48,7 @@
           </nav>
           <div class="mt-4 flex flex-col gap-3">
             {% if user.is_authenticated %}
+              {% if user.es_estudiante %}<a href="{% url 'proyectos:mis_proyectos' %}" class="btn btn-primario w-full">{% translate "Mis proyectos" %}</a>{% endif %}
               <a href="{% url 'cuentas:perfil' %}" class="btn btn-secundario w-full">{% translate "Mi perfil" %}</a>
               <form method="post" action="{% url 'cuentas:salir' %}">
                 {% csrf_token %}

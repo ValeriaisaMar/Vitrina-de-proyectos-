@@ -58,8 +58,8 @@ class PortadaTests(TestCase):
 
 
 class ProximamenteTests(TestCase):
-    def test_explorar_y_verificar_muestran_proximamente(self):
-        for nombre in ("vitrina:explorar", "vitrina:verificar"):
+    def test_verificar_muestra_proximamente(self):
+        for nombre in ("vitrina:verificar",):
             respuesta = self.client.get(reverse(nombre))
             self.assertEqual(respuesta.status_code, 200)
             self.assertContains(respuesta, "Próximamente")

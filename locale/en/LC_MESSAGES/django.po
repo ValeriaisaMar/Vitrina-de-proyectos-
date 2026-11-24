@@ -17,6 +17,10 @@ msgstr "Open menu"
 msgid "Acceso"
 msgstr "Access"
 
+#: proyectos/templates/proyectos/mis_proyectos.html
+msgid "Acciones"
+msgstr "Actions"
+
 #: cuentas/templates/cuentas/correos/activacion.html
 msgid "Activa tu cuenta"
 msgstr "Activate your account"
@@ -29,29 +33,57 @@ msgstr "Activate your Project Showcase account"
 msgid "Activar mi cuenta"
 msgstr "Activate my account"
 
+#: proyectos/templates/proyectos/mis_proyectos.html
+msgid "Actualizado"
+msgstr "Updated"
+
 #: cuentas/models.py
 msgid "Admin"
 msgstr "Admin"
+
+#: proyectos/forms.py
+msgid "Agregar imágenes"
+msgstr "Add images"
 
 #: templates/500.html
 msgid "Algo salió mal"
 msgstr "Something went wrong"
 
-#: vitrina/templates/vitrina/inicio.html
+#: proyectos/templates/proyectos/formulario.html
+msgid "Antes de guardar"
+msgstr "Before saving"
+
+#: vitrina/templates/vitrina/explorar.html
+msgid "Aplicar filtros"
+msgstr "Apply filters"
+
+#: proyectos/models.py vitrina/templates/vitrina/detalle.html vitrina/templates/vitrina/inicio.html
 msgid "Aprobado"
 msgstr "Approved"
-
-#: vitrina/views.py
-msgid "Aquí vas a poder buscar y filtrar los proyectos verificados de la carrera."
-msgstr "Here you'll be able to search and filter the program's verified projects."
 
 #: vitrina/views.py
 msgid "Aquí vas a poder comprobar un proyecto con su código o escaneando su QR."
 msgstr "Here you'll be able to check a project with its code or by scanning its QR."
 
+#: proyectos/templates/proyectos/mis_proyectos.html vitrina/forms.py vitrina/templates/vitrina/detalle.html
+msgid "Asignatura"
+msgstr "Course"
+
+#: proyectos/templates/proyectos/formulario.html vitrina/templates/vitrina/detalle.html
+msgid "Autores"
+msgstr "Authors"
+
 #: cuentas/templates/cuentas/entrar.html
 msgid "Bienvenido de nuevo"
 msgstr "Welcome back"
+
+#: proyectos/models.py
+msgid "Borrador"
+msgstr "Draft"
+
+#: vitrina/forms.py vitrina/templates/vitrina/explorar.html
+msgid "Buscar"
+msgstr "Search"
 
 #: templates/parciales/boton_tema.html
 msgid "Cambiar a modo claro"
@@ -69,9 +101,23 @@ msgstr "Change password"
 msgid "Cambiar tema"
 msgstr "Change theme"
 
-#: cuentas/templates/cuentas/contrasena_cambiar.html
+#: cuentas/templates/cuentas/contrasena_cambiar.html proyectos/templates/proyectos/confirmar_eliminar.html proyectos/templates/proyectos/formulario.html
 msgid "Cancelar"
 msgstr "Cancel"
+
+#: vitrina/templates/vitrina/detalle.html
+#, python-format
+msgid "Captura %(n)s"
+msgstr "Screenshot %(n)s"
+
+#: vitrina/templates/vitrina/detalle.html
+#, python-format
+msgid "Captura principal de %(titulo)s"
+msgstr "Main screenshot of %(titulo)s"
+
+#: vitrina/templates/vitrina/detalle.html
+msgid "Carrera"
+msgstr "Program"
 
 #: templates/parciales/encabezado.html
 msgid "Cerrar sesión"
@@ -81,9 +127,25 @@ msgstr "Log out"
 msgid "Cerraste sesión."
 msgstr "You logged out."
 
+#: vitrina/templates/vitrina/detalle.html
+msgid "Coautor"
+msgstr "Co-author"
+
+#: proyectos/forms.py
+msgid "Coautores"
+msgstr "Co-authors"
+
 #: vitrina/views.py
 msgid "Compártelo con QR"
 msgstr "Share it with a QR"
+
+#: proyectos/models.py
+msgid "Con observaciones"
+msgstr "Changes requested"
+
+#: proyectos/templates/proyectos/formulario.html
+msgid "Contexto académico"
+msgstr "Academic context"
 
 #: cuentas/forms.py cuentas/templates/cuentas/perfil.html
 msgid "Contraseña"
@@ -100,6 +162,10 @@ msgstr "Email"
 #: cuentas/forms.py
 msgid "Correo electrónico"
 msgstr "Email"
+
+#: proyectos/forms.py
+msgid "Correos de otros estudiantes con cuenta activa, uno por línea o separados por comas. Máximo 5."
+msgstr "Emails of other students with an active account, one per line or separated by commas. Up to 5."
 
 #: cuentas/templates/cuentas/registro.html
 msgid "Crea tu cuenta"
@@ -121,6 +187,14 @@ msgstr "Create your new password"
 msgid "Crea una contraseña nueva para la Vitrina de Proyectos"
 msgstr "Create a new password for the Project Showcase"
 
+#: vitrina/templates/vitrina/detalle.html
+msgid "Creador"
+msgstr "Creator"
+
+#: proyectos/templates/proyectos/formulario.html
+msgid "Creador:"
+msgstr "Creator:"
+
 #: cuentas/templates/cuentas/correos/recuperacion.html
 msgid "Crear contraseña nueva"
 msgstr "Create new password"
@@ -129,13 +203,25 @@ msgstr "Create new password"
 msgid "Crear cuenta"
 msgstr "Sign up"
 
+#: proyectos/templates/proyectos/formulario.html proyectos/templates/proyectos/mis_proyectos.html
+msgid "Crear proyecto"
+msgstr "Create project"
+
 #: templates/parciales/pie.html
 msgid "Cuenta"
 msgstr "Account"
 
+#: proyectos/templates/proyectos/mis_proyectos.html
+msgid "Cuéntanos qué hiciste, en qué asignatura y con qué tecnologías. Un docente lo revisará y quedará en la vitrina con su sello."
+msgstr "Tell us what you built, for which course and with which technologies. A professor will review it and it will appear in the showcase with its seal."
+
 #: templates/parciales/enlaces_nav.html templates/parciales/pie.html vitrina/templates/vitrina/inicio.html
 msgid "Cómo funciona"
 msgstr "How it works"
+
+#: vitrina/templates/vitrina/detalle.html
+msgid "Datos académicos"
+msgstr "Academic details"
 
 #: cuentas/admin.py
 msgid "Datos personales"
@@ -150,17 +236,50 @@ msgstr "From your repository to the showcase in four steps"
 msgid "Demasiados intentos fallidos. Espera %(minutos)s minutos antes de intentar de nuevo."
 msgstr "Too many failed attempts. Wait %(minutos)s minutes before trying again."
 
+#: vitrina/templates/vitrina/detalle.html
+msgid "Demo en línea"
+msgstr "Live demo"
+
 #: vitrina/views.py
 msgid "Descarga el QR y el certificado PDF para tu portafolio."
 msgstr "Download the QR and the PDF certificate for your portfolio."
+
+#: vitrina/templates/vitrina/detalle.html
+msgid "Descripción"
+msgstr "Description"
 
 #: vitrina/views.py
 msgid "Descripción, coautores, tecnologías, repositorio y documento PDF."
 msgstr "Description, co-authors, technologies, repository and PDF document."
 
+#: vitrina/templates/vitrina/detalle.html
+msgid "Documento"
+msgstr "Document"
+
+#: proyectos/templates/proyectos/mis_proyectos.html
+msgid "Editar"
+msgstr "Edit"
+
+#: proyectos/templates/proyectos/formulario.html vitrina/templates/vitrina/detalle.html
+msgid "Editar proyecto"
+msgstr "Edit project"
+
+#: proyectos/validadores.py
+#, python-format
+msgid "El PDF pesa más de %(mb)s MB."
+msgstr "The PDF is larger than %(mb)s MB."
+
+#: proyectos/validadores.py
+msgid "El archivo no es un PDF válido."
+msgstr "The file is not a valid PDF."
+
 #: cuentas/forms.py
 msgid "El correo o la contraseña no son correctos."
 msgstr "The email or password is incorrect."
+
+#: proyectos/validadores.py
+msgid "El documento debe ser un archivo PDF."
+msgstr "The document must be a PDF file."
 
 #: cuentas/templates/cuentas/correos/activacion.html cuentas/templates/cuentas/correos/activacion.txt
 #, python-format
@@ -171,13 +290,56 @@ msgstr "The link expires in %(horas)s hours and works only once."
 msgid "El enlace vence en 24 horas y sirve una sola vez."
 msgstr "The link expires in 24 hours and works only once."
 
-#: vitrina/templates/vitrina/inicio.html
+#: proyectos/validadores.py
+msgid "El periodo debe tener la forma AAAA-1 o AAAA-2."
+msgstr "The term must look like YYYY-1 or YYYY-2."
+
+#: proyectos/forms.py
+#, python-format
+msgid "El proyecto puede tener como máximo %(n)s imágenes."
+msgstr "A project can have at most %(n)s images."
+
+#: proyectos/forms.py
+#, python-format
+msgid "Elige como máximo %(n)s tecnologías."
+msgstr "Choose at most %(n)s technologies."
+
+#: proyectos/forms.py
+msgid "Elige entre 1 y 8."
+msgstr "Choose between 1 and 8."
+
+#: proyectos/views.py
+#, python-format
+msgid "Eliminamos el proyecto «%(titulo)s»."
+msgstr "We deleted the project “%(titulo)s”."
+
+#: proyectos/templates/proyectos/mis_proyectos.html
+msgid "Eliminar"
+msgstr "Delete"
+
+#: proyectos/templates/proyectos/confirmar_eliminar.html
+msgid "Eliminar proyecto"
+msgstr "Delete project"
+
+#: proyectos/models.py vitrina/templates/vitrina/inicio.html
 msgid "En revisión"
 msgstr "In review"
 
 #: cuentas/templates/cuentas/activacion_invalida.html cuentas/templates/cuentas/recuperar_confirmar.html
 msgid "Enlace no válido"
 msgstr "Invalid link"
+
+#: proyectos/forms.py
+msgid "Enlace público a GitHub, GitLab u otro servicio."
+msgstr "Public link to GitHub, GitLab or another service."
+
+#: proyectos/templates/proyectos/formulario.html
+msgid "Enlaces y documento"
+msgstr "Links and document"
+
+#: vitrina/templates/vitrina/detalle.html
+msgid "Enlaces y documentos"
+msgstr "Links and documents"
 
 #: cuentas/templates/cuentas/entrar.html
 msgid "Entra para subir proyectos, seguir su revisión y descargar tu QR y certificado."
@@ -187,7 +349,7 @@ msgstr "Log in to upload projects, follow their review and download your QR and 
 msgid "Entrar"
 msgstr "Log in"
 
-#: vitrina/templates/vitrina/inicio.html
+#: proyectos/models.py vitrina/templates/vitrina/inicio.html
 msgid "Enviado"
 msgstr "Submitted"
 
@@ -215,9 +377,17 @@ msgstr "Enter the email you signed up with and we'll send you a new link."
 msgid "Escribe el correo de tu cuenta y te enviaremos un enlace para crear una contraseña nueva."
 msgstr "Enter your account email and we'll send you a link to create a new password."
 
+#: proyectos/validadores.py
+msgid "Escribe un enlace que empiece por http:// o https://."
+msgstr "Enter a link that starts with http:// or https://."
+
 #: config/settings.py
 msgid "Español"
 msgstr "Spanish"
+
+#: proyectos/templates/proyectos/confirmar_eliminar.html
+msgid "Esta acción no se puede deshacer"
+msgstr "This action cannot be undone"
 
 #: templates/403.html
 msgid "Esta sección es solo para otro tipo de cuenta. Si crees que es un error, escríbele a un administrador."
@@ -227,19 +397,37 @@ msgstr "This section is for a different type of account. If you think this is a 
 msgid "Esta sección está en construcción."
 msgstr "This section is under construction."
 
+#: proyectos/templates/proyectos/mis_proyectos.html
+msgid "Estado"
+msgstr "Status"
+
 #: cuentas/templates/cuentas/activacion_invalida.html cuentas/templates/cuentas/recuperar_confirmar.html
 msgid "Este enlace ya no sirve"
 msgstr "This link no longer works"
+
+#: proyectos/forms.py
+#, python-format
+msgid "Estos correos no son válidos: %(lista)s."
+msgstr "These emails are not valid: %(lista)s."
+
+#: proyectos/forms.py
+#, python-format
+msgid "Estos correos no tienen una cuenta activa de estudiante: %(lista)s."
+msgstr "These emails don't have an active student account: %(lista)s."
 
 #: cuentas/models.py
 msgid "Estudiante"
 msgstr "Student"
 
-#: templates/parciales/enlaces_nav.html
+#: vitrina/templates/vitrina/inicio.html
+msgid "Estudiantes autores"
+msgstr "Student authors"
+
+#: templates/parciales/enlaces_nav.html vitrina/templates/vitrina/detalle.html
 msgid "Explorar"
 msgstr "Explore"
 
-#: templates/parciales/pie.html vitrina/templates/vitrina/inicio.html vitrina/views.py
+#: templates/parciales/pie.html vitrina/templates/vitrina/explorar.html vitrina/templates/vitrina/inicio.html
 msgid "Explorar proyectos"
 msgstr "Explore projects"
 
@@ -255,6 +443,14 @@ msgstr "Faculty of Computer Science · Software Engineering"
 msgid "Fechas"
 msgstr "Dates"
 
+#: vitrina/templates/vitrina/explorar.html
+msgid "Filtros"
+msgstr "Filters"
+
+#: vitrina/templates/vitrina/explorar.html
+msgid "Filtros activos:"
+msgstr "Active filters:"
+
 #: cuentas/templates/cuentas/correos/activacion.html cuentas/templates/cuentas/correos/activacion.txt
 msgid "Gracias por registrarte en la Vitrina de Proyectos de Ingeniería de Software de la UTEQ."
 msgstr "Thanks for signing up for the UTEQ Software Engineering Project Showcase."
@@ -263,13 +459,21 @@ msgstr "Thanks for signing up for the UTEQ Software Engineering Project Showcase
 msgid "Guardamos los cambios de tu perfil."
 msgstr "Your profile changes were saved."
 
-#: cuentas/templates/cuentas/perfil.html
+#: proyectos/views.py
+msgid "Guardamos los cambios del proyecto."
+msgstr "We saved the project changes."
+
+#: cuentas/templates/cuentas/perfil.html proyectos/templates/proyectos/formulario.html
 msgid "Guardar cambios"
 msgstr "Save changes"
 
 #: cuentas/templates/cuentas/recuperar_confirmar.html
 msgid "Guardar contraseña"
 msgstr "Save password"
+
+#: proyectos/forms.py
+msgid "Hasta 4 imágenes en total, JPG, PNG o WEBP de hasta 3 MB cada una."
+msgstr "Up to 4 images in total, JPG, PNG or WEBP, up to 3 MB each."
 
 #: templates/parciales/pie.html
 msgid "Hecho por estudiantes embajadores de la Universidad de Córdoba (Colombia)"
@@ -297,7 +501,11 @@ msgstr "Hi %(nombre)s,"
 msgid "Idioma"
 msgstr "Language"
 
-#: cuentas/templates/cuentas/base_acceso.html cuentas/templates/cuentas/correos/base_correo.html templates/parciales/encabezado.html vitrina/templates/vitrina/inicio.html
+#: proyectos/templates/proyectos/formulario.html
+msgid "Imágenes"
+msgstr "Images"
+
+#: cuentas/templates/cuentas/base_acceso.html cuentas/templates/cuentas/correos/base_correo.html templates/parciales/encabezado.html vitrina/templates/vitrina/detalle.html vitrina/templates/vitrina/inicio.html
 msgid "Ingeniería de Software"
 msgstr "Software Engineering"
 
@@ -317,6 +525,32 @@ msgstr "Log in"
 msgid "Inicio"
 msgstr "Home"
 
+#: proyectos/validadores.py
+#, python-format
+msgid "La imagen %(nombre)s debe ser JPG, PNG o WEBP."
+msgstr "The image %(nombre)s must be JPG, PNG or WEBP."
+
+#: proyectos/validadores.py
+#, python-format
+msgid "La imagen %(nombre)s pesa más de %(mb)s MB."
+msgstr "The image %(nombre)s is larger than %(mb)s MB."
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "La vitrina en cifras"
+msgstr "The showcase in numbers"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "La vitrina está lista para su primer proyecto"
+msgstr "The showcase is ready for its first project"
+
+#: proyectos/templates/proyectos/formulario.html
+msgid "Las capturas ayudan mucho a que el docente entienda tu trabajo."
+msgstr "Screenshots really help the professor understand your work."
+
+#: vitrina/templates/vitrina/explorar.html
+msgid "Limpiar"
+msgstr "Clear"
+
 #: cuentas/templates/cuentas/recuperar_listo.html
 msgid "Listo"
 msgstr "Done"
@@ -324,6 +558,14 @@ msgstr "Done"
 #: vitrina/views.py
 msgid "Lo aprueba, pide cambios o lo rechaza. Cada paso queda en el historial."
 msgstr "They approve it, request changes or reject it. Every step is kept in the history."
+
+#: proyectos/templates/proyectos/formulario.html
+msgid "Lo básico"
+msgstr "The basics"
+
+#: proyectos/templates/proyectos/mis_proyectos.html
+msgid "Los proyectos en los que eres autor o coautor."
+msgstr "The projects where you are an author or co-author."
 
 #: cuentas/forms.py
 msgid "Mantener la sesión iniciada"
@@ -337,21 +579,65 @@ msgstr "My profile"
 msgid "Miembro desde"
 msgstr "Member since"
 
+#: proyectos/templates/proyectos/formulario.html proyectos/templates/proyectos/mis_proyectos.html templates/parciales/encabezado.html
+msgid "Mis proyectos"
+msgstr "My projects"
+
 #: cuentas/templates/cuentas/registro.html
 msgid "Muestra lo que construyes."
 msgstr "Show what you build."
+
+#: vitrina/forms.py
+msgid "Más recientes"
+msgstr "Most recent"
 
 #: templates/404.html
 msgid "No encontramos esta página"
 msgstr "We couldn't find this page"
 
+#: vitrina/templates/vitrina/explorar.html
+msgid "No encontramos proyectos con esos filtros"
+msgstr "We couldn't find projects with those filters"
+
 #: templates/403.html
 msgid "No tienes permiso para ver esta página"
 msgstr "You don't have permission to see this page"
 
+#: vitrina/forms.py
+msgid "Nombre (A–Z)"
+msgstr "Name (A–Z)"
+
+#: vitrina/templates/vitrina/explorar.html
+msgid "Nombre, tecnología o autor"
+msgstr "Name, technology or author"
+
 #: cuentas/templates/cuentas/recuperar_confirmar.html
 msgid "Nueva contraseña"
 msgstr "New password"
+
+#: proyectos/templates/proyectos/formulario.html
+msgid "Nuevo"
+msgstr "New"
+
+#: proyectos/templates/proyectos/formulario.html proyectos/templates/proyectos/mis_proyectos.html
+msgid "Nuevo proyecto"
+msgstr "New project"
+
+#: proyectos/forms.py
+msgid "Opcional. Donde se puede probar el proyecto."
+msgstr "Optional. Where the project can be tried out."
+
+#: proyectos/forms.py
+msgid "Opcional. Informe o manual del proyecto, PDF de hasta 10 MB."
+msgstr "Optional. Project report or manual, PDF up to 10 MB."
+
+#: vitrina/forms.py
+msgid "Ordenar"
+msgstr "Sort by"
+
+#: vitrina/templates/vitrina/explorar.html
+msgid "Paginación"
+msgstr "Pagination"
 
 #: cuentas/templates/cuentas/correos/activacion.txt
 msgid "Para activar tu cuenta, abre este enlace:"
@@ -381,6 +667,10 @@ msgstr "Request another link"
 msgid "Pedir uno nuevo"
 msgstr "Request a new one"
 
+#: proyectos/templates/proyectos/mis_proyectos.html vitrina/forms.py vitrina/templates/vitrina/detalle.html
+msgid "Periodo"
+msgstr "Term"
+
 #: templates/parciales/encabezado.html
 msgid "Principal"
 msgstr "Main"
@@ -393,6 +683,14 @@ msgstr "Main (mobile)"
 msgid "Profesor"
 msgstr "Professor"
 
+#: proyectos/templates/proyectos/mis_proyectos.html
+msgid "Proyecto"
+msgstr "Project"
+
+#: proyectos/views.py
+msgid "Proyecto creado. Quedó guardado como borrador."
+msgstr "Project created. It was saved as a draft."
+
 #: templates/base.html
 msgid "Proyectos de Ingeniería de Software de la UTEQ, revisados por docentes y verificables con un QR."
 msgstr "UTEQ Software Engineering projects, reviewed by professors and verifiable with a QR."
@@ -400,6 +698,28 @@ msgstr "UTEQ Software Engineering projects, reviewed by professors and verifiabl
 #: vitrina/templates/vitrina/inicio.html
 msgid "Proyectos de Ingeniería de Software,"
 msgstr "Software Engineering projects,"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Proyectos destacados"
+msgstr "Featured projects"
+
+#: vitrina/templates/vitrina/explorar.html
+#, python-format
+msgid "Proyectos encontrados: %(total)s"
+msgstr "Projects found: %(total)s"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Proyectos verificados"
+msgstr "Verified projects"
+
+#: vitrina/templates/vitrina/explorar.html
+#, python-format
+msgid "Proyectos verificados: %(total)s"
+msgstr "Verified projects: %(total)s"
+
+#: vitrina/templates/vitrina/explorar.html
+msgid "Prueba con otra palabra o quita algún filtro."
+msgstr "Try another word or remove a filter."
 
 #: vitrina/templates/vitrina/proximamente.html
 msgid "Próximamente"
@@ -417,9 +737,17 @@ msgstr "You may have already used it, or more than 24 hours have passed. Request
 msgid "Puede que ya lo hayas usado, que hayan pasado más de 24 horas o que esté incompleto. Si tu cuenta ya está activa, solo inicia sesión."
 msgstr "You may have already used it, more than 24 hours may have passed, or it may be incomplete. If your account is already active, just log in."
 
+#: vitrina/templates/vitrina/explorar.html
+msgid "Página anterior"
+msgstr "Previous page"
+
 #: templates/404.html
 msgid "Página no encontrada"
 msgstr "Page not found"
+
+#: vitrina/templates/vitrina/explorar.html
+msgid "Página siguiente"
+msgstr "Next page"
 
 #: vitrina/templates/vitrina/inicio.html
 msgid "QR verificable"
@@ -429,9 +757,30 @@ msgstr "Verifiable QR"
 msgid "Queda verificado"
 msgstr "It gets verified"
 
+#: proyectos/templates/proyectos/formulario.html
+msgid "Quitar"
+msgstr "Remove"
+
+#: vitrina/templates/vitrina/explorar.html
+#, python-format
+msgid "Quitar filtro %(filtro)s"
+msgstr "Remove filter %(filtro)s"
+
+#: proyectos/forms.py
+msgid "Quitar imágenes"
+msgstr "Remove images"
+
+#: proyectos/models.py
+msgid "Rechazado"
+msgstr "Rejected"
+
 #: cuentas/templates/cuentas/correos/recuperacion.html cuentas/templates/cuentas/correos/recuperacion.txt
 msgid "Recibimos una solicitud para cambiar la contraseña de tu cuenta."
 msgstr "We received a request to change your account password."
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Recién verificados"
+msgstr "Recently verified"
 
 #: cuentas/templates/cuentas/correos/recuperacion.html cuentas/templates/cuentas/recuperar.html templates/parciales/pie.html
 msgid "Recuperar contraseña"
@@ -449,6 +798,18 @@ msgstr "Resend the activation link"
 msgid "Reenviar enlace"
 msgstr "Resend link"
 
+#: vitrina/templates/vitrina/detalle.html
+msgid "Repositorio"
+msgstr "Repository"
+
+#: proyectos/templates/proyectos/formulario.html
+msgid "Revisa los campos marcados en rojo."
+msgstr "Check the fields marked in red."
+
+#: proyectos/templates/proyectos/formulario.html
+msgid "Revisa que el repositorio sea público."
+msgstr "Make sure the repository is public."
+
 #: cuentas/templates/cuentas/recuperar_enviado.html cuentas/templates/cuentas/revisa_correo.html
 msgid "Revisa tu correo"
 msgstr "Check your email"
@@ -465,6 +826,10 @@ msgstr "Role"
 msgid "Rol y acceso"
 msgstr "Role and access"
 
+#: proyectos/templates/proyectos/formulario.html vitrina/templates/vitrina/detalle.html
+msgid "Ruta"
+msgstr "Breadcrumb"
+
 #: vitrina/templates/vitrina/inicio.html
 msgid "SELLO VERIFICADO"
 msgstr "VERIFIED SEAL"
@@ -473,9 +838,22 @@ msgstr "VERIFIED SEAL"
 msgid "Saltar al contenido"
 msgstr "Skip to content"
 
+#: proyectos/templates/proyectos/confirmar_eliminar.html
+msgid "Se borrarán el proyecto, sus imágenes y su documento. Tus coautores también dejarán de verlo."
+msgstr "The project, its images and its document will be deleted. Your co-authors will no longer see it either."
+
+#: proyectos/templates/proyectos/formulario.html
+msgid "Se guarda como borrador. Solo tú y tus coautores lo ven hasta que sea aprobado."
+msgstr "It's saved as a draft. Only you and your co-authors see it until it's approved."
+
 #: vitrina/views.py
 msgid "Se publica en la vitrina con el sello de la carrera y un código único."
 msgstr "It's published in the showcase with the program's seal and a unique code."
+
+#: proyectos/forms.py
+#, python-format
+msgid "Semestre %(n)s"
+msgstr "Semester %(n)s"
 
 #: cuentas/templates/cuentas/correos/base_correo.html
 msgid "Si el botón no funciona, copia este enlace en tu navegador:"
@@ -506,6 +884,14 @@ msgstr "If you didn't request this change, ignore this email: your password stay
 msgid "Sin permiso"
 msgstr "No permission"
 
+#: vitrina/templates/vitrina/inicio.html
+msgid "Sube el tuyo y sé de los primeros en tener el sello de la carrera."
+msgstr "Upload yours and be among the first to carry the program's seal."
+
+#: proyectos/templates/proyectos/mis_proyectos.html
+msgid "Sube tu primer proyecto"
+msgstr "Upload your first project"
+
 #: vitrina/views.py
 msgid "Sube tu proyecto"
 msgstr "Upload your project"
@@ -517,6 +903,10 @@ msgstr "Upload your project, get reviewed by a professor and share it with a cod
 #: vitrina/templates/vitrina/inicio.html
 msgid "Subir mi proyecto"
 msgstr "Upload my project"
+
+#: proyectos/templates/proyectos/confirmar_eliminar.html
+msgid "Sí, eliminar"
+msgstr "Yes, delete"
 
 #: cuentas/templates/cuentas/revisa_correo.html
 #, python-format
@@ -534,6 +924,26 @@ msgstr "We'll send you a link to activate your account."
 #: cuentas/templates/cuentas/perfil.html
 msgid "Te pediremos la actual para confirmar que eres tú."
 msgstr "We'll ask for your current one to confirm it's you."
+
+#: vitrina/forms.py vitrina/templates/vitrina/explorar.html
+msgid "Tecnología"
+msgstr "Technology"
+
+#: proyectos/templates/proyectos/formulario.html vitrina/templates/vitrina/_tarjeta_proyecto.html vitrina/templates/vitrina/detalle.html
+msgid "Tecnologías"
+msgstr "Technologies"
+
+#: vitrina/templates/vitrina/inicio.html
+msgid "Tecnologías usadas"
+msgstr "Technologies used"
+
+#: vitrina/forms.py vitrina/templates/vitrina/explorar.html
+msgid "Todas"
+msgstr "All"
+
+#: vitrina/forms.py
+msgid "Todos"
+msgstr "All"
 
 #: cuentas/templates/cuentas/registro.html
 msgid "Todos los campos son obligatorios."
@@ -571,9 +981,22 @@ msgstr "Your details"
 msgid "Tuvimos un problema al cargar esta página. Intenta de nuevo en unos minutos."
 msgstr "We had a problem loading this page. Please try again in a few minutes."
 
+#: proyectos/templates/proyectos/formulario.html
+msgid "Un buen resumen explica en una frase qué hace el proyecto."
+msgstr "A good summary explains in one sentence what the project does."
+
 #: vitrina/views.py
 msgid "Un docente lo revisa"
 msgstr "A professor reviews it"
+
+#: proyectos/forms.py
+#, python-format
+msgid "Un proyecto puede tener como máximo %(n)s autores."
+msgstr "A project can have at most %(n)s authors."
+
+#: proyectos/models.py
+msgid "Una o dos frases. Aparece en las tarjetas."
+msgstr "One or two sentences. It appears on the cards."
 
 #: templates/parciales/pie.html
 msgid "Universidad Técnica Estatal de Quevedo"
@@ -583,9 +1006,21 @@ msgstr "Quevedo State Technical University"
 msgid "Usa el correo con el que te registraste."
 msgstr "Use the email you signed up with."
 
+#: proyectos/templates/proyectos/mis_proyectos.html
+msgid "Ver"
+msgstr "View"
+
 #: vitrina/templates/vitrina/inicio.html
 msgid "Ver la vitrina"
 msgstr "See the showcase"
+
+#: vitrina/templates/vitrina/explorar.html vitrina/templates/vitrina/inicio.html
+msgid "Ver todos los proyectos"
+msgstr "See all projects"
+
+#: vitrina/templates/vitrina/_tarjeta_proyecto.html vitrina/templates/vitrina/detalle.html
+msgid "Verificado"
+msgstr "Verified"
 
 #: templates/parciales/enlaces_nav.html
 msgid "Verificar QR"
@@ -599,7 +1034,11 @@ msgstr "Verify a QR"
 msgid "Verificar un proyecto"
 msgstr "Verify a project"
 
-#: templates/parciales/pie.html
+#: vitrina/templates/vitrina/detalle.html
+msgid "Vista previa: este proyecto todavía no es público. Solo lo ven sus autores, los profesores y los administradores."
+msgstr "Preview: this project isn't public yet. Only its authors, professors and administrators can see it."
+
+#: templates/parciales/pie.html vitrina/templates/vitrina/explorar.html
 msgid "Vitrina"
 msgstr "Showcase"
 
@@ -635,29 +1074,149 @@ msgstr "You can now log in with your new password."
 msgid "acceso al panel de Django"
 msgstr "Django admin access"
 
+#: proyectos/models.py
+msgid "activa"
+msgstr "active"
+
 #: cuentas/models.py
 msgid "activo"
 msgstr "active"
+
+#: proyectos/models.py
+msgid "actualizado en"
+msgstr "updated at"
 
 #: cuentas/models.py
 msgid "apellidos"
 msgstr "last names"
 
+#: proyectos/models.py
+msgid "aprobado en"
+msgstr "approved at"
+
+#: proyectos/models.py
+msgid "asignatura"
+msgstr "course"
+
+#: proyectos/models.py
+msgid "asignaturas"
+msgstr "courses"
+
+#: proyectos/models.py
+msgid "autores"
+msgstr "authors"
+
+#: proyectos/models.py
+msgid "autoría"
+msgstr "authorship"
+
+#: proyectos/models.py
+msgid "autorías"
+msgstr "authorships"
+
 #: cuentas/models.py
 msgid "correo electrónico"
 msgstr "email"
+
+#: proyectos/models.py
+msgid "creado en"
+msgstr "created at"
+
+#: proyectos/models.py
+msgid "código de verificación"
+msgstr "verification code"
+
+#: proyectos/models.py
+msgid "demo en línea"
+msgstr "live demo"
+
+#: proyectos/models.py
+msgid "descripción"
+msgstr "description"
+
+#: proyectos/models.py
+msgid "dirección"
+msgstr "address"
+
+#: proyectos/models.py
+msgid "documento PDF"
+msgstr "PDF document"
+
+#: proyectos/models.py
+msgid "es el creador"
+msgstr "is the creator"
+
+#: proyectos/models.py
+msgid "estado"
+msgstr "status"
 
 #: cuentas/models.py
 msgid "fecha de registro"
 msgstr "sign-up date"
 
+#: proyectos/models.py
+msgid "imagen"
+msgstr "image"
+
+#: proyectos/models.py
+msgid "imágenes"
+msgstr "images"
+
+#: proyectos/models.py
+msgid "nombre"
+msgstr "name"
+
 #: cuentas/models.py
 msgid "nombres"
 msgstr "first names"
 
+#: proyectos/models.py
+msgid "orden"
+msgstr "order"
+
+#: proyectos/models.py
+msgid "periodo"
+msgstr "term"
+
+#: proyectos/models.py
+msgid "proyecto"
+msgstr "project"
+
+#: proyectos/models.py
+msgid "proyectos"
+msgstr "projects"
+
+#: proyectos/models.py
+msgid "repositorio"
+msgstr "repository"
+
+#: proyectos/models.py
+msgid "resumen"
+msgstr "summary"
+
+#: proyectos/models.py
+msgid "revisor"
+msgstr "reviewer"
+
 #: cuentas/models.py
 msgid "rol"
 msgstr "role"
+
+#: proyectos/models.py
+msgid "semestre"
+msgstr "semester"
+
+#: proyectos/models.py
+msgid "tecnología"
+msgstr "technology"
+
+#: proyectos/models.py
+msgid "tecnologías"
+msgstr "technologies"
+
+#: proyectos/models.py
+msgid "título"
+msgstr "title"
 
 #: cuentas/models.py
 msgid "usuario"
@@ -674,6 +1233,11 @@ msgstr "verified"
 #: vitrina/templates/vitrina/inicio.html
 msgid "y a la vista."
 msgstr "and on display."
+
+#: proyectos/templates/proyectos/confirmar_eliminar.html
+#, python-format
+msgid "¿Eliminar «%(titulo)s»?"
+msgstr "Delete “%(titulo)s”?"
 
 #: cuentas/templates/cuentas/entrar.html
 msgid "¿La olvidaste?"

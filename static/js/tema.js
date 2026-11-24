@@ -47,5 +47,17 @@
     });
   });
 
+  // Filtros de Explorar: en pantallas pequeñas empiezan plegados; en escritorio, siempre abiertos.
+  var filtros = document.querySelector("details[data-filtros]");
+  if (filtros) {
+    var escritorio = window.matchMedia("(min-width: 64rem)");
+    var ajustarFiltros = function () {
+      if (escritorio.matches) filtros.setAttribute("open", "");
+      else filtros.removeAttribute("open");
+    };
+    ajustarFiltros();
+    escritorio.addEventListener("change", ajustarFiltros);
+  }
+
   actualizarBotones();
 })();

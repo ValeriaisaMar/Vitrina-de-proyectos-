@@ -9,5 +9,6 @@ app_name = "vitrina"  # permite escribir {% url 'vitrina:inicio' %}
 urlpatterns = [
     path("", views.inicio, name="inicio"),
     path("explorar/", views.explorar, name="explorar"),
+    path("proyecto/<slug:slug>/", views.detalle, name="detalle"),
     path("verificar/", views.verificar, name="verificar"),
 ]
