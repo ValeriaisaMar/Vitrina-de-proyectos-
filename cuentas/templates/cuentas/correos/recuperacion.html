@@ -1,0 +1,12 @@
+{% extends "cuentas/correos/base_correo.html" %}
+{% load i18n %}
+{% block titulo %}{% translate "Recuperar contraseña" %}{% endblock %}
+{% block encabezado %}{% blocktranslate with nombre=user.nombres %}Hola, {{ nombre }}{% endblocktranslate %}{% endblock %}
+{% block contenido %}
+<p style="margin:0 0 12px;">{% translate "Recibimos una solicitud para cambiar la contraseña de tu cuenta." %}</p>
+<p style="margin:0;">{% translate "Para crear una contraseña nueva, pulsa el botón:" %}</p>
+{% endblock %}
+{% block boton_url %}{{ protocol }}://{{ domain }}{% url 'cuentas:recuperar_confirmar' uidb64=uid token=token %}{% endblock %}
+{% block boton_texto %}{% translate "Crear contraseña nueva" %}{% endblock %}
+{% block enlace_texto %}{{ protocol }}://{{ domain }}{% url 'cuentas:recuperar_confirmar' uidb64=uid token=token %}{% endblock %}
+{% block pie %}{% translate "El enlace vence en 24 horas y sirve una sola vez." %} {% translate "Si no pediste este cambio, ignora este correo: tu contraseña sigue igual." %}{% endblock %}

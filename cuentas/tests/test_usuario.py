@@ -78,6 +78,6 @@ class AutenticacionTests(TestCase):
 
     def test_formulario_de_login_funciona_con_el_correo(self):
         respuesta = self.client.post(
-            "/cuentas/login/", {"username": "Luis@correo.com", "password": "clave-segura-123"}
+            "/cuentas/entrar/", {"username": "Luis@correo.com", "password": "clave-segura-123"}
         )
         self.assertRedirects(respuesta, "/")

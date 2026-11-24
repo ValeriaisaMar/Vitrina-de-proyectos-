@@ -193,6 +193,9 @@ Vitrina-de-proyectos-/
 
    Abre `http://127.0.0.1:8000`. El panel de Django está en `/admin/`.
 
+   Para probar el registro sin correo real, deja `EMAIL_HOST_PASSWORD` vacío: el correo de
+   activación aparece en la terminal donde corre el servidor y puedes copiar el enlace de ahí.
+
 ## Variables de entorno
 
 ```ini

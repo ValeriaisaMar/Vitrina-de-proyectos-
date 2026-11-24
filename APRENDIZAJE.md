@@ -155,3 +155,84 @@ propósito: si el error viene de la base o de una plantilla, esa página igual t
 - `self.client` simula un navegador: `get`, `post`, `force_login`.
 - `override_settings(DEBUG=False)` prueba las páginas de error; `mock.patch` simula que existe
   el logo o que falta una variable de entorno.
+
+---
+
+## Módulo 002 · Cuentas y autenticación
+
+### T001 · Token de activación (`cuentas/tokens.py`)
+**Qué:** un generador que hereda de `PasswordResetTokenGenerator` y agrega `is_active` a los
+datos firmados.
+**Por qué:** el token de Django ya vence solo (24 h) y está firmado con la `SECRET_KEY`, así que
+nadie puede inventarlo. Al sumar `is_active`, en cuanto la cuenta se activa el token cambia y el
+enlace deja de servir: es de un solo uso sin guardar nada en la base de datos.
+**Concepto:** el enlace lleva `uidb64` (el id del usuario en base64) y el `token`. La vista los
+decodifica y llama a `check_token()`.
+
+### T002 · Límite de intentos (`cuentas/limite.py`)
+**Qué:** cuenta los fallos por correo e IP en la caché de Django; con 5 fallos bloquea 15 minutos.
+**Conceptos:** `cache.add()` crea la clave solo si no existe (con su tiempo de vida) y
+`cache.incr()` suma uno. Al vencer el tiempo, la clave desaparece sola. `CACHES` se configura en
+`settings.py`; en memoria sirve para un proceso, en producción con varios se usa una compartida.
+
+### T003 · `@rol_requerido` y la página 403
+**Qué:** un decorador que redirige a iniciar sesión a quien no tiene sesión y lanza
+`PermissionDenied` a quien no tiene el rol.
+**Conceptos:** un *decorador* es una función que envuelve a otra (`@wraps` conserva su nombre).
+Cuando una vista lanza `PermissionDenied`, Django muestra `templates/403.html` con código 403.
+
+### T004 · URLs con espacio de nombres
+**Qué:** `cuentas/urls.py` con `app_name = "cuentas"` y rutas en español; `LOGIN_URL` pasa a
+`cuentas:entrar`.
+**Concepto:** las vistas de recuperación de Django buscan por defecto nombres sin espacio de
+nombres (`password_reset_done`); por eso se les pasa `success_url` con `reverse_lazy("cuentas:…")`.
+
+### T005 · Formulario de registro
+**Qué:** `FormularioRegistro` hereda de `BaseUserCreationForm` (que ya valida y confirma la
+contraseña con los validadores de `settings.py`).
+**Concepto:** los métodos `clean_<campo>()` validan un campo concreto: `clean_email` pasa el
+correo a minúsculas y rechaza los repetidos con `email__iexact`.
+
+### T006 · Correos de activación (`cuentas/correos.py`)
+**Qué:** `EmailMultiAlternatives` con versión de texto y versión HTML, armadas con plantillas.
+**Conceptos:** los correos HTML llevan estilos en línea y tablas porque los programas de correo
+ignoran casi todo el CSS. `request.build_absolute_uri()` arma la dirección completa con el dominio.
+Si el envío falla, se registra con `logging` y la cuenta no se pierde.
+
+### T007 · Vistas de registro, activación y reenvío
+**Qué:** registro → "Revisa tu correo" → enlace → cuenta activa y sesión iniciada.
+**Conceptos:** `request.session` guarda datos entre una página y la siguiente (el correo al que
+se envió el enlace). `login(request, usuario, backend=...)` inicia la sesión sin pedir la
+contraseña (ya la comprobó el enlace). El reenvío responde siempre lo mismo para no revelar
+qué correos tienen cuenta.
+
+### T009–T010 · Entrar y salir
+**Qué:** `FormularioEntrar` hereda de `AuthenticationForm`; la vista `entrar` aplica el límite de
+intentos, la opción "Mantener la sesión iniciada" y una redirección segura.
+**Conceptos:**
+- `authenticate()` no devuelve usuarios inactivos; para avisar "activa tu cuenta" se comprueba
+  aparte que la contraseña sea correcta, y así no se revela nada a quien no la sabe.
+- `request.session.set_expiry(0)` hace que la sesión termine al cerrar el navegador.
+- `url_has_allowed_host_and_scheme()` impide que `?next=https://otro-sitio` nos use para
+  redirigir a páginas falsas (*open redirect*).
+- `@require_POST` en `salir`: cerrar sesión cambia el estado, por eso no se acepta por GET.
+
+### T012 · Recuperar la contraseña
+**Qué:** las cuatro vistas de Django (`PasswordResetView`, `…DoneView`, `…ConfirmView`,
+`…CompleteView`) con nuestras plantillas y correos.
+**Concepto:** reutilizar las vistas de Django es más seguro que reescribirlas: ya responden igual
+exista o no el correo, solo envían a cuentas activas y quitan el token de la URL antes de mostrar
+el formulario.
+
+### T014 · Perfil y cambio de contraseña
+**Qué:** `FormularioPerfil` (solo nombres y apellidos) y `CambiarContrasena`, que hereda de
+`PasswordChangeView`.
+**Concepto:** un `ModelForm` solo guarda los campos de su `Meta.fields`; aunque alguien envíe
+`email` o `rol` en el POST, se ignoran. `PasswordChangeView` actualiza la sesión para que no se
+cierre al cambiar la contraseña.
+
+### T016 · Pruebas
+**Qué:** 44 pruebas nuevas (93 en total), una o más por escenario de aceptación.
+**Conceptos:** `mail.outbox` guarda los correos enviados durante la prueba; `override_settings`
+cambia un ajuste solo dentro de la prueba (por ejemplo, un plazo vencido); `mock.patch` simula
+que el servidor de correo falla; una prueba puede tener sus propias URLs con `ROOT_URLCONF`.

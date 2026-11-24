@@ -1,0 +1,5 @@
+{% load i18n %}{# Pestañas Iniciar sesión / Crear cuenta. Recibe "activa": "entrar" o "registro". #}
+<nav class="mb-6 grid grid-cols-2 border-2 border-linea bg-superficie" aria-label="{% translate 'Acceso' %}">
+  <a href="{% url 'cuentas:entrar' %}" class="flex min-h-12 items-center justify-center text-sm font-bold {% if activa == 'entrar' %}bg-uteq-verde text-white{% else %}text-texto hover:bg-seccion{% endif %}" {% if activa == 'entrar' %}aria-current="page"{% endif %}>{% translate "Iniciar sesión" %}</a>
+  <a href="{% url 'cuentas:registro' %}" class="flex min-h-12 items-center justify-center border-l-2 border-linea text-sm font-bold {% if activa == 'registro' %}bg-uteq-verde text-white{% else %}text-texto hover:bg-seccion{% endif %}" {% if activa == 'registro' %}aria-current="page"{% endif %}>{% translate "Crear cuenta" %}</a>
+</nav>

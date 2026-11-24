@@ -1,0 +1,35 @@
+{% extends "cuentas/base_acceso.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Crear cuenta" %}{% endblock %}
+{% block panel_titulo %}{% translate "Muestra lo que construyes." %}{% endblock %}
+{% block panel_texto %}{% translate "Crea tu cuenta con tu correo. Te enviaremos un enlace para activarla y listo: ya puedes subir tus proyectos." %}{% endblock %}
+
+{% block formulario %}
+{% include "cuentas/_pestanas.html" with activa="registro" %}
+
+<div class="tarjeta-sobria p-6 sm:p-8">
+  <h2 class="text-2xl font-extrabold">{% translate "Crea tu cuenta" %}</h2>
+  <p class="mt-2 text-texto-suave">{% translate "Todos los campos son obligatorios." %}</p>
+
+  {% if form.non_field_errors %}
+    <div class="mt-6">{% include "componentes/aviso.html" with tipo="error" texto=form.non_field_errors.0 %}</div>
+  {% endif %}
+
+  <form method="post" action="{% url 'cuentas:registro' %}" class="mt-6 flex flex-col gap-5" novalidate>
+    {% csrf_token %}
+    <div class="grid gap-5 sm:grid-cols-2">
+      {% include "componentes/campo.html" with campo=form.nombres %}
+      {% include "componentes/campo.html" with campo=form.apellidos %}
+    </div>
+    {% include "componentes/campo.html" with campo=form.email %}
+    {% include "componentes/campo.html" with campo=form.password1 %}
+    {% include "componentes/campo.html" with campo=form.password2 %}
+    <button type="submit" class="btn btn-primario w-full">{% translate "Crear cuenta" %}</button>
+  </form>
+</div>
+
+<p class="mt-5 text-sm text-texto-suave">
+  {% translate "¿Ya tienes cuenta?" %} <a class="enlace" href="{% url 'cuentas:entrar' %}">{% translate "Inicia sesión" %}</a>
+</p>
+{% endblock %}

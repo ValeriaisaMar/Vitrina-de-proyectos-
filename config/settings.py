@@ -116,9 +116,16 @@ AUTH_PASSWORD_VALIDATORS = [
 # Los enlaces de activación y de recuperación vencen en 24 horas (constitución, principio IV).
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 24
 
-LOGIN_URL = "login"
+LOGIN_URL = "cuentas:entrar"
 LOGIN_REDIRECT_URL = "vitrina:inicio"
 LOGOUT_REDIRECT_URL = "vitrina:inicio"
+
+
+# Caché: guarda los intentos fallidos de inicio de sesión (cuentas/limite.py).
+# En memoria basta para un solo proceso; en producción con varios, usar una caché compartida.
+CACHES = {
+    "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "LOCATION": "vitrina"},
+}
 
 
 # ---------------------------------------------------------------------------

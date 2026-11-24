@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% comment %}
+Diseño de una tarjeta centrada para las pantallas cortas de cuentas
+(revisa tu correo, activación, recuperación, perfil). Bloques: icono, tarjeta.
+{% endcomment %}
+
+{% block contenido %}
+<section class="bg-seccion py-12 sm:py-20">
+  <div class="contenedor">
+    <div class="tarjeta-sobria mx-auto max-w-xl p-6 sm:p-10">
+      {% block tarjeta %}{% endblock %}
+    </div>
+  </div>
+</section>
+{% endblock %}

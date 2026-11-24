@@ -1,0 +1,33 @@
+{% extends "cuentas/base_tarjeta.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Revisa tu correo" %}{% endblock %}
+
+{% block tarjeta %}
+<div class="flex h-16 w-16 items-center justify-center border-2 border-linea bg-uteq-tinte text-uteq-verde" aria-hidden="true">
+  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14"/><path d="m3 7 9 6 9-6"/></svg>
+</div>
+<h1 class="mt-6 text-3xl font-extrabold">{% translate "Revisa tu correo" %}</h1>
+
+{% if fallo %}
+  <div class="mt-5">{% translate "Tu cuenta se creó, pero no pudimos enviar el correo. Intenta reenviarlo en unos minutos." as texto_fallo %}{% include "componentes/aviso.html" with tipo="error" texto=texto_fallo %}</div>
+{% endif %}
+
+<p class="mt-4 text-lg leading-relaxed text-texto-suave">
+  {% if reenvio %}
+    {% blocktranslate with correo=correo %}Si hay una cuenta pendiente de activar con {{ correo }}, te llegará un enlace nuevo.{% endblocktranslate %}
+  {% elif correo %}
+    {% blocktranslate with correo=correo %}Te enviamos un enlace de activación a {{ correo }}.{% endblocktranslate %}
+  {% else %}
+    {% translate "Te enviamos un enlace de activación a tu correo." %}
+  {% endif %}
+</p>
+<ul class="mt-5 flex flex-col gap-2 text-texto-suave">
+  <li class="flex gap-2"><span aria-hidden="true">→</span>{% translate "El enlace vence en 24 horas y sirve una sola vez." %}</li>
+  <li class="flex gap-2"><span aria-hidden="true">→</span>{% translate "Si no lo ves, revisa la carpeta de spam o correo no deseado." %}</li>
+</ul>
+<div class="mt-8 flex flex-wrap gap-4">
+  <a href="{% url 'cuentas:reenviar' %}" class="btn btn-secundario">{% translate "Reenviar enlace" %}</a>
+  <a href="{% url 'vitrina:inicio' %}" class="btn btn-fantasma">{% translate "Volver al inicio" %}</a>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "cuentas/base_tarjeta.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Reenviar activación" %}{% endblock %}
+
+{% block tarjeta %}
+<h1 class="text-3xl font-extrabold">{% translate "Reenviar el enlace de activación" %}</h1>
+<p class="mt-4 leading-relaxed text-texto-suave">{% translate "Escribe el correo con el que te registraste y te enviaremos un enlace nuevo." %}</p>
+<form method="post" class="mt-8 flex flex-col gap-5" novalidate>
+  {% csrf_token %}
+  {% include "componentes/campo.html" with campo=form.email %}
+  <button type="submit" class="btn btn-primario">{% translate "Enviar enlace" %}</button>
+</form>
+{% endblock %}

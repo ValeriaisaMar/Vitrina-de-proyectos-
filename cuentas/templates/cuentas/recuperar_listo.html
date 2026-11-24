@@ -1,0 +1,11 @@
+{% extends "cuentas/base_tarjeta.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Contraseña lista" %}{% endblock %}
+
+{% block tarjeta %}
+<span class="insignia insignia-aprobado">{% translate "Listo" %}</span>
+<h1 class="mt-5 text-3xl font-extrabold">{% translate "Tu contraseña cambió" %}</h1>
+<p class="mt-4 leading-relaxed text-texto-suave">{% translate "Ya puedes iniciar sesión con tu contraseña nueva." %}</p>
+<a href="{% url 'cuentas:entrar' %}" class="btn btn-primario mt-8">{% translate "Iniciar sesión" %}</a>
+{% endblock %}

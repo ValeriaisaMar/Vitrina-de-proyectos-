@@ -13,6 +13,22 @@ msgstr ""
 msgid "Abrir menú"
 msgstr "Open menu"
 
+#: cuentas/templates/cuentas/_pestanas.html
+msgid "Acceso"
+msgstr "Access"
+
+#: cuentas/templates/cuentas/correos/activacion.html
+msgid "Activa tu cuenta"
+msgstr "Activate your account"
+
+#: cuentas/templates/cuentas/correos/activacion_asunto.txt
+msgid "Activa tu cuenta de la Vitrina de Proyectos"
+msgstr "Activate your Project Showcase account"
+
+#: cuentas/templates/cuentas/correos/activacion.html
+msgid "Activar mi cuenta"
+msgstr "Activate my account"
+
 #: cuentas/models.py
 msgid "Admin"
 msgstr "Admin"
@@ -33,6 +49,10 @@ msgstr "Here you'll be able to search and filter the program's verified projects
 msgid "Aquí vas a poder comprobar un proyecto con su código o escaneando su QR."
 msgstr "Here you'll be able to check a project with its code or by scanning its QR."
 
+#: cuentas/templates/cuentas/entrar.html
+msgid "Bienvenido de nuevo"
+msgstr "Welcome back"
+
 #: templates/parciales/boton_tema.html
 msgid "Cambiar a modo claro"
 msgstr "Switch to light mode"
@@ -41,23 +61,71 @@ msgstr "Switch to light mode"
 msgid "Cambiar a modo oscuro"
 msgstr "Switch to dark mode"
 
+#: cuentas/templates/cuentas/contrasena_cambiar.html cuentas/templates/cuentas/perfil.html
+msgid "Cambiar contraseña"
+msgstr "Change password"
+
 #: templates/parciales/boton_tema.html
 msgid "Cambiar tema"
 msgstr "Change theme"
+
+#: cuentas/templates/cuentas/contrasena_cambiar.html
+msgid "Cancelar"
+msgstr "Cancel"
 
 #: templates/parciales/encabezado.html
 msgid "Cerrar sesión"
 msgstr "Log out"
 
+#: cuentas/views.py
+msgid "Cerraste sesión."
+msgstr "You logged out."
+
 #: vitrina/views.py
 msgid "Compártelo con QR"
 msgstr "Share it with a QR"
+
+#: cuentas/forms.py cuentas/templates/cuentas/perfil.html
+msgid "Contraseña"
+msgstr "Password"
+
+#: cuentas/templates/cuentas/recuperar_listo.html
+msgid "Contraseña lista"
+msgstr "Password ready"
+
+#: cuentas/templates/cuentas/perfil.html
+msgid "Correo"
+msgstr "Email"
+
+#: cuentas/forms.py
+msgid "Correo electrónico"
+msgstr "Email"
+
+#: cuentas/templates/cuentas/registro.html
+msgid "Crea tu cuenta"
+msgstr "Create your account"
 
 #: vitrina/templates/vitrina/inicio.html
 msgid "Crea tu cuenta con tu correo, súbelo y deja que la vitrina lo muestre con el sello de la UTEQ."
 msgstr "Create your account with your email, upload it and let the showcase display it with the UTEQ seal."
 
-#: templates/parciales/encabezado.html vitrina/templates/vitrina/inicio.html
+#: cuentas/templates/cuentas/registro.html
+msgid "Crea tu cuenta con tu correo. Te enviaremos un enlace para activarla y listo: ya puedes subir tus proyectos."
+msgstr "Create your account with your email. We'll send you a link to activate it and that's it: you can start uploading your projects."
+
+#: cuentas/templates/cuentas/recuperar_confirmar.html
+msgid "Crea tu nueva contraseña"
+msgstr "Create your new password"
+
+#: cuentas/templates/cuentas/correos/recuperacion_asunto.txt
+msgid "Crea una contraseña nueva para la Vitrina de Proyectos"
+msgstr "Create a new password for the Project Showcase"
+
+#: cuentas/templates/cuentas/correos/recuperacion.html
+msgid "Crear contraseña nueva"
+msgstr "Create new password"
+
+#: cuentas/templates/cuentas/_pestanas.html cuentas/templates/cuentas/registro.html templates/parciales/encabezado.html templates/parciales/pie.html vitrina/templates/vitrina/inicio.html
 msgid "Crear cuenta"
 msgstr "Sign up"
 
@@ -77,6 +145,11 @@ msgstr "Personal details"
 msgid "De tu repositorio a la vitrina en cuatro pasos"
 msgstr "From your repository to the showcase in four steps"
 
+#: cuentas/templates/cuentas/entrar.html
+#, python-format
+msgid "Demasiados intentos fallidos. Espera %(minutos)s minutos antes de intentar de nuevo."
+msgstr "Too many failed attempts. Wait %(minutos)s minutes before trying again."
+
 #: vitrina/views.py
 msgid "Descarga el QR y el certificado PDF para tu portafolio."
 msgstr "Download the QR and the PDF certificate for your portfolio."
@@ -85,17 +158,46 @@ msgstr "Download the QR and the PDF certificate for your portfolio."
 msgid "Descripción, coautores, tecnologías, repositorio y documento PDF."
 msgstr "Description, co-authors, technologies, repository and PDF document."
 
+#: cuentas/forms.py
+msgid "El correo o la contraseña no son correctos."
+msgstr "The email or password is incorrect."
+
+#: cuentas/templates/cuentas/correos/activacion.html cuentas/templates/cuentas/correos/activacion.txt
+#, python-format
+msgid "El enlace vence en %(horas)s horas y sirve una sola vez."
+msgstr "The link expires in %(horas)s hours and works only once."
+
+#: cuentas/templates/cuentas/correos/recuperacion.html cuentas/templates/cuentas/correos/recuperacion.txt cuentas/templates/cuentas/revisa_correo.html
+msgid "El enlace vence en 24 horas y sirve una sola vez."
+msgstr "The link expires in 24 hours and works only once."
+
 #: vitrina/templates/vitrina/inicio.html
 msgid "En revisión"
 msgstr "In review"
 
-#: templates/registration/login.html
+#: cuentas/templates/cuentas/activacion_invalida.html cuentas/templates/cuentas/recuperar_confirmar.html
+msgid "Enlace no válido"
+msgstr "Invalid link"
+
+#: cuentas/templates/cuentas/entrar.html
+msgid "Entra para subir proyectos, seguir su revisión y descargar tu QR y certificado."
+msgstr "Log in to upload projects, follow their review and download your QR and certificate."
+
+#: cuentas/templates/cuentas/entrar.html
 msgid "Entrar"
 msgstr "Log in"
 
 #: vitrina/templates/vitrina/inicio.html
 msgid "Enviado"
 msgstr "Submitted"
+
+#: cuentas/templates/cuentas/recuperar.html cuentas/templates/cuentas/reenviar.html
+msgid "Enviar enlace"
+msgstr "Send link"
+
+#: cuentas/templates/cuentas/activacion_invalida.html
+msgid "Enviarme un enlace nuevo"
+msgstr "Send me a new link"
 
 #: templates/500.html
 msgid "Error del servidor"
@@ -105,13 +207,29 @@ msgstr "Server error"
 msgid "Escanea y comprueba"
 msgstr "Scan and check"
 
+#: cuentas/templates/cuentas/reenviar.html
+msgid "Escribe el correo con el que te registraste y te enviaremos un enlace nuevo."
+msgstr "Enter the email you signed up with and we'll send you a new link."
+
+#: cuentas/templates/cuentas/recuperar.html
+msgid "Escribe el correo de tu cuenta y te enviaremos un enlace para crear una contraseña nueva."
+msgstr "Enter your account email and we'll send you a link to create a new password."
+
 #: config/settings.py
 msgid "Español"
 msgstr "Spanish"
 
+#: templates/403.html
+msgid "Esta sección es solo para otro tipo de cuenta. Si crees que es un error, escríbele a un administrador."
+msgstr "This section is for a different type of account. If you think this is a mistake, contact an administrator."
+
 #: vitrina/templates/vitrina/proximamente.html
 msgid "Esta sección está en construcción."
 msgstr "This section is under construction."
+
+#: cuentas/templates/cuentas/activacion_invalida.html cuentas/templates/cuentas/recuperar_confirmar.html
+msgid "Este enlace ya no sirve"
+msgstr "This link no longer works"
 
 #: cuentas/models.py
 msgid "Estudiante"
@@ -137,6 +255,22 @@ msgstr "Faculty of Computer Science · Software Engineering"
 msgid "Fechas"
 msgstr "Dates"
 
+#: cuentas/templates/cuentas/correos/activacion.html cuentas/templates/cuentas/correos/activacion.txt
+msgid "Gracias por registrarte en la Vitrina de Proyectos de Ingeniería de Software de la UTEQ."
+msgstr "Thanks for signing up for the UTEQ Software Engineering Project Showcase."
+
+#: cuentas/views.py
+msgid "Guardamos los cambios de tu perfil."
+msgstr "Your profile changes were saved."
+
+#: cuentas/templates/cuentas/perfil.html
+msgid "Guardar cambios"
+msgstr "Save changes"
+
+#: cuentas/templates/cuentas/recuperar_confirmar.html
+msgid "Guardar contraseña"
+msgstr "Save password"
+
 #: templates/parciales/pie.html
 msgid "Hecho por estudiantes embajadores de la Universidad de Córdoba (Colombia)"
 msgstr "Made by ambassador students from the University of Córdoba (Colombia)"
@@ -149,16 +283,21 @@ msgstr "History"
 msgid "Historial de cada paso"
 msgstr "History of every step"
 
-#: templates/parciales/encabezado.html
+#: cuentas/templates/cuentas/correos/activacion.html cuentas/templates/cuentas/correos/recuperacion.html templates/parciales/encabezado.html
 #, python-format
 msgid "Hola, %(nombre)s"
 msgstr "Hi, %(nombre)s"
+
+#: cuentas/templates/cuentas/correos/activacion.txt cuentas/templates/cuentas/correos/recuperacion.txt
+#, python-format
+msgid "Hola, %(nombre)s:"
+msgstr "Hi %(nombre)s,"
 
 #: templates/parciales/selector_idioma.html
 msgid "Idioma"
 msgstr "Language"
 
-#: templates/parciales/encabezado.html vitrina/templates/vitrina/inicio.html
+#: cuentas/templates/cuentas/base_acceso.html cuentas/templates/cuentas/correos/base_correo.html templates/parciales/encabezado.html vitrina/templates/vitrina/inicio.html
 msgid "Ingeniería de Software"
 msgstr "Software Engineering"
 
@@ -166,7 +305,11 @@ msgstr "Software Engineering"
 msgid "Inglés"
 msgstr "English"
 
-#: templates/parciales/encabezado.html templates/parciales/pie.html templates/registration/login.html
+#: cuentas/templates/cuentas/registro.html
+msgid "Inicia sesión"
+msgstr "Log in"
+
+#: cuentas/templates/cuentas/_pestanas.html cuentas/templates/cuentas/activacion_invalida.html cuentas/templates/cuentas/entrar.html cuentas/templates/cuentas/recuperar_listo.html templates/parciales/encabezado.html templates/parciales/pie.html
 msgid "Iniciar sesión"
 msgstr "Log in"
 
@@ -174,13 +317,69 @@ msgstr "Log in"
 msgid "Inicio"
 msgstr "Home"
 
+#: cuentas/templates/cuentas/recuperar_listo.html
+msgid "Listo"
+msgstr "Done"
+
 #: vitrina/views.py
 msgid "Lo aprueba, pide cambios o lo rechaza. Cada paso queda en el historial."
 msgstr "They approve it, request changes or reject it. Every step is kept in the history."
 
+#: cuentas/forms.py
+msgid "Mantener la sesión iniciada"
+msgstr "Keep me logged in"
+
+#: cuentas/templates/cuentas/perfil.html templates/parciales/encabezado.html
+msgid "Mi perfil"
+msgstr "My profile"
+
+#: cuentas/templates/cuentas/perfil.html
+msgid "Miembro desde"
+msgstr "Member since"
+
+#: cuentas/templates/cuentas/registro.html
+msgid "Muestra lo que construyes."
+msgstr "Show what you build."
+
 #: templates/404.html
 msgid "No encontramos esta página"
 msgstr "We couldn't find this page"
+
+#: templates/403.html
+msgid "No tienes permiso para ver esta página"
+msgstr "You don't have permission to see this page"
+
+#: cuentas/templates/cuentas/recuperar_confirmar.html
+msgid "Nueva contraseña"
+msgstr "New password"
+
+#: cuentas/templates/cuentas/correos/activacion.txt
+msgid "Para activar tu cuenta, abre este enlace:"
+msgstr "To activate your account, open this link:"
+
+#: cuentas/templates/cuentas/correos/activacion.html
+msgid "Para activar tu cuenta, pulsa el botón:"
+msgstr "To activate your account, press the button:"
+
+#: cuentas/templates/cuentas/perfil.html
+msgid "Para cambiar tu correo o tu rol, escríbele a un administrador."
+msgstr "To change your email or your role, contact an administrator."
+
+#: cuentas/templates/cuentas/correos/recuperacion.txt
+msgid "Para crear una contraseña nueva, abre este enlace:"
+msgstr "To create a new password, open this link:"
+
+#: cuentas/templates/cuentas/correos/recuperacion.html
+msgid "Para crear una contraseña nueva, pulsa el botón:"
+msgstr "To create a new password, press the button:"
+
+#: cuentas/templates/cuentas/recuperar_confirmar.html
+msgid "Pedir otro enlace"
+msgstr "Request another link"
+
+#: cuentas/templates/cuentas/entrar.html
+msgid "Pedir uno nuevo"
+msgstr "Request a new one"
 
 #: templates/parciales/encabezado.html
 msgid "Principal"
@@ -210,6 +409,14 @@ msgstr "Coming soon"
 msgid "Puede que la dirección esté mal escrita o que la página ya no exista."
 msgstr "The address may be misspelled or the page may no longer exist."
 
+#: cuentas/templates/cuentas/recuperar_confirmar.html
+msgid "Puede que ya lo hayas usado o que hayan pasado más de 24 horas. Pide uno nuevo."
+msgstr "You may have already used it, or more than 24 hours have passed. Request a new one."
+
+#: cuentas/templates/cuentas/activacion_invalida.html
+msgid "Puede que ya lo hayas usado, que hayan pasado más de 24 horas o que esté incompleto. Si tu cuenta ya está activa, solo inicia sesión."
+msgstr "You may have already used it, more than 24 hours may have passed, or it may be incomplete. If your account is already active, just log in."
+
 #: templates/404.html
 msgid "Página no encontrada"
 msgstr "Page not found"
@@ -222,13 +429,37 @@ msgstr "Verifiable QR"
 msgid "Queda verificado"
 msgstr "It gets verified"
 
-#: templates/parciales/pie.html
+#: cuentas/templates/cuentas/correos/recuperacion.html cuentas/templates/cuentas/correos/recuperacion.txt
+msgid "Recibimos una solicitud para cambiar la contraseña de tu cuenta."
+msgstr "We received a request to change your account password."
+
+#: cuentas/templates/cuentas/correos/recuperacion.html cuentas/templates/cuentas/recuperar.html templates/parciales/pie.html
 msgid "Recuperar contraseña"
 msgstr "Reset password"
+
+#: cuentas/templates/cuentas/reenviar.html
+msgid "Reenviar activación"
+msgstr "Resend activation"
+
+#: cuentas/templates/cuentas/entrar.html cuentas/templates/cuentas/reenviar.html
+msgid "Reenviar el enlace de activación"
+msgstr "Resend the activation link"
+
+#: cuentas/templates/cuentas/revisa_correo.html
+msgid "Reenviar enlace"
+msgstr "Resend link"
+
+#: cuentas/templates/cuentas/recuperar_enviado.html cuentas/templates/cuentas/revisa_correo.html
+msgid "Revisa tu correo"
+msgstr "Check your email"
 
 #: vitrina/templates/vitrina/inicio.html
 msgid "Revisión docente"
 msgstr "Professor review"
+
+#: cuentas/templates/cuentas/perfil.html
+msgid "Rol"
+msgstr "Role"
 
 #: cuentas/admin.py
 msgid "Rol y acceso"
@@ -246,6 +477,35 @@ msgstr "Skip to content"
 msgid "Se publica en la vitrina con el sello de la carrera y un código único."
 msgstr "It's published in the showcase with the program's seal and a unique code."
 
+#: cuentas/templates/cuentas/correos/base_correo.html
+msgid "Si el botón no funciona, copia este enlace en tu navegador:"
+msgstr "If the button doesn't work, copy this link into your browser:"
+
+#: cuentas/templates/cuentas/recuperar_enviado.html
+msgid "Si el correo que escribiste tiene una cuenta activa, te llegará un enlace para crear una contraseña nueva. Vence en 24 horas."
+msgstr "If the email you entered has an active account, you'll receive a link to create a new password. It expires in 24 hours."
+
+#: cuentas/templates/cuentas/revisa_correo.html
+#, python-format
+msgid "Si hay una cuenta pendiente de activar con %(correo)s, te llegará un enlace nuevo."
+msgstr "If there's an account waiting for activation with %(correo)s, you'll receive a new link."
+
+#: cuentas/templates/cuentas/correos/activacion.html cuentas/templates/cuentas/correos/activacion.txt
+msgid "Si no creaste esta cuenta, ignora este correo."
+msgstr "If you didn't create this account, ignore this email."
+
+#: cuentas/templates/cuentas/recuperar_enviado.html cuentas/templates/cuentas/revisa_correo.html
+msgid "Si no lo ves, revisa la carpeta de spam o correo no deseado."
+msgstr "If you don't see it, check your spam or junk folder."
+
+#: cuentas/templates/cuentas/correos/recuperacion.html cuentas/templates/cuentas/correos/recuperacion.txt
+msgid "Si no pediste este cambio, ignora este correo: tu contraseña sigue igual."
+msgstr "If you didn't request this change, ignore this email: your password stays the same."
+
+#: templates/403.html
+msgid "Sin permiso"
+msgstr "No permission"
+
 #: vitrina/views.py
 msgid "Sube tu proyecto"
 msgstr "Upload your project"
@@ -257,6 +517,55 @@ msgstr "Upload your project, get reviewed by a professor and share it with a cod
 #: vitrina/templates/vitrina/inicio.html
 msgid "Subir mi proyecto"
 msgstr "Upload my project"
+
+#: cuentas/templates/cuentas/revisa_correo.html
+#, python-format
+msgid "Te enviamos un enlace de activación a %(correo)s."
+msgstr "We sent an activation link to %(correo)s."
+
+#: cuentas/templates/cuentas/revisa_correo.html
+msgid "Te enviamos un enlace de activación a tu correo."
+msgstr "We sent an activation link to your email."
+
+#: cuentas/forms.py
+msgid "Te enviaremos un enlace para activar tu cuenta."
+msgstr "We'll send you a link to activate your account."
+
+#: cuentas/templates/cuentas/perfil.html
+msgid "Te pediremos la actual para confirmar que eres tú."
+msgstr "We'll ask for your current one to confirm it's you."
+
+#: cuentas/templates/cuentas/registro.html
+msgid "Todos los campos son obligatorios."
+msgstr "All fields are required."
+
+#: cuentas/templates/cuentas/recuperar_listo.html
+msgid "Tu contraseña cambió"
+msgstr "Your password changed"
+
+#: cuentas/views.py
+msgid "Tu contraseña cambió."
+msgstr "Your password changed."
+
+#: cuentas/forms.py
+msgid "Tu cuenta aún no está activa. Abre el enlace que te enviamos al correo."
+msgstr "Your account isn't active yet. Open the link we sent to your email."
+
+#: cuentas/views.py
+msgid "Tu cuenta está activa. ¡Bienvenido a la Vitrina!"
+msgstr "Your account is active. Welcome to the Showcase!"
+
+#: cuentas/templates/cuentas/revisa_correo.html
+msgid "Tu cuenta se creó, pero no pudimos enviar el correo. Intenta reenviarlo en unos minutos."
+msgstr "Your account was created, but we couldn't send the email. Try resending it in a few minutes."
+
+#: cuentas/templates/cuentas/entrar.html
+msgid "Tu trabajo merece ser visto."
+msgstr "Your work deserves to be seen."
+
+#: cuentas/templates/cuentas/perfil.html
+msgid "Tus datos"
+msgstr "Your details"
 
 #: templates/500.html
 msgid "Tuvimos un problema al cargar esta página. Intenta de nuevo en unos minutos."
@@ -270,7 +579,7 @@ msgstr "A professor reviews it"
 msgid "Universidad Técnica Estatal de Quevedo"
 msgstr "Quevedo State Technical University"
 
-#: templates/registration/login.html
+#: cuentas/templates/cuentas/entrar.html
 msgid "Usa el correo con el que te registraste."
 msgstr "Use the email you signed up with."
 
@@ -294,17 +603,33 @@ msgstr "Verify a project"
 msgid "Vitrina"
 msgstr "Showcase"
 
-#: templates/500.html templates/base.html templates/parciales/encabezado.html templates/parciales/pie.html
+#: cuentas/templates/cuentas/correos/base_correo.html templates/500.html templates/base.html templates/parciales/encabezado.html templates/parciales/pie.html
 msgid "Vitrina de Proyectos"
 msgstr "Project Showcase"
+
+#: cuentas/templates/cuentas/correos/activacion.txt cuentas/templates/cuentas/correos/recuperacion.txt
+msgid "Vitrina de Proyectos · UTEQ"
+msgstr "Project Showcase · UTEQ"
 
 #: templates/parciales/encabezado.html
 msgid "Vitrina de Proyectos, ir al inicio"
 msgstr "Project Showcase, go to home page"
 
-#: templates/404.html templates/500.html vitrina/templates/vitrina/proximamente.html
+#: cuentas/templates/cuentas/recuperar.html cuentas/templates/cuentas/recuperar_enviado.html
+msgid "Volver a iniciar sesión"
+msgstr "Back to log in"
+
+#: cuentas/templates/cuentas/revisa_correo.html templates/403.html templates/404.html templates/500.html vitrina/templates/vitrina/proximamente.html
 msgid "Volver al inicio"
 msgstr "Back to home"
+
+#: cuentas/forms.py
+msgid "Ya existe una cuenta con este correo. Si no la has activado, puedes pedir un enlace nuevo."
+msgstr "An account with this email already exists. If you haven't activated it, you can request a new link."
+
+#: cuentas/templates/cuentas/recuperar_listo.html
+msgid "Ya puedes iniciar sesión con tu contraseña nueva."
+msgstr "You can now log in with your new password."
 
 #: cuentas/models.py
 msgid "acceso al panel de Django"
@@ -350,10 +675,18 @@ msgstr "verified"
 msgid "y a la vista."
 msgstr "and on display."
 
-#: templates/registration/login.html
-msgid "¿Olvidaste tu contraseña?"
-msgstr "Forgot your password?"
+#: cuentas/templates/cuentas/entrar.html
+msgid "¿La olvidaste?"
+msgstr "Forgot it?"
+
+#: cuentas/templates/cuentas/entrar.html
+msgid "¿No te llegó el correo de activación?"
+msgstr "Didn't get the activation email?"
 
 #: vitrina/templates/vitrina/inicio.html
 msgid "¿Tienes un proyecto de la carrera?"
 msgstr "Do you have a project from the program?"
+
+#: cuentas/templates/cuentas/registro.html
+msgid "¿Ya tienes cuenta?"
+msgstr "Already have an account?"
