@@ -1,0 +1,34 @@
+{% load i18n %}{% comment %}
+Línea de tiempo del historial de un proyecto. Recibe "eventos" (EventoEstado con actor).
+Se usa en el detalle (autores, profesores y admins) y en la ficha de revisión.
+{% endcomment %}
+<section class="tarjeta-sobria p-6 sm:p-8" aria-labelledby="titulo-historial">
+  <h2 id="titulo-historial" class="text-xl font-extrabold">{% translate "Historial" %}</h2>
+  {% if eventos %}
+    <ol class="mt-6 flex flex-col">
+      {% for evento in eventos %}
+        <li class="relative flex gap-4 pb-6 last:pb-0">
+          {% if not forloop.last %}<span class="absolute left-[0.6875rem] top-7 bottom-0 w-0.5 bg-linea-suave" aria-hidden="true"></span>{% endif %}
+          <span class="relative mt-1 h-6 w-6 shrink-0 border-2 border-linea insignia-{{ evento.estado_nuevo }}" aria-hidden="true"></span>
+          <div class="min-w-0 flex-1">
+            <p class="flex flex-wrap items-center gap-2">
+              {% include "componentes/insignia_estado.html" with estado=evento.estado_nuevo texto=evento.get_estado_nuevo_display %}
+              <span class="text-sm text-texto-suave">
+                <time datetime="{{ evento.creado_en|date:'c' }}">{{ evento.creado_en|date:"DATETIME_FORMAT" }}</time>
+              </span>
+            </p>
+            <p class="mt-1.5 text-sm">
+              <span class="font-bold">{{ evento.actor.nombre_completo }}</span>
+              <span class="text-texto-suave">· {% if evento.estado_nuevo == "enviado" %}{% if evento.estado_anterior == "con_observaciones" %}{% translate "reenvió el proyecto" %}{% else %}{% translate "envió el proyecto a revisión" %}{% endif %}{% elif evento.estado_nuevo == "en_revision" %}{% translate "tomó el proyecto" %}{% elif evento.estado_nuevo == "aprobado" %}{% translate "aprobó el proyecto" %}{% elif evento.estado_nuevo == "con_observaciones" %}{% translate "pidió cambios" %}{% elif evento.estado_nuevo == "rechazado" %}{% translate "rechazó el proyecto" %}{% endif %}</span>
+            </p>
+            {% if evento.comentario %}
+              <blockquote class="mt-2 whitespace-pre-line border-l-4 border-uteq-verde bg-seccion px-4 py-3 text-sm leading-relaxed dark:border-uteq-claro">{{ evento.comentario }}</blockquote>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <p class="mt-3 text-sm text-texto-suave">{% translate "Todavía no hay cambios: el proyecto está en borrador." %}</p>
+  {% endif %}
+</section>

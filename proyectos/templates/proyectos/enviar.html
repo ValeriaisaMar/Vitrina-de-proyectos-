@@ -1,0 +1,32 @@
+{% extends "cuentas/base_tarjeta.html" %}
+{% load i18n %}
+
+{% block titulo %}{% if reenvio %}{% translate "Reenviar a revisión" %}{% else %}{% translate "Enviar a revisión" %}{% endif %}{% endblock %}
+
+{% block tarjeta %}
+<span class="insignia insignia-enviado">{% if reenvio %}{% translate "Reenvío" %}{% else %}{% translate "Envío a revisión" %}{% endif %}</span>
+<h1 class="mt-5 text-3xl font-extrabold">{% blocktranslate with titulo=proyecto.titulo %}¿Enviar «{{ titulo }}» a revisión?{% endblocktranslate %}</h1>
+<p class="mt-4 leading-relaxed text-texto-suave">{% translate "Un docente lo tomará de la bandeja y decidirá si lo aprueba, pide cambios o lo rechaza. Mientras esté en revisión no podrás editarlo." %}</p>
+
+{% if observacion %}
+  <div class="mt-6 border-2 border-linea bg-observaciones p-4 text-observaciones-texto">
+    <p class="text-xs font-bold uppercase tracking-wider">{% blocktranslate with docente=observacion.actor.nombre_completo %}Lo que pidió {{ docente }}{% endblocktranslate %}</p>
+    <p class="mt-2 whitespace-pre-line text-sm leading-relaxed">{{ observacion.comentario }}</p>
+  </div>
+{% endif %}
+
+<ul class="mt-6 flex flex-col gap-2 text-sm">
+  <li>→ {% translate "Revisa que el repositorio sea público." %}</li>
+  <li>→ {% translate "Comprueba que la descripción explique qué hace y cómo se usa." %}</li>
+  <li>→ {% translate "Las capturas ayudan mucho a que el docente entienda tu trabajo." %}</li>
+</ul>
+
+<form method="post" class="mt-8 flex flex-col gap-6">
+  {% csrf_token %}
+  {% include "componentes/campo.html" with campo=form.comentario %}
+  <div class="flex flex-wrap gap-4">
+    <button type="submit" class="btn btn-primario">{% if reenvio %}{% translate "Reenviar" %}{% else %}{% translate "Enviar a revisión" %}{% endif %}</button>
+    <a href="{{ proyecto.get_absolute_url }}" class="btn btn-secundario">{% translate "Cancelar" %}</a>
+  </div>
+</form>
+{% endblock %}

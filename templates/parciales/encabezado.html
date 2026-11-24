@@ -9,28 +9,39 @@
         <img src="{{ logo_url }}" alt="UTEQ" class="h-10 w-auto">
       {% endif %}
       <span class="flex flex-col leading-tight">
-        <span class="font-titulo text-[0.95rem] font-extrabold sm:text-base">{% translate "Vitrina de Proyectos" %}</span>
+        <span class="whitespace-nowrap font-titulo text-[0.95rem] font-extrabold sm:text-base">{% translate "Vitrina de Proyectos" %}</span>
         <span class="text-xs font-semibold text-texto-suave">UTEQ · {% translate "Ingeniería de Software" %}</span>
       </span>
     </a>
 
     {# Navegación de escritorio #}
-    <nav class="ml-6 hidden items-center gap-1 lg:flex" aria-label="{% translate 'Principal' %}">
-      {% include "parciales/enlaces_nav.html" with clase="px-3 py-2.5 text-sm font-bold border-2 border-transparent hover:border-linea" clase_activa="bg-uteq-tinte text-uteq-verde border-linea dark:bg-uteq-verde dark:text-white" %}
+    <nav class="ml-6 hidden items-center gap-1 xl:flex" aria-label="{% translate 'Principal' %}">
+      {% include "parciales/enlaces_nav.html" with clase="whitespace-nowrap px-3 py-2.5 text-sm font-bold border-2 border-transparent hover:border-linea" clase_activa="bg-uteq-tinte text-uteq-verde border-linea dark:bg-uteq-verde dark:text-white" %}
     </nav>
 
     <div class="ml-auto flex items-center gap-2">
       <div class="hidden sm:block">{% include "parciales/selector_idioma.html" %}</div>
       {% include "parciales/boton_tema.html" %}
 
-      <div class="hidden items-center gap-2 lg:flex">
+      <div class="hidden items-center gap-2 xl:flex">
         {% if user.is_authenticated %}
-          {% if user.es_estudiante %}<a href="{% url 'proyectos:mis_proyectos' %}" class="btn btn-secundario">{% translate "Mis proyectos" %}</a>{% endif %}
-          <a href="{% url 'cuentas:perfil' %}" class="btn btn-fantasma" title="{% translate 'Mi perfil' %}">{% blocktranslate with nombre=user.nombres %}Hola, {{ nombre }}{% endblocktranslate %}</a>
-          <form method="post" action="{% url 'cuentas:salir' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-secundario">{% translate "Cerrar sesión" %}</button>
-          </form>
+          {% if user.es_estudiante %}<a href="{% url 'proyectos:mis_proyectos' %}" class="btn btn-secundario whitespace-nowrap">{% translate "Mis proyectos" %}</a>{% endif %}
+          {% if user.es_profesor or user.es_admin %}<a href="{% url 'proyectos:bandeja' %}" class="btn btn-secundario whitespace-nowrap">{% translate "Bandeja" %}</a>{% endif %}
+          {# Menú de cuenta: el saludo abre Perfil y Cerrar sesión, así el encabezado cabe en 1280 px #}
+          <details class="relative" data-menu>
+            <summary class="btn btn-fantasma cursor-pointer list-none whitespace-nowrap">
+              {% blocktranslate with nombre=user.nombres %}Hola, {{ nombre }}{% endblocktranslate %}
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+            </summary>
+            <div class="absolute right-0 top-[calc(100%+0.75rem)] flex w-56 flex-col gap-2 border-2 border-linea bg-superficie p-3 shadow-duro-verde">
+              <p class="truncate px-1 text-xs text-texto-suave">{{ user.email }}</p>
+              <a href="{% url 'cuentas:perfil' %}" class="btn btn-secundario w-full">{% translate "Mi perfil" %}</a>
+              <form method="post" action="{% url 'cuentas:salir' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secundario w-full">{% translate "Cerrar sesión" %}</button>
+              </form>
+            </div>
+          </details>
         {% else %}
           <a href="{% url 'cuentas:entrar' %}" class="btn btn-fantasma">{% translate "Iniciar sesión" %}</a>
           <a href="{% url 'cuentas:registro' %}" class="btn btn-primario">{% translate "Crear cuenta" %}</a>
@@ -38,7 +49,7 @@
       </div>
 
       {# Menú móvil: <details> funciona aunque no cargue JavaScript #}
-      <details class="relative lg:hidden" data-menu>
+      <details class="relative xl:hidden" data-menu>
         <summary class="flex h-11 w-11 cursor-pointer items-center justify-center border-2 border-linea bg-superficie" aria-label="{% translate 'Abrir menú' %}">
           <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </summary>
@@ -49,6 +60,7 @@
           <div class="mt-4 flex flex-col gap-3">
             {% if user.is_authenticated %}
               {% if user.es_estudiante %}<a href="{% url 'proyectos:mis_proyectos' %}" class="btn btn-primario w-full">{% translate "Mis proyectos" %}</a>{% endif %}
+              {% if user.es_profesor or user.es_admin %}<a href="{% url 'proyectos:bandeja' %}" class="btn btn-primario w-full">{% translate "Bandeja" %}</a>{% endif %}
               <a href="{% url 'cuentas:perfil' %}" class="btn btn-secundario w-full">{% translate "Mi perfil" %}</a>
               <form method="post" action="{% url 'cuentas:salir' %}">
                 {% csrf_token %}

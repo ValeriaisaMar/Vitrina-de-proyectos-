@@ -4,8 +4,10 @@
 - Proyecto: el trabajo de uno o varios estudiantes.
 - Autoria: une a cada autor con su proyecto y marca al creador.
 - Imagen: capturas de la galería del proyecto.
+- EventoEstado: historial de cambios de estado; nunca se edita ni se borra.
+- Consecutivo: contador por año para los códigos VP-AAAA-NNNN.
 
-Los campos codigo, revisor y aprobado_en se llenan en los módulos 004 y 005.
+Los campos estado, revisor, codigo y aprobado_en solo los cambia proyectos/servicios.py.
 """
 
 import uuid
@@ -65,7 +67,7 @@ class Tecnologia(models.Model):
 
 
 class Estado(models.TextChoices):
-    """Estados del proyecto (constitución, principio VII). Los cambios llegan en el módulo 004."""
+    """Estados del proyecto (constitución, principio VII). Solo los cambia servicios.cambiar_estado."""
 
     BORRADOR = "borrador", _("Borrador")
     ENVIADO = "enviado", _("Enviado")
@@ -76,6 +78,7 @@ class Estado(models.TextChoices):
 
 
 ESTADOS_EDITABLES = {Estado.BORRADOR, Estado.CON_OBSERVACIONES}
+ESTADOS_DE_DECISION = {Estado.APROBADO, Estado.CON_OBSERVACIONES, Estado.RECHAZADO}
 
 
 def ruta_documento(instancia, nombre_original):
@@ -115,7 +118,7 @@ class Proyecto(models.Model):
     autores = models.ManyToManyField(settings.AUTH_USER_MODEL, through="Autoria", related_name="proyectos", verbose_name=_("autores"))
     estado = models.CharField(_("estado"), max_length=20, choices=Estado.choices, default=Estado.BORRADOR, db_index=True)
 
-    # Se llenan en los módulos 004 (revisión) y 005 (verificación)
+    # Los llena servicios.cambiar_estado: revisor al tomar, codigo y aprobado_en al aprobar
     revisor = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_("revisor"), on_delete=models.SET_NULL,
         null=True, blank=True, related_name="proyectos_revisados",
@@ -174,6 +177,14 @@ class Proyecto(models.Model):
     def es_autor(self, usuario):
         return usuario.is_authenticated and self.autorias.filter(usuario=usuario).exists()
 
+    @property
+    def ultima_decision(self):
+        """El último evento con decisión de un docente (observaciones, aprobado o rechazado)."""
+        return (
+            self.eventos.filter(estado_nuevo__in=ESTADOS_DE_DECISION)
+            .select_related("actor").order_by("-creado_en", "-id").first()
+        )
+
 
 class Autoria(models.Model):
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, related_name="autorias")
@@ -203,3 +214,59 @@ class Imagen(models.Model):
 
     def __str__(self):
         return f"{self.proyecto} · {self.orden}"
+
+
+# --------------------------------------------------------------------------- Historial
+
+
+class HistorialInmutable(Exception):
+    """Se lanza si alguien intenta editar o borrar un evento del historial."""
+
+
+class EventoEstado(models.Model):
+    """Un cambio de estado de un proyecto (constitución, principio VII).
+
+    Se crea solo desde servicios.cambiar_estado. Una vez guardado no se puede modificar ni
+    borrar: save() rechaza cambios y delete() está bloqueado. PROTECT impide además borrar el
+    proyecto o el usuario mientras tengan historial.
+    """
+
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT, related_name="eventos", verbose_name=_("proyecto"))
+    estado_anterior = models.CharField(_("estado anterior"), max_length=20, choices=Estado.choices)
+    estado_nuevo = models.CharField(_("estado nuevo"), max_length=20, choices=Estado.choices)
+    actor = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="eventos_estado", verbose_name=_("hecho por"),
+    )
+    comentario = models.TextField(_("comentario"), blank=True)
+    creado_en = models.DateTimeField(_("fecha"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("evento del historial")
+        verbose_name_plural = _("historial de estados")
+        ordering = ["creado_en", "id"]
+
+    def __str__(self):
+        return f"{self.proyecto} · {self.get_estado_anterior_display()} → {self.get_estado_nuevo_display()}"
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise HistorialInmutable("Los eventos del historial no se pueden modificar.")
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise HistorialInmutable("Los eventos del historial no se pueden borrar.")
+
+
+class Consecutivo(models.Model):
+    """Último número usado por año para los códigos VP-AAAA-NNNN."""
+
+    anio = models.PositiveSmallIntegerField(_("año"), primary_key=True)
+    ultimo = models.PositiveIntegerField(_("último número"), default=0)
+
+    class Meta:
+        verbose_name = _("consecutivo de códigos")
+        verbose_name_plural = _("consecutivos de códigos")
+
+    def __str__(self):
+        return f"{self.anio}: {self.ultimo}"
+
