@@ -1,7 +1,25 @@
+# Entornos virtuales
 venv/
 .venv/
+
+# Configuración local con secretos
 .env
+
+# Python
 __pycache__/
 *.pyc
+
+# Bases de datos locales
 db.sqlite3
+
+# Archivos que suben los usuarios y estáticos recolectados
+media/
+staticfiles/
+
+# Ejecutable de Tailwind (cada quien descarga el de su sistema)
+tailwindcss
+tailwindcss.exe
+tailwindcss-*
+
+# Agentes de IA
 .agents/

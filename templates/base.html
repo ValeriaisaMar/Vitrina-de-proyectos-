@@ -1,0 +1,40 @@
+{% load static i18n %}{% get_current_language as IDIOMA %}<!DOCTYPE html>
+<html lang="{{ IDIOMA }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{% translate "Vitrina de Proyectos" %}{% endblock %} · UTEQ</title>
+  <meta name="description" content="{% translate 'Proyectos de Ingeniería de Software de la UTEQ, revisados por docentes y verificables con un QR.' %}">
+  <meta name="theme-color" content="#025a27">
+
+  {# Aplica el tema antes de pintar para que no haya destello: elección guardada o, si no hay, la del sistema. #}
+  <script>
+    (function () {
+      var tema = null;
+      try { tema = localStorage.getItem("tema"); } catch (e) {}
+      var oscuro = tema ? tema === "oscuro" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (oscuro) document.documentElement.classList.add("dark");
+    })();
+  </script>
+
+  <link rel="preload" href="{% static 'fonts/unbounded-variable.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'fonts/archivo-400.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block cabeza_extra %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col bg-fondo text-texto">
+  <a href="#contenido" class="saltar">{% translate "Saltar al contenido" %}</a>
+
+  {% include "parciales/encabezado.html" %}
+  {% include "parciales/mensajes.html" %}
+
+  <main id="contenido" class="flex-1 focus:outline-none" tabindex="-1">
+    {% block contenido %}{% endblock %}
+  </main>
+
+  {% include "parciales/pie.html" %}
+
+  <script src="{% static 'js/tema.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

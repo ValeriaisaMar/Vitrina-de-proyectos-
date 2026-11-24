@@ -1,201 +1,309 @@
-# Vitrina de Proyectos
+# Vitrina de Proyectos · UTEQ
 
-> Los proyectos de la UTEQ, revisados y verificados, en un solo lugar.
+> Los proyectos de Ingeniería de Software, revisados por docentes y verificables con un QR.
 
-Vitrina de Proyectos es una aplicación web para que la universidad reúna y muestre los proyectos que hacen sus estudiantes. Los estudiantes los suben, los docentes los revisan y, cuando cumplen, quedan **verificados** y visibles para cualquiera que quiera conocer el trabajo de la UTEQ.
+Vitrina de Proyectos es la plataforma web donde los estudiantes de **Ingeniería de Software** de
+la **Facultad de Ciencias de la Computación de la Universidad Técnica Estatal de Quevedo (UTEQ)**
+publican sus proyectos. Un docente los revisa y, cuando cumplen, quedan **verificados**: reciben
+un código único, un QR y un certificado en PDF que cualquier persona puede comprobar.
 
-No es un ejercicio de clase: la app se construye para quedar en uso en la universidad una vez termine el curso.
+No es un ejercicio de clase: la app se construye para quedar en uso en la carrera cuando termine
+el curso.
 
-**Estado del proyecto:** en desarrollo durante un curso intensivo de dos semanas (noviembre 2026).
+**Estado:** en desarrollo durante un curso intensivo (noviembre de 2026).
 
-## ¿Para qué sirve?
+---
 
-Hoy los proyectos de los estudiantes quedan dispersos: en repositorios personales, en una memoria USB o en el correo del docente. Cuando alguien quiere saber qué se hace en la universidad (un estudiante nuevo, un docente de otra carrera, una empresa o un visitante) no hay dónde verlo, ni forma de saber si un proyecto fue revisado de verdad.
+## ¿Qué problema resuelve?
 
-Vitrina resuelve eso con tres cosas:
+Hoy los proyectos de los estudiantes quedan dispersos en repositorios personales, memorias USB o
+el correo del docente. Quien quiere conocer lo que se hace en la carrera (un estudiante nuevo, un
+docente, una empresa que busca practicantes) no tiene dónde verlo ni cómo saber si un proyecto
+fue revisado de verdad.
 
-- **Un lugar único** donde quedan todos los proyectos, con su repositorio, tecnologías y documentación.
-- **Un proceso de revisión claro**: cada proyecto pasa por un docente antes de mostrarse.
-- **Un sello de verificación**: lo que aparece en la vitrina pública fue revisado y aprobado por la universidad.
+Vitrina lo resuelve con tres cosas:
 
-## ¿Cómo funciona?
+- **Un lugar único** con cada proyecto, su repositorio, tecnologías, imágenes y documento.
+- **Una revisión clara**: cada proyecto pasa por un docente, y cada paso queda en un historial.
+- **Un sello comprobable**: el código `VP-AAAA-NNNN` y su QR llevan a una página pública que
+  confirma quién lo aprobó y cuándo.
 
-1. **Subida.** El estudiante registra su proyecto: descripción, tecnologías, enlace al repositorio y documentación.
-2. **Evaluación automática.** El sistema calcula el Health Score del repositorio como apoyo para el revisor.
-3. **Revisión docente.** Un docente o revisor lo revisa y decide:
-   - **Verificar y publicar**: el proyecto entra a la vitrina pública con su sello.
-   - **Devolver con observaciones**: el equipo lo corrige y lo vuelve a enviar.
-   - **Enviar al Cementerio**: no se borra, pero queda marcado como abandonado o incompleto.
-4. **Consulta.** Cualquier persona puede explorar los proyectos verificados con filtros por carrera, tecnología o año.
+## Cómo funciona
+
+```
+Borrador ─► Enviado ─► En revisión ─┬─► Aprobado (público, con QR y certificado)
+               ▲                    ├─► Rechazado (queda archivado)
+               │                    └─► Con observaciones
+               │                               │
+               └──── el autor corrige y reenvía┘
+```
+
+1. **El estudiante sube su proyecto**: resumen, descripción, coautores, asignatura, periodo,
+   tecnologías, repositorio, demo, imágenes y PDF.
+2. **Lo envía a revisión.** Queda en la bandeja común de los profesores.
+3. **Un profesor lo toma** y decide: aprobar, pedir cambios o rechazar. Si pide cambios o
+   rechaza, deja un comentario obligatorio.
+4. **Si se aprueba**, aparece en la vitrina pública con su sello, y los autores pueden descargar
+   el QR y el certificado.
 
 ## Funcionalidades
 
-### Núcleo
-
-**Publicación de proyectos.** Los estudiantes suben sus proyectos con tecnologías, repositorio y documentación, y pueden editarlos mientras no estén verificados.
-
-**Revisión docente.** El docente o revisor tiene una bandeja con los proyectos pendientes, deja observaciones y decide si se verifica, se devuelve o se envía al Cementerio.
-
-**Vitrina pública.** Listado de proyectos verificados con búsqueda y filtros, abierto a visitantes sin necesidad de cuenta.
-
-### Complementos
-
-**Health Score.** Un puntaje de 0 a 100 que analiza el README, la licencia, las pruebas, las dependencias y la actividad del repositorio. Clasifica el proyecto como Vivo (verde), Dormido (amarillo) o Zombi (rojo). Ayuda al revisor, pero no reemplaza su decisión.
-
-**Cementerio y Resurrección.** Los proyectos abandonados conservan su historia y el Cementerio explica qué les faltó. Otro equipo puede pulsar «Resucitar» y continuarlos.
-
-**Árbol genealógico.** Cada proyecto muestra de dónde viene, qué continuaciones tuvo y cuántas generaciones lo siguieron.
-
-**Comunidad.** Comentarios, calificaciones y adopción de proyectos entre estudiantes.
+| Módulo | Qué incluye |
+|---|---|
+| 001 Base | Configuración con `.env`, PostgreSQL, diseño base, modo claro/oscuro, español e inglés |
+| 002 Cuentas | Registro con activación por correo, inicio de sesión seguro, recuperación de contraseña, perfil |
+| 003 Proyectos | Crear y editar proyectos con coautores, explorar con búsqueda y filtros, detalle |
+| 004 Revisión | Bandeja de profesores, decisiones con comentario, historial de estados |
+| 005 Verificación | Código `VP`, QR descargable, certificado PDF y página pública de verificación |
+| 006 Paneles | Panel del estudiante, del profesor y de administración (usuarios y roles) |
+| 007 Comunidad | Me gusta, favoritos y comentarios moderados por el autor y el admin |
 
 ## Roles
 
-| Rol | Qué puede hacer |
-|---|---|
-| Visitante | Explorar los proyectos verificados |
-| Estudiante | Subir, editar y adoptar proyectos |
-| Docente / revisor | Revisar, verificar y pedir correcciones |
-| Administrador | Gestionar usuarios, carreras y categorías |
+| Acción | Visitante | Estudiante | Profesor | Admin |
+|---|:-:|:-:|:-:|:-:|
+| Ver la vitrina y verificar un QR | ✓ | ✓ | ✓ | ✓ |
+| Dar me gusta, comentar y guardar favoritos | | ✓ | ✓ | ✓ |
+| Crear y editar sus proyectos (antes de aprobarse) | | ✓ | | |
+| Revisar: aprobar, pedir cambios o rechazar | | | ✓ | ✓ |
+| Ocultar comentarios de sus proyectos | | ✓ (autor) | | ✓ |
+| Cambiar roles y gestionar tecnologías y asignaturas | | | | ✓ |
+
+Toda cuenta nueva es de estudiante. Un admin asigna los roles de profesor o admin.
 
 ## Tecnologías
 
-- **Python** y **Django 6.1**
-- **PostgreSQL** como base de datos
-- **Docker** para el despliegue
+- **Python 3.12+** y **Django 6.1**: aplicación monolítica con plantillas en el servidor.
+- **PostgreSQL**: base de datos.
+- **Tailwind CSS**: compilado con el ejecutable standalone, sin Node.
+- **qrcode + Pillow**: generación del QR. **reportlab**: certificado PDF.
+- **python-dotenv**: lectura de la configuración desde `.env`.
+- **Gmail SMTP**: correos de activación y recuperación.
 
-Las dependencias de Python están listadas en `requirements.txt`.
+**Diseño:** neo-brutalismo institucional con los colores de la UTEQ (verde `#025a27` y
+amarillo `#ecb932`), tipografías Unbounded y Archivo, responsive y accesible.
 
-## Requisitos previos
+## Arquitectura
 
-- Python 3.12 o superior
-- Git
-- PostgreSQL
-- Docker y Docker Compose (para el despliegue)
+```
+Navegador (HTML + Tailwind + JS mínimo)
+        │
+Django · proyecto config
+ ├── cuentas     usuario, registro, activación, login, recuperación, roles
+ ├── proyectos   proyectos, estados, historial, revisión, QR y certificado
+ ├── comunidad   me gusta, favoritos, comentarios
+ └── vitrina     inicio, explorar, detalle, verificación pública
+        │
+PostgreSQL · carpeta media (imágenes y PDF) · Gmail SMTP
+```
+
+Todos los cambios de estado pasan por una sola función, `proyectos/servicios.py →
+cambiar_estado()`, que valida el permiso y registra el historial. Las reglas completas están en
+la [constitución](.specify/memory/constitution.md).
+
+## Estructura del repositorio
+
+```
+Vitrina-de-proyectos-/
+├── config/                 settings (lee .env) y urls principales
+├── cuentas/                app de usuarios y autenticación
+├── proyectos/              app principal: proyectos, revisión, QR y PDF
+├── comunidad/              app de interacción
+├── vitrina/                app de páginas públicas
+├── templates/              base.html y componentes reutilizables
+├── static/
+│   ├── src/entrada.css     tema de Tailwind (colores, fuentes, modo oscuro)
+│   ├── css/app.css         CSS compilado (sí se sube)
+│   └── js/                 tema, menú móvil y animaciones
+├── locale/en/              traducciones al inglés
+├── specs/                  especificaciones SDD por módulo
+├── docs/sdd/               hoja de ruta y notas del proceso
+├── APRENDIZAJE.md          bitácora de lo aprendido en cada tarea
+├── .env.example            plantilla de configuración
+└── requirements.txt
+```
 
 ## Instalación local
 
-Sigue estos pasos en orden desde una terminal.
+### Requisitos previos
+
+- Python 3.12 o superior
+- PostgreSQL 15 o superior
+- Git
+
+### Pasos
 
 1. Clona el repositorio y entra a la carpeta:
 
-```bash
-git clone https://github.com/ValeriaisaMar/Vitrina-de-proyectos-.git
-cd Vitrina-de-proyectos-
-```
+   ```bash
+   git clone https://github.com/ValeriaisaMar/Vitrina-de-proyectos-.git
+   cd Vitrina-de-proyectos-
+   ```
 
-2. Crea y activa un entorno virtual. En Windows con PowerShell:
+2. Crea y activa un entorno virtual.
 
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-```
+   Windows (PowerShell):
 
-En macOS o Linux:
+   ```powershell
+   python -m venv .venv
+   .venv\Scripts\Activate.ps1
+   ```
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
+   macOS o Linux:
+
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
 
 3. Instala las dependencias:
 
-```bash
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-4. Crea la base de datos en PostgreSQL, por ejemplo desde `psql` o pgAdmin:
+4. Crea la base de datos en PostgreSQL (desde `psql` o pgAdmin):
 
-```sql
-CREATE DATABASE vitrina_db;
-```
+   ```sql
+   CREATE DATABASE vitrina_db;
+   ```
 
-5. Configura las variables de entorno. Copia el archivo de ejemplo y edítalo con tus datos:
+5. Copia la plantilla de configuración y complétala con tus datos:
 
-```powershell
-copy .env.example .env
-```
+   ```powershell
+   copy .env.example .env      # Windows
+   ```
 
-En macOS o Linux usa `cp .env.example .env`. El archivo `.env` contiene tus credenciales, por eso no se sube al repositorio.
+   ```bash
+   cp .env.example .env        # macOS o Linux
+   ```
 
-6. Aplica las migraciones para crear las tablas:
+6. Crea las tablas y un administrador:
 
-```bash
-python manage.py migrate
-```
+   ```bash
+   python manage.py migrate
+   python manage.py createsuperuser
+   ```
 
-7. Crea un superusuario para entrar al panel de administración:
+7. Inicia el servidor:
 
-```bash
-python manage.py createsuperuser
-```
+   ```bash
+   python manage.py runserver
+   ```
 
-8. Inicia el servidor de desarrollo:
-
-```bash
-python manage.py runserver
-```
-
-Abre `http://127.0.0.1:8000` en tu navegador. El panel de administración está en `http://127.0.0.1:8000/admin/`.
-
-## Despliegue con Docker
-
-> En preparación: el `Dockerfile` y el `docker-compose.yml` todavía no están en el repositorio.
-
-La aplicación se desplegará en contenedores: uno para Django y otro para PostgreSQL. Cuando estén listos los archivos, la app se levantará con:
-
-```bash
-docker compose up --build
-```
+   Abre `http://127.0.0.1:8000`. El panel de Django está en `/admin/`.
 
 ## Variables de entorno
 
-El archivo `.env` necesita estas variables:
-
-```
+```ini
 SECRET_KEY=cambia_esta_clave
 DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
 
 DB_NAME=vitrina_db
 DB_USER=postgres
 DB_PASSWORD=tu_contraseña
 DB_HOST=localhost
 DB_PORT=5432
+
+EMAIL_HOST_USER=vitrinadeproyectosuteq@gmail.com
+EMAIL_HOST_PASSWORD=contraseña_de_aplicación_de_gmail
 ```
 
-Con Docker, `DB_HOST` debe ser el nombre del servicio de PostgreSQL en `docker-compose.yml` (por ejemplo `db`). En producción, `DEBUG` va en `False`.
+- `EMAIL_HOST_PASSWORD` es una **contraseña de aplicación** de Google, no la contraseña normal
+  de la cuenta. Se crea en la cuenta de Google después de activar la verificación en dos pasos.
+- Si dejas el correo vacío en desarrollo, los correos se muestran en la terminal en lugar de
+  enviarse.
+- En producción, `DEBUG` va en `False` y `ALLOWED_HOSTS` lleva el dominio real.
 
-## Estructura del proyecto
+Para generar una `SECRET_KEY`:
 
-```
-Vitrina-de-proyectos-/
-├── config/              Configuración de Django (settings, urls, wsgi, asgi)
-├── vitrina/             App principal: modelos, vistas, rutas y plantillas
-│   ├── migrations/
-│   ├── models.py
-│   ├── views.py
-│   └── urls.py
-├── manage.py            Utilidad de comandos de Django
-├── requirements.txt     Dependencias de Python
-├── .env.example         Plantilla de variables de entorno   (por crear)
-├── Dockerfile           Imagen de la app                     (por crear)
-├── docker-compose.yml   Servicios: app + PostgreSQL          (por crear)
-└── README.md
+```bash
+python -c "from django.core.management.utils import get_random_secret_key as g; print(g())"
 ```
 
-Por ahora toda la lógica vive en la app `vitrina`. Si alguna parte crece mucho (por ejemplo el Health Score o la comunidad), se puede separar en su propia app.
+## Logo
 
-## Flujo de trabajo del equipo
+Copia el logo oficial como `static/img/logo-uteq.svg` (o `.png`). La plataforma lo detecta sola
+y lo muestra en el encabezado; mientras no exista, se muestra el nombre en texto.
 
-La rama `main` se mantiene estable. Cada funcionalidad se desarrolla en su propia rama (por ejemplo `feature/revision-docente`) y se integra mediante Pull Request. Los mensajes de commit siguen un estilo común, como `feat: agrega subida de proyectos` o `docs: actualiza README`.
+## Estilos con Tailwind
 
-## Sobre el proyecto
+El CSS compilado (`static/css/app.css`) está en el repositorio, así que **no necesitas Tailwind
+para ver la app**. Solo lo necesitas si vas a cambiar estilos:
 
-Vitrina de Proyectos nace en el curso intensivo de desarrollo web con Django y Docker de la UTEQ. La desarrollan tres estudiantes de la Universidad de Córdoba (Colombia), embajadores en movilidad académica, con una meta clara: dejarle a la UTEQ una herramienta funcionando, no solo un prototipo.
+1. Descarga el ejecutable standalone de Tailwind para tu sistema desde su página de
+   lanzamientos en GitHub (`tailwindcss-windows-x64.exe`, `tailwindcss-macos-arm64` o
+   `tailwindcss-linux-x64`) y guárdalo en la raíz del proyecto (está en `.gitignore`).
+2. Déjalo vigilando los cambios mientras trabajas:
+
+   ```bash
+   ./tailwindcss -i static/src/entrada.css -o static/css/app.css --watch
+   ```
+
+3. Antes de hacer commit, genera la versión final:
+
+   ```bash
+   ./tailwindcss -i static/src/entrada.css -o static/css/app.css --minify
+   ```
+
+## Idiomas
+
+La interfaz está en español e inglés. Las traducciones compiladas (`.mo`) están en el
+repositorio, así que no hace falta nada extra para usarlas. Si agregas o cambias textos:
+
+```bash
+python manage.py makemessages -l en
+# edita locale/en/LC_MESSAGES/django.po
+python manage.py compilemessages
+```
+
+Estos dos comandos necesitan GNU gettext instalado en tu equipo.
+
+## Pruebas
+
+```bash
+python manage.py test
+```
+
+Cada app tiene su carpeta `tests/`. Se prueban los permisos de cada rol en cada página, todos
+los cambios de estado, los correos y los archivos generados (QR y PDF). Ningún módulo se entrega
+si las pruebas no pasan.
+
+## Cómo trabajamos: desarrollo guiado por especificaciones (SDD)
+
+Usamos [Spec Kit](https://github.com/github/spec-kit) con cuatro fases por módulo:
+
+1. **Constitución**: reglas que no se negocian ([ver](.specify/memory/constitution.md)).
+2. **Spec** (`specs/NNN-modulo/spec.md`): qué debe hacer el módulo y cómo se comprueba.
+3. **Plan** (`plan.md`): cómo se construye: modelos, vistas, archivos.
+4. **Tareas** (`tasks.md`): pasos pequeños y verificables, en orden.
+
+La hoja de ruta con los módulos y las fechas está en
+[`docs/sdd/hoja-de-ruta.md`](docs/sdd/hoja-de-ruta.md).
+
+### Ramas y commits
+
+- `main` siempre estable. Cada módulo en su rama: `feature/001-base-plataforma`,
+  `feature/002-cuentas`, etc.
+- Integración mediante Pull Request, con las pruebas en verde.
+- Prefijos de commit: `feat:`, `fix:`, `docs:`, `test:`, `style:`, `refactor:`.
+  Ejemplo: `feat: agrega activación de cuenta por correo`.
+
+## Despliegue
+
+El despliegue con Docker está fuera del alcance de esta etapa y se añadirá en una versión
+posterior.
+
+## Equipo
+
+Desarrollado en el curso intensivo de desarrollo web de la UTEQ por tres estudiantes de la
+Universidad de Córdoba (Colombia), embajadores en movilidad académica:
 
 - Dayana Ayala Goez
-- Abelardo Hernandez Ochoa
-- Valeria Isabel Martinez Luna
+- Abelardo Hernández Ochoa
+- Valeria Isabel Martínez Luna
 
 ## Licencia
 
-Distribuido bajo licencia MIT. Consulta el archivo `LICENSE` para más información.
+Por definir con la UTEQ, ya que la plataforma quedará en uso en la universidad.

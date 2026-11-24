@@ -1,0 +1,38 @@
+{% load static i18n %}{% get_current_language as IDIOMA %}<!DOCTYPE html>
+{% comment %}
+Página de error del servidor. No hereda de base.html a propósito: si el error viene de la
+plantilla base o de la base de datos, esta página tiene que poder mostrarse igual.
+Nunca muestra detalles técnicos.
+{% endcomment %}
+<html lang="{{ IDIOMA }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% translate "Error del servidor" %} · UTEQ</title>
+  <script>
+    (function () {
+      var tema = null;
+      try { tema = localStorage.getItem("tema"); } catch (e) {}
+      if (tema ? tema === "oscuro" : window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.documentElement.classList.add("dark");
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="flex min-h-screen flex-col bg-fondo text-texto">
+  <header class="border-b-2 border-linea">
+    <div class="contenedor py-4">
+      <a href="/" class="font-titulo font-extrabold">{% translate "Vitrina de Proyectos" %}</a>
+    </div>
+  </header>
+  <main class="contenedor flex-1 py-20 lg:py-28">
+    <div class="tarjeta relative mx-auto max-w-2xl p-8 sm:p-12">
+      <span class="calcomania absolute -top-4 right-6">500</span>
+      <h1 class="text-3xl font-extrabold leading-tight sm:text-4xl">{% translate "Algo salió mal" %}</h1>
+      <p class="mt-4 text-lg leading-relaxed text-texto-suave">{% translate "Tuvimos un problema al cargar esta página. Intenta de nuevo en unos minutos." %}</p>
+      <a href="/" class="btn btn-primario mt-8">{% translate "Volver al inicio" %}</a>
+    </div>
+  </main>
+</body>
+</html>

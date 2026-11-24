@@ -1,5 +1,13 @@
-from django.urls import path
-from . import views
+"""Rutas públicas de la vitrina."""
 
-urlpatterns = [path("", views.inicio, name="inicio"), 
-               path("registro/", views.Registro.as_view(), name="registro")]
+from django.urls import path
+
+from vitrina import views
+
+app_name = "vitrina"  # permite escribir {% url 'vitrina:inicio' %}
+
+urlpatterns = [
+    path("", views.inicio, name="inicio"),
+    path("explorar/", views.explorar, name="explorar"),
+    path("verificar/", views.verificar, name="verificar"),
+]

@@ -1,0 +1,65 @@
+{% load i18n %}
+{% with actual=request.resolver_match.url_name %}
+<header class="sticky top-0 z-40 border-b-2 border-linea bg-fondo/95 backdrop-blur supports-[backdrop-filter]:bg-fondo/85">
+  <div class="contenedor flex items-center gap-4 py-3">
+
+    {# Marca: el logo si existe en static/img/, si no el nombre en texto #}
+    <a href="{% url 'vitrina:inicio' %}" class="flex min-h-11 items-center gap-3" aria-label="{% translate 'Vitrina de Proyectos, ir al inicio' %}">
+      {% if logo_url %}
+        <img src="{{ logo_url }}" alt="UTEQ" class="h-10 w-auto">
+      {% endif %}
+      <span class="flex flex-col leading-tight">
+        <span class="font-titulo text-[0.95rem] font-extrabold sm:text-base">{% translate "Vitrina de Proyectos" %}</span>
+        <span class="text-xs font-semibold text-texto-suave">UTEQ · {% translate "Ingeniería de Software" %}</span>
+      </span>
+    </a>
+
+    {# Navegación de escritorio #}
+    <nav class="ml-6 hidden items-center gap-1 lg:flex" aria-label="{% translate 'Principal' %}">
+      {% include "parciales/enlaces_nav.html" with clase="px-3 py-2.5 text-sm font-bold border-2 border-transparent hover:border-linea" clase_activa="bg-uteq-tinte text-uteq-verde border-linea dark:bg-uteq-verde dark:text-white" %}
+    </nav>
+
+    <div class="ml-auto flex items-center gap-2">
+      <div class="hidden sm:block">{% include "parciales/selector_idioma.html" %}</div>
+      {% include "parciales/boton_tema.html" %}
+
+      <div class="hidden items-center gap-2 lg:flex">
+        {% if user.is_authenticated %}
+          <span class="text-sm font-semibold text-texto-suave">{% blocktranslate with nombre=user.nombres %}Hola, {{ nombre }}{% endblocktranslate %}</span>
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secundario">{% translate "Cerrar sesión" %}</button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn btn-fantasma">{% translate "Iniciar sesión" %}</a>
+          <a href="{% url 'login' %}" class="btn btn-primario">{% translate "Crear cuenta" %}</a>
+        {% endif %}
+      </div>
+
+      {# Menú móvil: <details> funciona aunque no cargue JavaScript #}
+      <details class="relative lg:hidden" data-menu>
+        <summary class="flex h-11 w-11 cursor-pointer items-center justify-center border-2 border-linea bg-superficie" aria-label="{% translate 'Abrir menú' %}">
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </summary>
+        <div class="absolute right-0 top-[calc(100%+0.75rem)] w-[min(20rem,calc(100vw-2.5rem))] border-2 border-linea bg-superficie p-4 shadow-duro-verde">
+          <nav class="flex flex-col" aria-label="{% translate 'Principal (móvil)' %}">
+            {% include "parciales/enlaces_nav.html" with clase="py-3 font-bold border-b border-linea-suave" clase_activa="text-acento" %}
+          </nav>
+          <div class="mt-4 flex flex-col gap-3">
+            {% if user.is_authenticated %}
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secundario w-full">{% translate "Cerrar sesión" %}</button>
+              </form>
+            {% else %}
+              <a href="{% url 'login' %}" class="btn btn-primario w-full">{% translate "Crear cuenta" %}</a>
+              <a href="{% url 'login' %}" class="btn btn-secundario w-full">{% translate "Iniciar sesión" %}</a>
+            {% endif %}
+            <div class="sm:hidden">{% include "parciales/selector_idioma.html" %}</div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+{% endwith %}
