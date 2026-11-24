@@ -46,7 +46,7 @@ class IdiomaTests(TestCase):
 
     def test_el_ingles_se_mantiene_al_navegar(self):
         self.elegir_ingles()
-        self.assertContains(self.client.get("/verificar/"), "Coming soon")
+        self.assertContains(self.client.get("/verificar/"), "Verify a project")
 
     def test_el_selector_marca_el_idioma_activo(self):
         respuesta = self.client.get("/")

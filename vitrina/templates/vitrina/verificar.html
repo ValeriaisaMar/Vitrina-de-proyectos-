@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Verificar un proyecto" %}{% endblock %}
+
+{% block contenido %}
+<section class="border-b-2 border-linea bg-uteq-verde text-white">
+  <div class="contenedor grid gap-10 py-14 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-20">
+    <div>
+      <p class="text-xs font-bold uppercase tracking-[0.12em] text-uteq-claro">{% translate "Sello de la carrera" %}</p>
+      <h1 class="mt-3 text-4xl font-extrabold leading-tight sm:text-5xl">{% translate "Verificar un proyecto" %}</h1>
+      <p class="mt-4 max-w-xl text-lg leading-relaxed text-uteq-claro">{% translate "Cada proyecto aprobado por un docente tiene un código único y un QR. Compruébalo aquí para saber si es auténtico." %}</p>
+    </div>
+    <div class="min-w-0 border-2 border-tinta bg-superficie p-6 text-texto shadow-duro sm:p-8">
+      {% include "vitrina/_formulario_verificar.html" %}
+      <p class="mt-4 text-sm text-texto-suave">{% translate "El código está en el certificado, debajo del QR." %}</p>
+    </div>
+  </div>
+</section>
+
+<section class="bg-seccion py-16" aria-labelledby="titulo-qr">
+  <div class="contenedor">
+    <h2 id="titulo-qr" class="text-2xl font-extrabold sm:text-3xl">{% translate "¿Tienes el QR?" %}</h2>
+    <ol class="mt-8 grid gap-6 md:grid-cols-3">
+      {% for paso in pasos %}
+        <li class="tarjeta-sobria p-6">
+          <span class="font-titulo text-3xl font-extrabold text-acento">0{{ forloop.counter }}</span>
+          <p class="mt-3 font-bold">{{ paso.0 }}</p>
+          <p class="mt-1 text-sm leading-relaxed text-texto-suave">{{ paso.1 }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+{% endblock %}

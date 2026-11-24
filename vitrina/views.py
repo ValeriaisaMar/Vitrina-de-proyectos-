@@ -7,15 +7,16 @@ proyectos aprobados (constitución, principio VI).
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
-from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 
 from cuentas.models import Rol
 from proyectos.models import Estado, Proyecto, Tecnologia
 from proyectos.permisos import puede_editar, puede_ver, puede_ver_historial
 from proyectos.servicios import puede_cambiar
-from vitrina.forms import FormularioFiltros
+from vitrina.forms import FormularioFiltros, FormularioVerificar
+from vitrina.verificacion import certificado_pdf, normalizar_codigo, qr_png, url_verificacion
 
 POR_PAGINA = 12
 
@@ -112,8 +113,53 @@ def detalle(request, slug):
 
 
 def verificar(request):
-    """Verificación pública por código o QR. Llega en el módulo 005."""
-    return render(request, "vitrina/proximamente.html", {
-        "titulo": _("Verificar un proyecto"),
-        "mensaje": _("Aquí vas a poder comprobar un proyecto con su código o escaneando su QR."),
-    })
+    """Página Verificar: explica el QR y recibe un código escrito a mano."""
+    form = FormularioVerificar(request.GET or None)
+    if form.is_valid():
+        return redirect("vitrina:verificar_codigo", codigo=form.cleaned_data["codigo"])
+    pasos = [
+        (_("Abre la cámara del celular"), _("No hace falta instalar nada: la cámara reconoce el QR.")),
+        (_("Toca el enlace que aparece"), _("Te trae a la página de verificación de ese código.")),
+        (_("Compara los datos"), _("Título, autores, docente y fecha deben coincidir con el certificado.")),
+    ]
+    return render(request, "vitrina/verificar.html", {"form": form, "pasos": pasos})
+
+
+def verificar_codigo(request, codigo):
+    """Resultado de la verificación: es la página a la que apunta el QR.
+
+    Muestra SOLO datos públicos (constitución, VI): título, autores, docente, fecha y código.
+    """
+    canonico = normalizar_codigo(codigo)
+    if canonico and canonico != codigo:
+        return redirect("vitrina:verificar_codigo", codigo=canonico, permanent=True)
+    proyecto = (
+        Proyecto.objects.publicados().filter(codigo=canonico)
+        .select_related("revisor").prefetch_related("autores").first()
+        if canonico else None
+    )
+    contexto = {"proyecto": proyecto, "codigo": codigo, "form": FormularioVerificar()}
+    # 404 si no existe: así los buscadores y otros sistemas también entienden que no es válido
+    return render(request, "vitrina/verificado.html", contexto, status=200 if proyecto else 404)
+
+
+def _proyecto_por_codigo(codigo):
+    return get_object_or_404(Proyecto.objects.publicados().select_related("asignatura", "revisor"), codigo=codigo)
+
+
+def descargar_qr(request, codigo):
+    """PNG con el QR que lleva a la página de verificación."""
+    proyecto = _proyecto_por_codigo(codigo)
+    respuesta = HttpResponse(qr_png(url_verificacion(request, proyecto.codigo)), content_type="image/png")
+    if "descargar" in request.GET:  # en el detalle se muestra; con ?descargar se baja como archivo
+        respuesta["Content-Disposition"] = f'attachment; filename="{proyecto.codigo}-qr.png"'
+    return respuesta
+
+
+def descargar_certificado(request, codigo):
+    """Certificado en PDF, en el idioma con el que se navega."""
+    proyecto = _proyecto_por_codigo(codigo)
+    pdf = certificado_pdf(proyecto, url_verificacion(request, proyecto.codigo))
+    respuesta = HttpResponse(pdf, content_type="application/pdf")
+    respuesta["Content-Disposition"] = f'attachment; filename="{proyecto.codigo}-certificado.pdf"'
+    return respuesta

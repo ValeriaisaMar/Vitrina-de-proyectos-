@@ -24,6 +24,10 @@ msgstr "%(docente)s rejected the project"
 msgid "%(docente)s revisó tu proyecto «%(titulo)s»."
 msgstr "%(docente)s reviewed your project “%(titulo)s”."
 
+#: vitrina/views.py
+msgid "Abre la cámara del celular"
+msgstr "Open your phone's camera"
+
 #: proyectos/templates/proyectos/revisar.html
 msgid "Abrir PDF"
 msgstr "Open PDF"
@@ -84,6 +88,10 @@ msgstr "Apply filters"
 msgid "Aprobado"
 msgstr "Approved"
 
+#: vitrina/templates/vitrina/verificado.html
+msgid "Aprobado por"
+msgstr "Approved by"
+
 #: proyectos/templates/proyectos/revisar.html
 msgid "Aprobado y publicado."
 msgstr "Approved and published."
@@ -92,15 +100,11 @@ msgstr "Approved and published."
 msgid "Aprobar"
 msgstr "Approve"
 
-#: vitrina/views.py
-msgid "Aquí vas a poder comprobar un proyecto con su código o escaneando su QR."
-msgstr "Here you'll be able to check a project with its code or by scanning its QR."
-
 #: proyectos/templates/proyectos/mis_proyectos.html vitrina/forms.py vitrina/templates/vitrina/detalle.html
 msgid "Asignatura"
 msgstr "Course"
 
-#: proyectos/templates/proyectos/formulario.html proyectos/templates/proyectos/revisar.html vitrina/templates/vitrina/detalle.html
+#: proyectos/templates/proyectos/formulario.html proyectos/templates/proyectos/revisar.html vitrina/templates/vitrina/detalle.html vitrina/templates/vitrina/verificado.html
 msgid "Autores"
 msgstr "Authors"
 
@@ -123,6 +127,14 @@ msgstr "Draft"
 #: vitrina/forms.py vitrina/templates/vitrina/explorar.html
 msgid "Buscar"
 msgstr "Search"
+
+#: vitrina/verificacion.py
+msgid "CERTIFICADO DE PROYECTO VERIFICADO"
+msgstr "VERIFIED PROJECT CERTIFICATE"
+
+#: vitrina/templates/vitrina/verificar.html
+msgid "Cada proyecto aprobado por un docente tiene un código único y un QR. Compruébalo aquí para saber si es auténtico."
+msgstr "Every project approved by a professor has a unique code and a QR. Check it here to know whether it is authentic."
 
 #: templates/parciales/boton_tema.html
 msgid "Cambiar a modo claro"
@@ -166,6 +178,15 @@ msgstr "Log out"
 msgid "Cerraste sesión."
 msgstr "You logged out."
 
+#: proyectos/templates/proyectos/mis_proyectos.html
+msgid "Certificado"
+msgstr "Certificate"
+
+#: vitrina/verificacion.py
+#, python-format
+msgid "Certificado %(codigo)s"
+msgstr "Certificate %(codigo)s"
+
 #: vitrina/templates/vitrina/detalle.html
 msgid "Coautor"
 msgstr "Co-author"
@@ -185,6 +206,10 @@ msgstr "Professor's comment:"
 #: proyectos/forms.py
 msgid "Comentario para los autores"
 msgstr "Comment for the authors"
+
+#: vitrina/views.py
+msgid "Compara los datos"
+msgstr "Compare the details"
 
 #: proyectos/templates/proyectos/enviar.html
 msgid "Comprueba que la descripción explique qué hace y cómo se usa."
@@ -282,6 +307,14 @@ msgstr "Tell us what you built, for which course and with which technologies. A 
 msgid "Código"
 msgstr "Code"
 
+#: vitrina/forms.py
+msgid "Código de verificación"
+msgstr "Verification code"
+
+#: vitrina/templates/vitrina/verificado.html
+msgid "Código no válido"
+msgstr "Invalid code"
+
 #: templates/parciales/enlaces_nav.html templates/parciales/pie.html vitrina/templates/vitrina/inicio.html
 msgid "Cómo funciona"
 msgstr "How it works"
@@ -332,6 +365,14 @@ msgstr "Live demo"
 msgid "Descarga el QR y el certificado PDF para tu portafolio."
 msgstr "Download the QR and the PDF certificate for your portfolio."
 
+#: vitrina/templates/vitrina/detalle.html
+msgid "Descargar QR (PNG)"
+msgstr "Download QR (PNG)"
+
+#: vitrina/templates/vitrina/detalle.html
+msgid "Descargar certificado (PDF)"
+msgstr "Download certificate (PDF)"
+
 #: proyectos/templates/proyectos/revisar.html vitrina/templates/vitrina/detalle.html
 msgid "Descripción"
 msgstr "Description"
@@ -368,6 +409,10 @@ msgstr "The file is not a valid PDF."
 #: cuentas/forms.py
 msgid "El correo o la contraseña no son correctos."
 msgstr "The email or password is incorrect."
+
+#: vitrina/templates/vitrina/verificar.html
+msgid "El código está en el certificado, debajo del QR."
+msgstr "The code is on the certificate, below the QR."
 
 #: proyectos/validadores.py
 msgid "El documento debe ser un archivo PDF."
@@ -486,6 +531,10 @@ msgstr "Submission for review"
 msgid "Error del servidor"
 msgstr "Server error"
 
+#: vitrina/verificacion.py
+msgid "Escanea para verificar"
+msgstr "Scan to verify"
+
 #: vitrina/templates/vitrina/inicio.html
 msgid "Escanea y comprueba"
 msgstr "Scan and check"
@@ -501,6 +550,10 @@ msgstr "Enter your account email and we'll send you a link to create a new passw
 #: proyectos/forms.py proyectos/servicios.py
 msgid "Escribe un comentario para explicar la decisión."
 msgstr "Write a comment to explain the decision."
+
+#: vitrina/forms.py
+msgid "Escribe un código con la forma VP-2026-0001."
+msgstr "Enter a code like VP-2026-0001."
 
 #: proyectos/validadores.py
 msgid "Escribe un enlace que empiece por http:// o https://."
@@ -529,6 +582,14 @@ msgstr "This section is under construction."
 #: proyectos/templates/proyectos/mis_proyectos.html
 msgid "Estado"
 msgstr "Status"
+
+#: vitrina/verificacion.py
+msgid "Este certificado se comprueba en línea. Si los datos no coinciden con la página de verificación, no es válido."
+msgstr "This certificate is checked online. If the details don't match the verification page, it is not valid."
+
+#: vitrina/templates/vitrina/verificado.html
+msgid "Este código corresponde a un proyecto de la carrera de Ingeniería de Software de la UTEQ, revisado y aprobado por un docente."
+msgstr "This code belongs to a UTEQ Software Engineering project, reviewed and approved by a professor."
 
 #: cuentas/templates/cuentas/activacion_invalida.html cuentas/templates/cuentas/recuperar_confirmar.html
 msgid "Este enlace ya no sirve"
@@ -572,9 +633,13 @@ msgstr "Explore projects"
 msgid "Facultad de Ciencias de la Computación"
 msgstr "Faculty of Computer Science"
 
-#: templates/parciales/pie.html
+#: templates/parciales/pie.html vitrina/verificacion.py
 msgid "Facultad de Ciencias de la Computación · Ingeniería de Software"
 msgstr "Faculty of Computer Science · Software Engineering"
+
+#: vitrina/templates/vitrina/verificado.html
+msgid "Fecha de aprobación"
+msgstr "Approval date"
 
 #: cuentas/admin.py
 msgid "Fechas"
@@ -775,6 +840,15 @@ msgstr "We couldn't find this page"
 msgid "No encontramos proyectos con esos filtros"
 msgstr "We couldn't find projects with those filters"
 
+#: vitrina/views.py
+msgid "No hace falta instalar nada: la cámara reconoce el QR."
+msgstr "No app needed: the camera recognizes the QR."
+
+#: vitrina/templates/vitrina/verificado.html
+#, python-format
+msgid "No hay ningún proyecto verificado con el código «%(codigo)s». Revisa que esté bien escrito; si lo copiaste de un certificado y no aparece, ese certificado no es auténtico."
+msgstr "There's no verified project with the code “%(codigo)s”. Check that it's spelled correctly; if you copied it from a certificate and it doesn't show up, that certificate is not authentic."
+
 #: proyectos/templates/proyectos/bandeja.html
 msgid "No hay proyectos esperando revisión"
 msgstr "No projects are waiting for review"
@@ -912,6 +986,10 @@ msgstr "Project created. It was saved as a draft."
 msgid "Proyecto rechazado."
 msgstr "Project rejected."
 
+#: vitrina/templates/vitrina/verificado.html
+msgid "Proyecto verificado"
+msgstr "Verified project"
+
 #: templates/base.html
 msgid "Proyectos de Ingeniería de Software de la UTEQ, revisados por docentes y verificables con un QR."
 msgstr "UTEQ Software Engineering projects, reviewed by professors and verifiable with a QR."
@@ -962,6 +1040,10 @@ msgstr "You may have already used it, more than 24 hours may have passed, or it 
 msgid "Página anterior"
 msgstr "Previous page"
 
+#: vitrina/templates/vitrina/detalle.html
+msgid "Página de verificación"
+msgstr "Verification page"
+
 #: templates/404.html
 msgid "Página no encontrada"
 msgstr "Page not found"
@@ -969,6 +1051,11 @@ msgstr "Page not found"
 #: vitrina/templates/vitrina/explorar.html
 msgid "Página siguiente"
 msgstr "Next page"
+
+#: vitrina/templates/vitrina/detalle.html
+#, python-format
+msgid "QR de verificación del código %(codigo)s"
+msgstr "Verification QR for code %(codigo)s"
 
 #: vitrina/templates/vitrina/inicio.html
 msgid "QR verificable"
@@ -1099,6 +1186,10 @@ msgstr "Skip to content"
 msgid "Se borrarán el proyecto, sus imágenes y su documento. Tus coautores también dejarán de verlo."
 msgstr "The project, its images and its document will be deleted. Your co-authors will no longer see it either."
 
+#: vitrina/verificacion.py
+msgid "Se certifica que el proyecto"
+msgstr "This certifies that the project"
+
 #: proyectos/templates/proyectos/formulario.html
 msgid "Se guarda como borrador. Solo tú y tus coautores lo ven hasta que sea aprobado."
 msgstr "It's saved as a draft. Only you and your co-authors see it until it's approved."
@@ -1110,6 +1201,10 @@ msgstr "It's published in the showcase with the program's seal and a unique code
 #: proyectos/templates/proyectos/revisar.html
 msgid "Se publica en la vitrina y recibe su código."
 msgstr "It's published in the showcase and gets its code."
+
+#: vitrina/templates/vitrina/verificar.html
+msgid "Sello de la carrera"
+msgstr "The program's seal"
 
 #: proyectos/forms.py
 #, python-format
@@ -1144,6 +1239,10 @@ msgstr "If you didn't request this change, ignore this email: your password stay
 #: templates/403.html
 msgid "Sin permiso"
 msgstr "No permission"
+
+#: vitrina/templates/vitrina/verificado.html
+msgid "Sin verificar"
+msgstr "Not verified"
 
 #: vitrina/templates/vitrina/inicio.html
 msgid "Sube el tuyo y sé de los primeros en tener el sello de la carrera."
@@ -1186,6 +1285,10 @@ msgstr "We'll send you a link to activate your account."
 msgid "Te pediremos la actual para confirmar que eres tú."
 msgstr "We'll ask for your current one to confirm it's you."
 
+#: vitrina/views.py
+msgid "Te trae a la página de verificación de ese código."
+msgstr "It brings you to the verification page for that code."
+
 #: vitrina/forms.py vitrina/templates/vitrina/explorar.html
 msgid "Tecnología"
 msgstr "Technology"
@@ -1197,6 +1300,10 @@ msgstr "Technologies"
 #: vitrina/templates/vitrina/inicio.html
 msgid "Tecnologías usadas"
 msgstr "Technologies used"
+
+#: vitrina/views.py
+msgid "Toca el enlace que aparece"
+msgstr "Tap the link that appears"
 
 #: vitrina/forms.py vitrina/templates/vitrina/explorar.html
 msgid "Todas"
@@ -1290,6 +1397,10 @@ msgstr "Your details"
 msgid "Tuvimos un problema al cargar esta página. Intenta de nuevo en unos minutos."
 msgstr "We had a problem loading this page. Please try again in a few minutes."
 
+#: vitrina/views.py
+msgid "Título, autores, docente y fecha deben coincidir con el certificado."
+msgstr "Title, authors, professor and date must match the certificate."
+
 #: proyectos/templates/proyectos/formulario.html
 msgid "Un buen resumen explica en una frase qué hace el proyecto."
 msgstr "A good summary explains in one sentence what the project does."
@@ -1311,7 +1422,7 @@ msgstr "A project can have at most %(n)s authors."
 msgid "Una o dos frases. Aparece en las tarjetas."
 msgstr "One or two sentences. It appears on the cards."
 
-#: templates/parciales/pie.html
+#: templates/parciales/pie.html vitrina/verificacion.py
 msgid "Universidad Técnica Estatal de Quevedo"
 msgstr "Quevedo State Technical University"
 
@@ -1323,7 +1434,7 @@ msgstr "Use the email you signed up with."
 msgid "Ver"
 msgstr "View"
 
-#: proyectos/templates/proyectos/correos/decision.html
+#: proyectos/templates/proyectos/correos/decision.html vitrina/templates/vitrina/verificado.html
 msgid "Ver el proyecto"
 msgstr "View the project"
 
@@ -1343,19 +1454,31 @@ msgstr "See the showcase"
 msgid "Ver todos los proyectos"
 msgstr "See all projects"
 
+#: vitrina/templates/vitrina/detalle.html
+msgid "Verificación"
+msgstr "Verification"
+
 #: vitrina/templates/vitrina/_tarjeta_proyecto.html vitrina/templates/vitrina/detalle.html
 msgid "Verificado"
 msgstr "Verified"
+
+#: vitrina/templates/vitrina/_formulario_verificar.html
+msgid "Verificar"
+msgstr "Verify"
 
 #: templates/parciales/enlaces_nav.html
 msgid "Verificar QR"
 msgstr "Verify QR"
 
+#: vitrina/templates/vitrina/verificado.html
+msgid "Verificar otro código"
+msgstr "Verify another code"
+
 #: templates/parciales/pie.html
 msgid "Verificar un QR"
 msgstr "Verify a QR"
 
-#: vitrina/views.py
+#: vitrina/templates/vitrina/verificar.html
 msgid "Verificar un proyecto"
 msgstr "Verify a project"
 
@@ -1488,6 +1611,10 @@ msgstr "verification code"
 msgid "demo en línea"
 msgstr "live demo"
 
+#: vitrina/verificacion.py
+msgid "desarrollado por"
+msgstr "developed by"
+
 #: proyectos/models.py
 msgid "descripción"
 msgstr "description"
@@ -1499,6 +1626,11 @@ msgstr "address"
 #: proyectos/models.py
 msgid "documento PDF"
 msgstr "PDF document"
+
+#: vitrina/verificacion.py
+#, python-format
+msgid "en la asignatura %(asignatura)s, periodo %(periodo)s, fue revisado y aprobado por %(docente)s el %(fecha)s, y forma parte de la Vitrina de Proyectos de la carrera."
+msgstr "in the course %(asignatura)s, term %(periodo)s, was reviewed and approved by %(docente)s on %(fecha)s, and is part of the program's Project Showcase."
 
 #: proyectos/templates/proyectos/_historial.html
 msgid "envió el proyecto a revisión"
@@ -1620,6 +1752,10 @@ msgstr "took the project"
 msgid "título"
 msgstr "title"
 
+#: vitrina/verificacion.py
+msgid "un docente de la carrera"
+msgstr "a professor of the program"
+
 #: cuentas/models.py
 msgid "usuario"
 msgstr "user"
@@ -1662,6 +1798,10 @@ msgstr "Forgot it?"
 #: cuentas/templates/cuentas/entrar.html
 msgid "¿No te llegó el correo de activación?"
 msgstr "Didn't get the activation email?"
+
+#: vitrina/templates/vitrina/verificar.html
+msgid "¿Tienes el QR?"
+msgstr "Do you have the QR?"
 
 #: vitrina/templates/vitrina/inicio.html
 msgid "¿Tienes un proyecto de la carrera?"
