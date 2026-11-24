@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Mi panel" %}{% endblock %}
+
+{% block contenido %}
+{% translate "Docente" as rol_texto %}{% translate "Ir a la bandeja" as accion_texto %}{% url 'proyectos:bandeja' as accion_url %}
+{% include "vitrina/paneles/_encabezado.html" %}
+
+<section class="bg-seccion py-10">
+  <div class="contenedor flex flex-col gap-8">
+    {% url 'proyectos:bandeja' as url_bandeja %}
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
+      {% translate "Por revisar" as t %}{% include "vitrina/paneles/_cifra.html" with valor=por_revisar etiqueta=t estado="enviado" url=url_bandeja destacado=True %}
+      {% translate "Mis revisiones" as t %}{% include "vitrina/paneles/_cifra.html" with valor=mis_revisiones etiqueta=t estado="en_revision" url=url_bandeja|add:"?vista=en_revision" %}
+      {% translate "Aprobé" as t %}{% include "vitrina/paneles/_cifra.html" with valor=decisiones.aprobados etiqueta=t estado="aprobado" %}
+      {% translate "Pedí cambios" as t %}{% include "vitrina/paneles/_cifra.html" with valor=decisiones.observaciones etiqueta=t estado="con_observaciones" %}
+      {% translate "Rechacé" as t %}{% include "vitrina/paneles/_cifra.html" with valor=decisiones.rechazados etiqueta=t estado="rechazado" %}
+    </div>
+
+    <div class="grid gap-8 lg:grid-cols-2">
+      <section class="tarjeta-sobria p-6 sm:p-8" aria-labelledby="titulo-esperando">
+        <h2 id="titulo-esperando" class="text-xl font-extrabold">{% translate "Esperan desde hace más tiempo" %}</h2>
+        {% if esperando %}
+          <ul class="mt-5 flex flex-col gap-3">
+            {% for p in esperando %}
+              <li class="flex flex-wrap items-center justify-between gap-3 border-2 border-linea p-4">
+                <div class="min-w-0">
+                  <a href="{% url 'proyectos:revisar' p.slug %}" class="font-bold hover:underline">{{ p.titulo }}</a>
+                  <p class="text-sm text-texto-suave">{% blocktranslate with tiempo=p.fecha|timesince %}Enviado hace {{ tiempo }}{% endblocktranslate %}</p>
+                </div>
+                <form method="post" action="{% url 'proyectos:tomar' p.slug %}">{% csrf_token %}<button type="submit" class="btn btn-primario">{% translate "Tomar" %}</button></form>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="mt-3 text-texto-suave">{% translate "No hay proyectos esperando revisión" %}.</p>
+        {% endif %}
+      </section>
+
+      <section class="tarjeta-sobria p-6 sm:p-8" aria-labelledby="titulo-en-curso">
+        <h2 id="titulo-en-curso" class="text-xl font-extrabold">{% translate "Mis revisiones en curso" %}</h2>
+        {% if en_curso %}
+          <ul class="mt-5 flex flex-col gap-3">
+            {% for p in en_curso %}
+              <li class="flex flex-wrap items-center justify-between gap-3 border-2 border-linea p-4">
+                <div class="min-w-0">
+                  <p class="font-bold">{{ p.titulo }}</p>
+                  <p class="text-sm text-texto-suave">{% blocktranslate with tiempo=p.fecha|timesince %}Tomado hace {{ tiempo }}{% endblocktranslate %}</p>
+                </div>
+                <a href="{% url 'proyectos:revisar' p.slug %}" class="btn btn-secundario">{% translate "Revisar" %}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="mt-3 text-texto-suave">{% translate "No tienes proyectos en revisión" %}.</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <section class="tarjeta-sobria p-6 sm:p-8" aria-labelledby="titulo-recientes">
+      <h2 id="titulo-recientes" class="text-xl font-extrabold">{% translate "Mis últimas decisiones" %}</h2>
+      {% if recientes %}
+        <ul class="mt-5 flex flex-col divide-y-2 divide-linea-suave">
+          {% for evento in recientes %}
+            <li class="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
+              {% include "componentes/insignia_estado.html" with estado=evento.estado_nuevo texto=evento.get_estado_nuevo_display %}
+              <a href="{% url 'proyectos:revisar' evento.proyecto.slug %}" class="min-w-0 flex-1 font-bold hover:underline">{{ evento.proyecto.titulo }}</a>
+              <time class="text-sm text-texto-suave" datetime="{{ evento.creado_en|date:'c' }}">{{ evento.creado_en|date:"SHORT_DATE_FORMAT" }}</time>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="mt-3 text-texto-suave">{% translate "Todavía no has decidido ningún proyecto" %}.</p>
+      {% endif %}
+    </section>
+  </div>
+</section>
+{% endblock %}

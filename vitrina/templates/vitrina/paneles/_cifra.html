@@ -1,0 +1,11 @@
+{% comment %}
+Una cifra del panel. Uso:
+  {% include "vitrina/paneles/_cifra.html" with valor=3 etiqueta="Borradores" estado="borrador" url="/..." %}
+estado (opcional): pinta un cuadrito con el color de ese estado. url (opcional): toda la tarjeta enlaza ahí.
+{% endcomment %}
+<{% if url %}a href="{{ url }}"{% else %}div{% endif %} class="tarjeta-sobria flex flex-col gap-2 p-5 {% if url %}transition-transform hover:-translate-y-0.5 hover:shadow-duro-sm{% endif %}">
+  <span class="flex items-center gap-2 text-sm font-semibold text-texto-suave">
+    {% if estado %}<span class="h-3 w-3 shrink-0 border border-linea insignia-{{ estado }}" aria-hidden="true"></span>{% endif %}{{ etiqueta }}
+  </span>
+  <span class="font-titulo text-3xl font-extrabold {% if destacado %}text-acento{% endif %}">{{ valor }}</span>
+</{% if url %}a{% else %}div{% endif %}>

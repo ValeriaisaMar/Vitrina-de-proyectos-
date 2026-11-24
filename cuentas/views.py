@@ -4,20 +4,33 @@ La recuperación y el cambio de contraseña usan las vistas de Django (ver urls.
 resuelven los tokens y las validaciones de forma segura; aquí solo se adaptan los mensajes.
 """
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.models import CHANGE, LogEntry
 from django.contrib.auth.views import PasswordChangeView
-from django.shortcuts import redirect, render
-from django.urls import reverse, reverse_lazy
+from django.core.paginator import Paginator
+from django.db.models import Count
+from django.shortcuts import get_object_or_404, redirect, render, resolve_url
+from django.urls import reverse_lazy
 from django.utils.encoding import force_str
 from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from cuentas import limite
+from cuentas.decoradores import rol_requerido
 from cuentas.correos import enviar_activacion
-from cuentas.forms import FormularioEntrar, FormularioPerfil, FormularioRegistro, FormularioReenvio
+from cuentas.forms import (
+    FormularioEntrar,
+    FormularioFiltroUsuarios,
+    FormularioGestionUsuario,
+    FormularioPerfil,
+    FormularioRegistro,
+    FormularioReenvio,
+)
+from cuentas.models import Rol
 from cuentas.tokens import token_activacion
 
 Usuario = get_user_model()
@@ -65,7 +78,7 @@ def activar(request, uidb64, token):
         login(request, usuario, backend=BACKEND)
         request.session.pop("correo_pendiente", None)
         messages.success(request, _("Tu cuenta está activa. ¡Bienvenido a la Vitrina!"))
-        return redirect("vitrina:inicio")
+        return redirect(settings.LOGIN_REDIRECT_URL)  # su panel
 
     return render(request, "cuentas/activacion_invalida.html", {"form": FormularioReenvio()}, status=400)
 
@@ -88,17 +101,17 @@ def reenviar_activacion(request):
 
 
 def _destino_seguro(request, destino):
-    """Devuelve el destino solo si es del mismo sitio; si no, el inicio (evita redirecciones abiertas)."""
+    """Devuelve el destino solo si es del mismo sitio; si no, el panel (evita redirecciones abiertas)."""
     if destino and url_has_allowed_host_and_scheme(destino, allowed_hosts={request.get_host()},
                                                    require_https=request.is_secure()):
         return destino
-    return reverse("vitrina:inicio")
+    return resolve_url(settings.LOGIN_REDIRECT_URL)
 
 
 def entrar(request):
     """Inicio de sesión con correo y contraseña, con límite de intentos fallidos."""
     if request.user.is_authenticated:
-        return redirect("vitrina:inicio")
+        return redirect(settings.LOGIN_REDIRECT_URL)
 
     siguiente = request.POST.get("next") or request.GET.get("next", "")
     bloqueado = False
@@ -160,3 +173,48 @@ class CambiarContrasena(PasswordChangeView):
     def form_valid(self, form):
         messages.success(self.request, _("Tu contraseña cambió."))
         return super().form_valid(form)
+
+
+# --------------------------------------------------------------------------- Gestión de usuarios (006)
+
+USUARIOS_POR_PAGINA = 20
+
+
+@rol_requerido(Rol.ADMIN)
+def usuarios(request):
+    """Lista de cuentas con búsqueda y filtros, solo para admins."""
+    form = FormularioFiltroUsuarios(request.GET or None)
+    lista = form.filtrar(
+        Usuario.objects.annotate(total_proyectos=Count("autorias")).order_by("-fecha_registro")
+    )
+    pagina = Paginator(lista, USUARIOS_POR_PAGINA).get_page(request.GET.get("pagina"))
+    return render(request, "cuentas/usuarios.html", {"form": form, "pagina": pagina})
+
+
+@rol_requerido(Rol.ADMIN)
+def usuario_editar(request, pk):
+    """El admin cambia el rol o el estado de una cuenta. Cada cambio queda en el registro de acciones."""
+    usuario = get_object_or_404(Usuario, pk=pk)
+    form = FormularioGestionUsuario(request.POST or None, instance=usuario, editor=request.user)
+    if request.method == "POST" and form.is_valid():
+        if form.has_changed():
+            form.save()
+            # LogEntry es el registro de acciones que ya trae Django: se ve en /admin/
+            LogEntry.objects.log_actions(
+                user_id=request.user.pk, queryset=[usuario], action_flag=CHANGE,
+                change_message=form.resumen_cambios(), single_object=True,
+            )
+            messages.success(request, _("Guardamos los cambios de %(nombre)s.") % {"nombre": usuario.nombre_completo})
+        return redirect("cuentas:usuarios")
+
+    return render(request, "cuentas/usuario_editar.html", {
+        "form": form,
+        "usuario_editado": usuario,
+        "es_uno_mismo": usuario.pk == request.user.pk,
+        # Si un profesor deja de serlo, sus proyectos en revisión los tendrá que decidir un admin
+        "en_revision": usuario.proyectos_revisados.filter(estado="en_revision").count(),
+        "acciones": LogEntry.objects.filter(
+            content_type__app_label="cuentas", content_type__model="usuario", object_id=str(usuario.pk)
+        ).select_related("user")[:5],
+    })
+

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Mi panel" %}{% endblock %}
+
+{% block contenido %}
+{% translate "Estudiante" as rol_texto %}{% translate "Nuevo proyecto" as accion_texto %}{% url 'proyectos:crear' as accion_url %}
+{% include "vitrina/paneles/_encabezado.html" %}
+
+<section class="bg-seccion py-10">
+  <div class="contenedor flex flex-col gap-8">
+    {% if cifras.total %}
+      {% url 'proyectos:mis_proyectos' as url_mis %}
+      <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {% translate "Borradores" as t %}{% include "vitrina/paneles/_cifra.html" with valor=cifras.borradores etiqueta=t estado="borrador" url=url_mis %}
+        {% translate "En revisión" as t %}{% include "vitrina/paneles/_cifra.html" with valor=cifras.en_revision etiqueta=t estado="en_revision" url=url_mis %}
+        {% translate "Con observaciones" as t %}{% include "vitrina/paneles/_cifra.html" with valor=cifras.observaciones etiqueta=t estado="con_observaciones" url=url_mis %}
+        {% translate "Aprobados" as t %}{% include "vitrina/paneles/_cifra.html" with valor=cifras.aprobados etiqueta=t estado="aprobado" url=url_mis destacado=True %}
+      </div>
+
+      <div class="grid gap-8 lg:grid-cols-[1fr_22rem]">
+        <div class="flex min-w-0 flex-col gap-8">
+          <section class="tarjeta-sobria p-6 sm:p-8" aria-labelledby="titulo-atencion">
+            <h2 id="titulo-atencion" class="text-xl font-extrabold">{% translate "Requiere tu atención" %}</h2>
+            {% if corregir or borradores %}
+              <ul class="mt-5 flex flex-col gap-4">
+                {% for p in corregir %}{% with obs=p.observaciones.0 %}
+                  <li class="border-2 border-linea bg-observaciones p-4 text-observaciones-texto">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <p class="font-bold">{{ p.titulo }}</p>
+                        <p class="mt-0.5 text-xs font-bold uppercase tracking-wider">{% blocktranslate with docente=obs.actor.nombre_completo %}{{ docente }} pidió cambios{% endblocktranslate %}</p>
+                      </div>
+                      <a href="{% url 'proyectos:editar' p.slug %}" class="btn btn-secundario">{% translate "Corregir" %}</a>
+                    </div>
+                    <p class="mt-2 line-clamp-3 whitespace-pre-line text-sm">{{ obs.comentario }}</p>
+                  </li>
+                {% endwith %}{% endfor %}
+                {% for p in borradores %}
+                  <li class="flex flex-wrap items-center justify-between gap-3 border-2 border-linea p-4">
+                    <div class="min-w-0">
+                      <p class="font-bold">{{ p.titulo }}</p>
+                      <p class="text-sm text-texto-suave">{% translate "Borrador sin enviar" %} · {{ p.asignatura.nombre }}</p>
+                    </div>
+                    <div class="flex gap-3">
+                      <a href="{% url 'proyectos:editar' p.slug %}" class="btn btn-secundario">{% translate "Editar" %}</a>
+                      <a href="{% url 'proyectos:enviar' p.slug %}" class="btn btn-primario">{% translate "Enviar" %}</a>
+                    </div>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="mt-3 text-texto-suave">{% translate "Todo al día: no tienes nada pendiente." %}</p>
+            {% endif %}
+          </section>
+          <a href="{% url 'proyectos:mis_proyectos' %}" class="enlace self-start">{% translate "Ver todos mis proyectos" %} →</a>
+        </div>
+
+        <section class="tarjeta h-fit p-6" aria-labelledby="titulo-certificados">
+          <h2 id="titulo-certificados" class="font-extrabold">{% translate "Mis certificados" %}</h2>
+          {% if aprobados %}
+            <ul class="mt-4 flex flex-col divide-y-2 divide-linea-suave">
+              {% for p in aprobados %}
+                <li class="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
+                  <a href="{{ p.get_absolute_url }}" class="font-bold hover:underline">{{ p.titulo }}</a>
+                  {% if p.codigo %}
+                  <span class="font-titulo text-sm font-extrabold text-acento">{{ p.codigo }}</span>
+                  <span class="flex flex-wrap gap-x-4 text-sm">
+                    <a class="enlace" href="{% url 'vitrina:certificado' p.codigo %}">{% translate "Certificado" %}</a>
+                    <a class="enlace" href="{% url 'vitrina:qr' p.codigo %}?descargar">QR</a>
+                  </span>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mt-3 text-sm text-texto-suave">{% translate "Cuando un docente apruebe tu proyecto, aquí tendrás su certificado y su QR." %}</p>
+          {% endif %}
+        </section>
+      </div>
+    {% else %}
+      <div class="tarjeta flex flex-col items-start gap-4 p-8 sm:p-10">
+        <h2 class="text-2xl font-extrabold">{% translate "Sube tu primer proyecto" %}</h2>
+        <p class="max-w-xl text-texto-suave">{% translate "Cuéntanos qué hiciste, en qué asignatura y con qué tecnologías. Un docente lo revisará y quedará en la vitrina con su sello." %}</p>
+        <a href="{% url 'proyectos:crear' %}" class="btn btn-primario">{% translate "Crear proyecto" %}</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

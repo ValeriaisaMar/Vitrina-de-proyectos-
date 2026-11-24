@@ -117,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 24
 
 LOGIN_URL = "cuentas:entrar"
-LOGIN_REDIRECT_URL = "vitrina:inicio"
+LOGIN_REDIRECT_URL = "vitrina:panel"  # cada rol llega a su panel (módulo 006)
 LOGOUT_REDIRECT_URL = "vitrina:inicio"
 
 

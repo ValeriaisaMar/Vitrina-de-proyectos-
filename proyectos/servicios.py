@@ -9,11 +9,12 @@ puede hacer el cambio. Leer la tabla es leer la constitución.
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
+from django.db.models import Count, Max, Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from cuentas.models import Rol
-from proyectos.models import Consecutivo, Estado, EventoEstado, Proyecto
+from proyectos.models import ESTADOS_DE_DECISION, Consecutivo, Estado, EventoEstado, Proyecto
 
 # Quién puede hacer cada cambio:
 #   "autor"   → cualquier autor del proyecto
@@ -115,3 +116,36 @@ def cambiar_estado(proyecto, nuevo, actor, comentario=""):
     for campo in ("estado", "revisor_id", "aprobado_en", "codigo", "actualizado_en"):
         setattr(proyecto, campo, getattr(bloqueado, campo))
     return evento
+
+
+# --------------------------------------------------------------------------- Consultas de la bandeja
+# Viven aquí (y no en views.py) porque también las usa el panel de vitrina, y una app solo puede
+# importar modelos, formularios o servicios de otra (constitución, principio I).
+
+
+def consultas_bandeja(usuario):
+    """Las tres listas de la bandeja. Cada proyecto trae la fecha que importa en esa lista."""
+    base = Proyecto.objects.select_related("asignatura", "revisor").prefetch_related("autores")
+    eventos_a = lambda estado: Q(eventos__estado_nuevo=estado)  # noqa: E731
+
+    pendientes = (
+        base.filter(estado=Estado.ENVIADO)
+        .annotate(fecha=Max("eventos__creado_en", filter=eventos_a(Estado.ENVIADO)),
+                  envios=Count("eventos", filter=eventos_a(Estado.ENVIADO)))
+        .order_by("fecha")  # los que más tiempo llevan esperando, primero
+    )
+
+    en_revision = base.filter(estado=Estado.EN_REVISION)
+    if usuario.rol == Rol.PROFESOR:
+        en_revision = en_revision.filter(revisor=usuario)  # el admin ve todos
+    en_revision = en_revision.annotate(
+        fecha=Max("eventos__creado_en", filter=eventos_a(Estado.EN_REVISION))
+    ).order_by("fecha")
+
+    mis_decisiones = Q(eventos__actor=usuario, eventos__estado_nuevo__in=ESTADOS_DE_DECISION)
+    decididos = (
+        base.filter(pk__in=EventoEstado.objects.filter(actor=usuario, estado_nuevo__in=ESTADOS_DE_DECISION).values("proyecto"))
+        .annotate(fecha=Max("eventos__creado_en", filter=mis_decisiones))
+        .order_by("-fecha")
+    )
+    return {"pendientes": pendientes, "en_revision": en_revision, "decididos": decididos}

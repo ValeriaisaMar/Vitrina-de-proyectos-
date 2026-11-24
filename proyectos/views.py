@@ -10,7 +10,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
-from django.db.models import Count, Max, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -22,9 +21,9 @@ from cuentas.decoradores import rol_requerido
 from cuentas.models import Rol
 from proyectos.correos import avisar_decision
 from proyectos.forms import FormularioDecision, FormularioEnvio, FormularioProyecto
-from proyectos.models import ESTADOS_DE_DECISION, Estado, EventoEstado, Proyecto
+from proyectos.models import Estado, Proyecto
 from proyectos.permisos import puede_editar, puede_eliminar
-from proyectos.servicios import TransicionNoPermitida, cambiar_estado, puede_cambiar
+from proyectos.servicios import TransicionNoPermitida, cambiar_estado, consultas_bandeja, puede_cambiar
 
 
 @rol_requerido(Rol.ESTUDIANTE)
@@ -130,41 +129,13 @@ def enviar(request, slug):
 VISTAS_BANDEJA = ("pendientes", "en_revision", "decididos")
 
 
-def _consultas_bandeja(usuario):
-    """Las tres listas de la bandeja. Cada proyecto trae la fecha que importa en esa lista."""
-    base = Proyecto.objects.select_related("asignatura", "revisor").prefetch_related("autores")
-    eventos_a = lambda estado: Q(eventos__estado_nuevo=estado)  # noqa: E731
-
-    pendientes = (
-        base.filter(estado=Estado.ENVIADO)
-        .annotate(fecha=Max("eventos__creado_en", filter=eventos_a(Estado.ENVIADO)),
-                  envios=Count("eventos", filter=eventos_a(Estado.ENVIADO)))
-        .order_by("fecha")  # los que más tiempo llevan esperando, primero
-    )
-
-    en_revision = base.filter(estado=Estado.EN_REVISION)
-    if usuario.rol == Rol.PROFESOR:
-        en_revision = en_revision.filter(revisor=usuario)  # el admin ve todos
-    en_revision = en_revision.annotate(
-        fecha=Max("eventos__creado_en", filter=eventos_a(Estado.EN_REVISION))
-    ).order_by("fecha")
-
-    mis_decisiones = Q(eventos__actor=usuario, eventos__estado_nuevo__in=ESTADOS_DE_DECISION)
-    decididos = (
-        base.filter(pk__in=EventoEstado.objects.filter(actor=usuario, estado_nuevo__in=ESTADOS_DE_DECISION).values("proyecto"))
-        .annotate(fecha=Max("eventos__creado_en", filter=mis_decisiones))
-        .order_by("-fecha")
-    )
-    return {"pendientes": pendientes, "en_revision": en_revision, "decididos": decididos}
-
-
 @rol_requerido(Rol.PROFESOR, Rol.ADMIN)
 def bandeja(request):
     """Bandeja común de revisión: por revisar, en revisión y decididos por mí."""
     vista = request.GET.get("vista")
     if vista not in VISTAS_BANDEJA:
         vista = "pendientes"
-    consultas = _consultas_bandeja(request.user)
+    consultas = consultas_bandeja(request.user)
     return render(request, "proyectos/bandeja.html", {
         "vista": vista,
         "proyectos": consultas[vista],

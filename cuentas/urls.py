@@ -37,4 +37,7 @@ urlpatterns = [
     path("contrasena/nueva/lista/", auth.PasswordResetCompleteView.as_view(
         template_name="cuentas/recuperar_listo.html",
     ), name="recuperar_listo"),
+    # Gestión de usuarios (solo admins, módulo 006)
+    path("usuarios/", views.usuarios, name="usuarios"),
+    path("usuarios/<int:pk>/", views.usuario_editar, name="usuario_editar"),
 ]

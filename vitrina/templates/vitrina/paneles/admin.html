@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Mi panel" %}{% endblock %}
+
+{% block contenido %}
+{% translate "Administración" as rol_texto %}{% translate "Gestionar usuarios" as accion_texto %}{% url 'cuentas:usuarios' as accion_url %}
+{% include "vitrina/paneles/_encabezado.html" %}
+
+<section class="bg-seccion py-10">
+  <div class="contenedor flex flex-col gap-8">
+    {% url 'cuentas:usuarios' as url_usuarios %}
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
+      {% translate "Proyectos" as t %}{% include "vitrina/paneles/_cifra.html" with valor=total_proyectos etiqueta=t destacado=True %}
+      {% translate "Estudiantes" as t %}{% include "vitrina/paneles/_cifra.html" with valor=usuarios.estudiantes etiqueta=t url=url_usuarios|add:"?rol=estudiante" %}
+      {% translate "Profesores" as t %}{% include "vitrina/paneles/_cifra.html" with valor=usuarios.profesores etiqueta=t url=url_usuarios|add:"?rol=profesor" %}
+      {% translate "Admins" as t %}{% include "vitrina/paneles/_cifra.html" with valor=usuarios.admins etiqueta=t url=url_usuarios|add:"?rol=admin" %}
+      {% translate "Cuentas sin activar" as t %}{% include "vitrina/paneles/_cifra.html" with valor=usuarios.sin_activar etiqueta=t url=url_usuarios|add:"?estado=sin_activar" %}
+    </div>
+
+    {% if total_atrasados %}
+      <div class="aviso aviso-warning" role="status">
+        <svg aria-hidden="true" class="mt-0.5 shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <div>
+          <p class="font-bold">{% blocktranslate with n=total_atrasados dias=dias_espera %}Proyectos que esperan revisión desde hace más de {{ dias }} días: {{ n }}{% endblocktranslate %}</p>
+          <ul class="mt-1 text-sm">
+            {% for p in atrasados %}<li><a class="underline underline-offset-2" href="{% url 'proyectos:revisar' p.slug %}">{{ p.titulo }}</a> · {{ p.enviado_en|timesince }}</li>{% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="grid gap-8 lg:grid-cols-3">
+      {% translate "Proyectos por estado" as titulo %}{% translate "Todavía no hay proyectos." as vacio %}
+      {% include "vitrina/paneles/_barras.html" with filas=estados %}
+      {% translate "Aprobados por periodo" as titulo %}{% translate "Todavía no hay proyectos aprobados." as vacio %}
+      {% include "vitrina/paneles/_barras.html" with filas=periodos %}
+      {% translate "Tecnologías más usadas" as titulo %}
+      {% include "vitrina/paneles/_barras.html" with filas=tecnologias %}
+    </div>
+
+    <div class="grid gap-8 lg:grid-cols-[1fr_20rem]">
+      <section class="tarjeta-sobria min-w-0 p-6 sm:p-8" aria-labelledby="titulo-actividad">
+        <h2 id="titulo-actividad" class="text-xl font-extrabold">{% translate "Actividad reciente" %}</h2>
+        {% if actividad %}
+          <ul class="mt-5 flex flex-col divide-y-2 divide-linea-suave">
+            {% for evento in actividad %}
+              <li class="flex flex-wrap items-center gap-x-3 gap-y-1 py-3 first:pt-0 last:pb-0 text-sm">
+                {% include "componentes/insignia_estado.html" with estado=evento.estado_nuevo texto=evento.get_estado_nuevo_display %}
+                <a href="{% url 'proyectos:revisar' evento.proyecto.slug %}" class="min-w-0 font-bold hover:underline">{{ evento.proyecto.titulo }}</a>
+                <span class="text-texto-suave">· {{ evento.actor.nombre_completo }} · {% blocktranslate with tiempo=evento.creado_en|timesince %}hace {{ tiempo }}{% endblocktranslate %}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="mt-3 text-texto-suave">{% translate "Todavía no hay actividad." %}</p>
+        {% endif %}
+      </section>
+
+      <section class="tarjeta h-fit p-6" aria-labelledby="titulo-atajos">
+        <h2 id="titulo-atajos" class="font-extrabold">{% translate "Atajos" %}</h2>
+        <div class="mt-4 flex flex-col gap-3">
+          <a href="{% url 'cuentas:usuarios' %}" class="btn btn-primario w-full">{% translate "Usuarios y roles" %}</a>
+          <a href="{% url 'proyectos:bandeja' %}" class="btn btn-secundario w-full">{% translate "Bandeja de revisión" %}</a>
+          {% if user.is_staff %}<a href="{% url 'admin:index' %}" class="btn btn-secundario w-full">{% translate "Asignaturas y tecnologías" %}</a>{% endif %}
+        </div>
+        {% if user.is_staff %}<p class="mt-3 text-xs text-texto-suave">{% translate "Los catálogos se editan en el panel técnico de Django." %}</p>{% endif %}
+      </section>
+    </div>
+  </div>
+</section>
+{% endblock %}
