@@ -72,7 +72,10 @@ def activar(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, Usuario.DoesNotExist):
         usuario = None
 
-    if usuario is not None and not usuario.is_active and token_activacion.check_token(usuario, token):
+    # Solo cuentas que nunca se activaron (activar inicia sesión, así que llenan last_login).
+    # Una cuenta que un admin desactivó no se puede reactivar con un enlace.
+    if (usuario is not None and not usuario.is_active and usuario.last_login is None
+            and token_activacion.check_token(usuario, token)):
         usuario.is_active = True
         usuario.save(update_fields=["is_active"])
         login(request, usuario, backend=BACKEND)
@@ -88,7 +91,8 @@ def reenviar_activacion(request):
     form = FormularioReenvio(request.POST or None)
     if request.method == "POST" and form.is_valid():
         email = form.cleaned_data["email"]
-        usuario = Usuario.objects.filter(email__iexact=email, is_active=False).first()
+        # Solo cuentas sin activar: las desactivadas por un admin no reciben enlace
+        usuario = Usuario.objects.filter(email__iexact=email, is_active=False, last_login__isnull=True).first()
         if usuario is not None:
             enviar_activacion(request, usuario)
         request.session["correo_pendiente"] = email.lower()

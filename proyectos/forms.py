@@ -114,6 +114,10 @@ class FormularioProyecto(forms.ModelForm):
             self.fields["coautores"].initial = "\n".join(
                 a.email for a in self.instance.autores.all() if a != creador
             )
+            if usuario != creador:
+                # Solo el creador agrega o quita coautores; los demás autores ven la lista bloqueada
+                self.fields["coautores"].disabled = True
+                self.fields["coautores"].help_text = _("Solo quien creó el proyecto puede cambiar los coautores.")
 
     @staticmethod
     def _asignaturas_por_semestre(asignaturas):
@@ -131,6 +135,9 @@ class FormularioProyecto(forms.ModelForm):
 
     def clean_coautores(self):
         """Convierte la lista de correos en usuarios válidos o explica cuáles fallan."""
+        if self.fields["coautores"].disabled:
+            # Lista bloqueada: se conservan los coautores actuales tal como están
+            return [a for a in self.instance.autores.all() if a != self._creador]
         texto = self.cleaned_data.get("coautores", "")
         correos = []
         for parte in re.split(r"[\s,;]+", texto):

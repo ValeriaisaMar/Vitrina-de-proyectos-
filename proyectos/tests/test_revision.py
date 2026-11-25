@@ -8,7 +8,7 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 from cuentas.models import Rol
-from cuentas.tests.utilidades import CLAVE, crear_usuario
+from cuentas.tests.utilidades import crear_usuario
 from proyectos.models import Estado, EventoEstado, Proyecto
 from proyectos.servicios import cambiar_estado
 from proyectos.tests.utilidades import crear_proyecto
@@ -252,3 +252,20 @@ class AdminTests(BaseRevision):
         self.assertFalse(historial.has_change_permission(peticion))
         self.assertFalse(historial.has_delete_permission(peticion))
         self.assertFalse(ProyectoAdmin(Proyecto, site).has_delete_permission(peticion, self.proyecto))
+
+
+class QuienDecideQuedaComoRevisorTests(BaseRevision):
+    def test_si_decide_un_admin_el_revisor_es_el_admin(self):
+        self.en_revision()  # lo tomó self.profe
+        cambiar_estado(self.proyecto, Estado.APROBADO, self.admin)
+        self.proyecto.refresh_from_db()
+        self.assertEqual(self.proyecto.revisor, self.admin)
+        respuesta = self.client.get(reverse("vitrina:verificar_codigo", args=[self.proyecto.codigo]))
+        self.assertContains(respuesta, self.admin.nombre_completo)
+        self.assertNotContains(respuesta, "Carla Vera")
+
+    def test_si_decide_quien_lo_tomo_sigue_siendo_el(self):
+        self.en_revision()
+        cambiar_estado(self.proyecto, Estado.APROBADO, self.profe)
+        self.proyecto.refresh_from_db()
+        self.assertEqual(self.proyecto.revisor, self.profe)
