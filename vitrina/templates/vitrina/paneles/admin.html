@@ -18,6 +18,24 @@
       {% translate "Cuentas sin activar" as t %}{% include "vitrina/paneles/_cifra.html" with valor=usuarios.sin_activar etiqueta=t url=url_usuarios|add:"?estado=sin_activar" %}
     </div>
 
+    {# Configuración de la plataforma (spec 008) #}
+    <nav class="grid gap-4 sm:grid-cols-2" aria-label="{% translate 'Configuración' %}">
+      <a href="{% url 'proyectos:periodos' %}" class="tarjeta-sobria flex items-center justify-between gap-4 p-5 hover:shadow-duro-verde">
+        <span>
+          <span class="block font-extrabold">{% translate "Periodos académicos" %}</span>
+          <span class="mt-1 block text-sm text-texto-suave">{% blocktranslate count n=periodos_abiertos %}{{ n }} abierto para entregas{% plural %}{{ n }} abiertos para entregas{% endblocktranslate %}</span>
+        </span>
+        <span aria-hidden="true" class="text-xl font-bold">→</span>
+      </a>
+      <a href="{% url 'cuentas:correo_envio' %}" class="tarjeta-sobria flex items-center justify-between gap-4 p-5 hover:shadow-duro-verde">
+        <span>
+          <span class="block font-extrabold">{% translate "Correo de envío" %}</span>
+          <span class="mt-1 block break-all text-sm text-texto-suave">{% if correo_envio %}{{ correo_envio }}{% else %}{% translate "Usa los datos del archivo .env" %}{% endif %}</span>
+        </span>
+        <span aria-hidden="true" class="text-xl font-bold">→</span>
+      </a>
+    </nav>
+
     {% if total_atrasados %}
       <div class="aviso aviso-warning" role="status">
         <svg aria-hidden="true" class="mt-0.5 shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>

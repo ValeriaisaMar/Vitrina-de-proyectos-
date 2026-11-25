@@ -25,7 +25,7 @@ class RegistroTests(TestCase):
 
         usuario = Usuario.objects.get(email="valeria@correo.com")
         self.assertFalse(usuario.is_active)
-        self.assertEqual(usuario.rol, Rol.ESTUDIANTE)
+        self.assertEqual(usuario.roles, [Rol.ESTUDIANTE])  # solo estudiante
 
         self.assertEqual(len(mail.outbox), 1)
         correo = mail.outbox[0]

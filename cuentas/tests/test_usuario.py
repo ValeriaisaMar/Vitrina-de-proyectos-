@@ -27,7 +27,7 @@ class UsuarioModeloTests(TestCase):
 
     def test_valores_por_defecto(self):
         usuario = self.crear()
-        self.assertEqual(usuario.rol, Rol.ESTUDIANTE)
+        self.assertEqual(usuario.roles, [Rol.ESTUDIANTE])
         self.assertTrue(usuario.es_estudiante)
         self.assertFalse(usuario.is_active)  # se activa con el correo (módulo 002)
         self.assertFalse(usuario.is_staff)
@@ -46,7 +46,7 @@ class UsuarioModeloTests(TestCase):
         admin = Usuario.objects.create_superuser(
             email="Admin@UTEQ.edu.ec", password="clave-segura-123", nombres="Ad", apellidos="Min"
         )
-        self.assertEqual(admin.rol, Rol.ADMIN)
+        self.assertEqual(admin.roles, [Rol.ADMIN])
         self.assertTrue(admin.es_admin)
         self.assertTrue(admin.is_active and admin.is_staff and admin.is_superuser)
 

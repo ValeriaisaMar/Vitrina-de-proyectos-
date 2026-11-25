@@ -16,7 +16,8 @@ from django.views.decorators.http import require_POST
 
 from comunidad.forms import FormularioComentario
 from comunidad.models import Comentario, Favorito, MeGusta
-from comunidad.permisos import puede_borrar, puede_moderar
+from comunidad.correos import avisar_respuesta
+from comunidad.permisos import puede_borrar, puede_moderar, puede_responder
 from proyectos.models import Proyecto
 
 MAX_COMENTARIOS = 5          # por persona...
@@ -136,3 +137,30 @@ def borrar(request, pk):
     comentario.delete()
     messages.success(request, _("Borramos tu comentario."))
     return _volver(proyecto)
+
+
+@login_required
+@require_POST
+def responder(request, pk):
+    """Un autor del proyecto responde un comentario (spec 008). Un solo nivel de respuesta."""
+    padre = get_object_or_404(Comentario.objects.select_related("proyecto", "autor"), pk=pk, proyecto__estado="aprobado")
+    if not puede_responder(request.user, padre):
+        raise PermissionDenied
+    proyecto = padre.proyecto
+    form = FormularioComentario(request.POST)
+    if not form.is_valid():
+        for error in form.errors.get("texto", []):
+            messages.error(request, error)
+        return _volver(proyecto, f"comentario-{padre.pk}")
+    if _limite_superado(request.user):
+        messages.error(request, _("Publicaste varios comentarios seguidos. Espera unos minutos e intenta de nuevo."))
+        return _volver(proyecto, f"comentario-{padre.pk}")
+    respuesta = form.save(commit=False)
+    respuesta.proyecto = proyecto
+    respuesta.autor = request.user
+    respuesta.respuesta_a = padre
+    respuesta.full_clean()  # valida en el modelo que sea de un solo nivel
+    respuesta.save()
+    if padre.autor_id != request.user.pk:
+        avisar_respuesta(request, padre, respuesta)
+    return _volver(proyecto, f"comentario-{respuesta.pk}")

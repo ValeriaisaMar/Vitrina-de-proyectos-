@@ -42,7 +42,7 @@ Sección "Comunidad" de la ficha de un proyecto aprobado. Recibe "proyecto" y "c
   {% endif %}
 
   <h3 class="mt-8 text-sm font-bold uppercase tracking-wider text-texto-suave">
-    {% blocktranslate with n=c.comentarios|length %}Comentarios ({{ n }}){% endblocktranslate %}
+    {% blocktranslate with n=c.total_comentarios %}Comentarios ({{ n }}){% endblocktranslate %}
   </h3>
 
   {% if user.is_authenticated %}
@@ -57,30 +57,26 @@ Sección "Comunidad" de la ficha de un proyecto aprobado. Recibe "proyecto" y "c
   {% if c.comentarios %}
     <ul class="mt-6 flex flex-col gap-4">
       {% for com in c.comentarios %}
-        <li id="comentario-{{ com.pk }}" class="scroll-mt-24 border-2 p-4 {% if com.oculto %}border-dashed border-linea-suave opacity-75{% else %}border-linea{% endif %}">
-          <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span class="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-linea bg-uteq-tinte text-xs font-extrabold text-uteq-verde dark:bg-uteq-verde dark:text-white" aria-hidden="true">{{ com.autor.nombres|slice:":1" }}{{ com.autor.apellidos|slice:":1" }}</span>
-            <span class="font-bold">{{ com.autor.nombre_completo }}</span>
-            {% if com.autor_id in c.ids_autores %}<span class="insignia insignia-aprobado">{% translate "Autor" %}</span>{% endif %}
-            {% if com.oculto %}<span class="insignia insignia-rechazado">{% translate "Oculto" %}</span>{% endif %}
-            <time class="text-sm text-texto-suave" datetime="{{ com.creado_en|date:'c' }}">{{ com.creado_en|date:"DATE_FORMAT" }}</time>
-          </div>
-          <p class="mt-3 break-words leading-relaxed">{{ com.texto|linebreaksbr }}</p>
-          {% if c.moderador or com.autor_id == user.pk %}
-            <div class="mt-3 flex flex-wrap gap-4 text-sm font-semibold">
-              {% if c.moderador %}
-                <form method="post" action="{% url 'comunidad:ocultar' com.pk %}">
-                  {% csrf_token %}
-                  <button type="submit" class="underline underline-offset-4">{% if com.oculto %}{% translate "Mostrar" %}{% else %}{% translate "Ocultar" %}{% endif %}</button>
-                </form>
-              {% endif %}
-              {% if com.autor_id == user.pk %}
-                <form method="post" action="{% url 'comunidad:borrar' com.pk %}">
-                  {% csrf_token %}
-                  <button type="submit" class="text-rechazado-texto underline underline-offset-4 dark:text-[#f4a19a]">{% translate "Borrar" %}</button>
-                </form>
-              {% endif %}
-            </div>
+        <li>
+          {% include "comunidad/_comentario.html" with com=com es_respuesta=False %}
+          {% if com.hilo %}
+            {# Respuestas de los autores: con sangría, en orden cronológico #}
+            <ul class="mt-3 ml-4 flex flex-col gap-3 border-l-2 border-linea-suave pl-4 sm:ml-8 sm:pl-6" aria-label="{% translate 'Respuestas' %}">
+              {% for respuesta in com.hilo %}
+                <li>{% include "comunidad/_comentario.html" with com=respuesta es_respuesta=True %}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          {% if c.puede_responder and not com.oculto %}
+            <details class="mt-3 ml-4 sm:ml-8">
+              <summary class="inline-flex min-h-11 cursor-pointer items-center text-sm font-bold underline underline-offset-4">{% translate "Responder" %}</summary>
+              <form method="post" action="{% url 'comunidad:responder' com.pk %}" class="mt-3 flex flex-col gap-3">
+                {% csrf_token %}
+                <label for="respuesta-{{ com.pk }}" class="sr-only">{% blocktranslate with nombre=com.autor.nombre_completo %}Responder a {{ nombre }}{% endblocktranslate %}</label>
+                <textarea name="texto" id="respuesta-{{ com.pk }}" rows="2" maxlength="1000" required class="campo-control" placeholder="{% translate 'Escribe tu respuesta…' %}"></textarea>
+                <button type="submit" class="btn btn-primario self-start">{% translate "Publicar respuesta" %}</button>
+              </form>
+            </details>
           {% endif %}
         </li>
       {% endfor %}

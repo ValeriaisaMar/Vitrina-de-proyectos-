@@ -1,12 +1,33 @@
-{% load i18n %}
+{% load i18n static %}
 <footer class="border-t-2 border-linea bg-uteq-profundo text-uteq-claro">
   <div class="contenedor grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]">
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-4">
+      <picture>
+        <source srcset="{% static 'img/logo-uteq-blanco.webp' %}" type="image/webp">
+        <img src="{% static 'img/logo-uteq-blanco.png' %}" alt="UTEQ" width="381" height="120" class="h-11 w-auto" loading="lazy">
+      </picture>
       <span class="font-titulo text-lg font-extrabold text-white">{% translate "Vitrina de Proyectos" %}</span>
       <p class="max-w-md text-sm leading-relaxed">
         {% translate "Universidad Técnica Estatal de Quevedo" %}<br>
         {% translate "Facultad de Ciencias de la Computación · Ingeniería de Software" %}
       </p>
+      {# Sellos de la Facultad y de la Carrera (spec 008) #}
+      <ul class="mt-2 flex flex-wrap gap-6" aria-label="{% translate 'Sellos institucionales' %}">
+        <li class="flex items-center gap-3">
+          <picture class="shrink-0">
+            <source srcset="{% static 'img/marca/sello-facultad-128.webp' %} 1x, {% static 'img/marca/sello-facultad-256.webp' %} 2x" type="image/webp">
+            <img src="{% static 'img/marca/sello-facultad-128.png' %}" alt="" width="72" height="72" class="h-[72px] w-[72px] rounded-full bg-white" loading="lazy">
+          </picture>
+          <span class="max-w-[11rem] text-xs leading-snug">{% translate "Facultad de Ciencias de la Computación" %}</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <picture class="shrink-0">
+            <source srcset="{% static 'img/marca/sello-carrera-128.webp' %} 1x, {% static 'img/marca/sello-carrera-256.webp' %} 2x" type="image/webp">
+            <img src="{% static 'img/marca/sello-carrera-128.png' %}" alt="" width="72" height="72" class="h-[72px] w-[72px] rounded-full bg-white" loading="lazy">
+          </picture>
+          <span class="max-w-[11rem] text-xs leading-snug">{% translate "Carrera de Software" %}</span>
+        </li>
+      </ul>
     </div>
     <nav class="flex flex-col gap-2 text-sm" aria-label="{% translate 'Vitrina' %}">
       <span class="font-bold text-white">{% translate "Vitrina" %}</span>

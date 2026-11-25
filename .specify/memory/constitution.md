@@ -1,5 +1,15 @@
 <!--
 Sync Impact Report
+Version change: 2.0.0 → 2.1.0 (MINOR: se amplía la lista de dependencias aprobadas)
+Principios modificados:
+  XII. Dependencias → se aprueba cryptography (y cffi y pycparser, que instala) para cifrar la
+       contraseña del correo de envío que el admin guarda desde la app (spec 008, historia 3).
+Aprobación: el equipo la aprobó expresamente el 2026-11-24 al planear la spec 008.
+Plantillas revisadas: sin cambios de estructura.
+Documentos a actualizar: README.md ✅ (CLAVE_CIFRADO), .env.example ✅, docs/sdd/constitucion.md ✅.
+Pendientes: ninguno.
+
+Historial anterior:
 Version change: 1.0.0 → 2.0.0 (MAJOR: se retiran y cambian reglas de forma incompatible)
 Principios modificados:
   I. Tecnología → ahora define cuatro apps; Docker sale del alcance actual.
@@ -149,8 +159,9 @@ traducción. El contenido escrito por los usuarios no se traduce. Los archivos `
 suben al repositorio. La documentación y los comentarios del código van en español.
 
 ### XII. Dependencias
-Las dependencias aprobadas son: Django, psycopg, python-dotenv, qrcode, Pillow y reportlab, más
-las que estas instalan. Cualquier otra MUST aprobarse expresamente por el equipo antes de
+Las dependencias aprobadas son: Django, psycopg, python-dotenv, qrcode, Pillow, reportlab y
+cryptography (para cifrar secretos guardados en la base de datos, spec 008), más las que estas
+instalan. Cualquier otra MUST aprobarse expresamente por el equipo antes de
 agregarse. `requirements.txt` MUST guardarse en UTF-8 con versiones fijas.
 
 ### XIII. Secretos y configuración
@@ -202,4 +213,4 @@ Quienes revisen Pull Requests MUST verificar la conformidad con esta constituci�
 conflicto, esta constitución prevalece sobre cualquier práctica local hasta que se apruebe una
 enmienda.
 
-**Version**: 2.0.0 | **Ratified**: 2026-11-22 | **Last Amended**: 2026-11-23
+**Version**: 2.1.0 | **Ratified**: 2026-11-22 | **Last Amended**: 2026-11-24

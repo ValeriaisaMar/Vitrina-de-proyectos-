@@ -13,8 +13,8 @@ from django.db.models import Count, Max, Prefetch, Q
 from django.shortcuts import render
 from django.utils import timezone
 
-from cuentas.models import Rol
-from proyectos.models import ESTADOS_DE_DECISION, Estado, EventoEstado, Proyecto, Tecnologia
+from cuentas.models import ConfiguracionCorreo, Rol
+from proyectos.models import ESTADOS_DE_DECISION, Estado, EventoEstado, Periodo, Proyecto, Tecnologia
 from proyectos.servicios import consultas_bandeja
 
 Usuario = get_user_model()
@@ -42,10 +42,10 @@ def _barras(filas):
 
 @login_required
 def panel(request):
-    """Muestra el panel del rol de quien entra."""
-    if request.user.rol == Rol.ADMIN:
+    """Muestra el panel del rol con el que actúa la persona (rol activo, spec 008)."""
+    if request.user.rol_activo == Rol.ADMIN:
         return _panel_admin(request)
-    if request.user.rol == Rol.PROFESOR:
+    if request.user.rol_activo == Rol.PROFESOR:
         return _panel_profesor(request)
     return _panel_estudiante(request)
 
@@ -103,12 +103,20 @@ def _panel_profesor(request):
 # --------------------------------------------------------------------------- Admin
 
 
+def _correo_envio():
+    """Desde qué correo salen los mensajes, si el admin lo configuró en la app (spec 008)."""
+    configuracion = ConfiguracionCorreo.actual()
+    return configuracion.remitente if configuracion else None
+
+
 def _panel_admin(request):
+    # Cuántas cuentas activas TIENEN cada rol (una persona con dos roles cuenta en los dos)
+    con_rol = lambda rol: Count("id", filter=Q(roles_asignados__rol=rol, is_active=True), distinct=True)  # noqa: E731
     usuarios = Usuario.objects.aggregate(
-        estudiantes=Count("id", filter=Q(rol=Rol.ESTUDIANTE, is_active=True)),
-        profesores=Count("id", filter=Q(rol=Rol.PROFESOR, is_active=True)),
-        admins=Count("id", filter=Q(rol=Rol.ADMIN, is_active=True)),
-        sin_activar=Count("id", filter=Q(is_active=False, last_login__isnull=True)),
+        estudiantes=con_rol(Rol.ESTUDIANTE),
+        profesores=con_rol(Rol.PROFESOR),
+        admins=con_rol(Rol.ADMIN),
+        sin_activar=Count("id", filter=Q(is_active=False, last_login__isnull=True), distinct=True),
     )
 
     por_estado = dict(Proyecto.objects.values_list("estado").annotate(n=Count("id")))
@@ -121,8 +129,10 @@ def _panel_admin(request):
         .filter(enviado_en__lt=limite).order_by("enviado_en")
     )
 
+    # Aprobados por periodo, del más reciente al más antiguo, con su nombre (spec 008)
     periodos = _barras(list(
-        Proyecto.objects.publicados().values_list("periodo").annotate(n=Count("id")).order_by("-periodo")[:6]
+        Periodo.objects.annotate(n=Count("proyectos", filter=Q(proyectos__estado=Estado.APROBADO)))
+        .filter(n__gt=0).order_by("-fecha_inicio", "-id").values_list("nombre", "n")[:6]
     ))
     tecnologias = _barras(list(
         Tecnologia.objects.annotate(n=Count("proyectos", filter=Q(proyectos__estado=Estado.APROBADO)))
@@ -137,6 +147,8 @@ def _panel_admin(request):
         "total_atrasados": atrasados.count(),
         "dias_espera": DIAS_DE_ESPERA,
         "periodos": periodos,
+        "periodos_abiertos": Periodo.objects.abiertos().count(),
+        "correo_envio": _correo_envio(),
         "tecnologias": tecnologias,
         "actividad": EventoEstado.objects.select_related("proyecto", "actor").order_by("-creado_en")[:8],
     })

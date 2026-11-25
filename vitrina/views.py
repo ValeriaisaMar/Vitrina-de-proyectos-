@@ -12,7 +12,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 
 from comunidad.consultas import datos_comunidad
-from cuentas.models import Rol
 from proyectos.models import Estado, Proyecto, Tecnologia
 from proyectos.permisos import puede_editar, puede_ver, puede_ver_historial
 from proyectos.servicios import puede_cambiar
@@ -91,7 +90,7 @@ def _filtros_activos(request, form):
     if datos.get("asignatura"):
         activos.append({"texto": datos["asignatura"].nombre, "url": sin("asignatura")})
     if datos.get("periodo"):
-        activos.append({"texto": datos["periodo"], "url": sin("periodo")})
+        activos.append({"texto": datos["periodo"].nombre, "url": sin("periodo")})
     return activos
 
 
@@ -102,13 +101,15 @@ def detalle(request, slug):
         raise Http404  # para los demás, el proyecto "no existe"
     ver_historial = puede_ver_historial(request.user, proyecto)
     return render(request, "vitrina/detalle.html", {
+        # Vista previa al compartir el enlace (WhatsApp, LinkedIn…), solo si está publicado (spec 008)
+        **(_vista_previa(request, proyecto) if proyecto.publicado else {}),
         # Me gusta, favoritos y comentarios: solo en proyectos publicados (módulo 007)
         "comunidad": datos_comunidad(request.user, proyecto) if proyecto.publicado else None,
         "proyecto": proyecto,
         "autorias": proyecto.autorias.select_related("usuario"),
         "puede_editar": puede_editar(request.user, proyecto),
         "puede_enviar": puede_cambiar(request.user, proyecto, Estado.ENVIADO),
-        "es_docente": request.user.is_authenticated and request.user.rol in (Rol.PROFESOR, Rol.ADMIN),
+        "es_docente": request.user.is_authenticated and request.user.es_docente,
         # El historial y las observaciones son internos: no se muestran al público
         "eventos": proyecto.eventos.select_related("actor") if ver_historial else None,
         "observacion": (
@@ -116,6 +117,16 @@ def detalle(request, slug):
             if ver_historial and proyecto.estado in (Estado.CON_OBSERVACIONES, Estado.RECHAZADO) else None
         ),
     })
+
+
+def _vista_previa(request, proyecto):
+    """Datos Open Graph del proyecto: título, resumen y portada con dirección absoluta."""
+    portada = proyecto.portada
+    return {
+        "og_titulo": proyecto.titulo,
+        "og_descripcion": proyecto.resumen,
+        "og_imagen": request.build_absolute_uri(portada.archivo.url) if portada else None,
+    }
 
 
 def verificar(request):
@@ -141,7 +152,7 @@ def verificar_codigo(request, codigo):
         return redirect("vitrina:verificar_codigo", codigo=canonico, permanent=True)
     proyecto = (
         Proyecto.objects.publicados().filter(codigo=canonico)
-        .select_related("revisor").prefetch_related("autores").first()
+        .select_related("revisor", "periodo").prefetch_related("autores").first()
         if canonico else None
     )
     contexto = {"proyecto": proyecto, "codigo": codigo, "form": FormularioVerificar()}
@@ -150,7 +161,7 @@ def verificar_codigo(request, codigo):
 
 
 def _proyecto_por_codigo(codigo):
-    return get_object_or_404(Proyecto.objects.publicados().select_related("asignatura", "revisor"), codigo=codigo)
+    return get_object_or_404(Proyecto.objects.publicados().select_related("asignatura", "revisor", "periodo"), codigo=codigo)
 
 
 def descargar_qr(request, codigo):

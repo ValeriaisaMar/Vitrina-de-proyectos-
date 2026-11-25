@@ -1,6 +1,5 @@
 """Validaciones de los datos y archivos que suben los estudiantes (constitución, principio III)."""
 
-import re
 from pathlib import Path
 
 from django.core.exceptions import ValidationError
@@ -51,10 +50,17 @@ def validar_imagen(archivo):
         )
 
 
-_PATRON_PERIODO = re.compile(r"^\d{4}-[12]$")
+# --------------------------------------------------------------------------- Solo para migraciones viejas
 
 
 def validar_periodo(valor):
-    """El periodo académico se escribe AAAA-1 o AAAA-2 (por ejemplo 2026-2)."""
-    if not _PATRON_PERIODO.match(valor or ""):
+    """YA NO SE USA (spec 008): el periodo ahora es el modelo Periodo, con nombre libre.
+
+    Se conserva porque la migración 0001_initial la importa, y las migraciones existentes no se
+    pueden modificar (constitución, restricciones para la IA). Si se borra, `migrate` falla en una
+    base nueva. No la uses en código nuevo.
+    """
+    import re
+
+    if not re.match(r"^\d{4}-[12]$", valor or ""):
         raise ValidationError(_("El periodo debe tener la forma AAAA-1 o AAAA-2."), code="periodo")

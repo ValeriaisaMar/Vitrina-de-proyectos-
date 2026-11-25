@@ -1,0 +1,25 @@
+{% load static i18n %}
+{# Íconos, manifest y vista previa al compartir. Se incluye dentro de <head> en base.html. #}
+<link rel="icon" href="{% static 'img/favicon.ico' %}" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/iconos/favicon-32.png' %}">
+<link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/iconos/favicon-16.png' %}">
+<link rel="apple-touch-icon" href="{% static 'img/iconos/apple-touch-icon.png' %}">
+<link rel="manifest" href="{% static 'img/iconos/site.webmanifest' %}">
+<meta name="theme-color" content="#025a27">
+<meta name="application-name" content="Vitrina UTEQ">
+<meta name="apple-mobile-web-app-title" content="Vitrina UTEQ">
+<meta name="msapplication-TileColor" content="#025a27">
+<meta name="msapplication-TileImage" content="{% static 'img/iconos/mstile-150.png' %}">
+
+{# Vista previa al compartir (WhatsApp, LinkedIn...). Una vista puede mandar og_titulo, og_descripcion y og_imagen en el contexto. #}
+<meta property="og:site_name" content="Vitrina de Proyectos UTEQ">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="{% if LANGUAGE_CODE == 'en' %}en_US{% else %}es_EC{% endif %}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:title" content="{{ og_titulo|default:'Vitrina de Proyectos UTEQ' }}">
+{% translate 'Proyectos de la carrera de Software de la UTEQ, revisados y verificados por docentes.' as og_desc_defecto %}
+<meta property="og:description" content="{{ og_descripcion|default:og_desc_defecto }}">
+<meta property="og:image" content="{% if og_imagen %}{{ og_imagen }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/compartir.png' %}{% endif %}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">

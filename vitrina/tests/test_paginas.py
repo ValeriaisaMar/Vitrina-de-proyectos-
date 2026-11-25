@@ -55,7 +55,11 @@ class PortadaTests(TestCase):
         self.assertLess(html.index('localStorage.getItem("tema")'), html.index("css/app.css"))
 
     def test_sin_logo_se_muestra_el_nombre_y_no_una_imagen_rota(self):
-        self.assertNotContains(self.respuesta, 'alt="UTEQ"')
+        with mock.patch("config.contexto.finders.find", return_value=None):
+            respuesta = self.client.get(reverse("vitrina:inicio"))
+        encabezado = respuesta.content.decode().split("</header>")[0]
+        self.assertNotIn('alt="UTEQ"', encabezado)
+        self.assertIn("Vitrina de Proyectos", encabezado)
 
     def test_con_logo_se_muestra_la_imagen(self):
         with mock.patch("config.contexto.finders.find", return_value="/ruta/logo.svg"):

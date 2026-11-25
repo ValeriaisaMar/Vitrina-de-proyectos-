@@ -13,6 +13,9 @@
     <h1 class="mt-3 text-3xl font-extrabold sm:text-4xl">{% if es_nuevo %}{% translate "Nuevo proyecto" %}{% else %}{% translate "Editar proyecto" %}{% endif %}</h1>
     <p class="mt-2 max-w-2xl text-texto-suave">{% translate "Se guarda como borrador. Solo tú y tus coautores lo ven hasta que sea aprobado." %}</p>
 
+    {% if form.sin_periodos %}
+      <div class="mt-6">{% translate "Por ahora no hay ningún periodo académico abierto para registrar proyectos. Puedes escribir tu proyecto cuando la administración abra uno." as texto_periodos %}{% include "componentes/aviso.html" with tipo="warning" texto=texto_periodos %}</div>
+    {% endif %}
     {% if form.errors %}
       <div class="mt-6">{% translate "Revisa los campos marcados en rojo." as texto_errores %}{% include "componentes/aviso.html" with tipo="error" texto=texto_errores %}</div>
     {% endif %}

@@ -57,6 +57,7 @@ Borrador ─► Enviado ─► En revisión ─┬─► Aprobado (público, con
 | 005 Verificación | Código `VP`, QR descargable, certificado PDF y página pública de verificación |
 | 006 Paneles | Panel del estudiante, del profesor y de administración (usuarios y roles) |
 | 007 Comunidad | Me gusta, favoritos (privados) y comentarios que pueden ocultar los autores del proyecto y el admin |
+| 008 Ajustes del profesor | Varios roles por persona con selector "Entrar como", periodos académicos administrables, correo de envío configurable desde la app, respuestas del autor en los comentarios e identidad visual completa (logos, sellos, favicon, vista previa al compartir) |
 
 ## Roles
 
@@ -66,10 +67,14 @@ Borrador ─► Enviado ─► En revisión ─┬─► Aprobado (público, con
 | Dar me gusta, comentar y guardar favoritos | | ✓ | ✓ | ✓ |
 | Crear y editar sus proyectos (antes de aprobarse) | | ✓ | | |
 | Revisar: aprobar, pedir cambios o rechazar | | | ✓ | ✓ |
-| Ocultar comentarios de sus proyectos | | ✓ (autor) | | ✓ |
-| Cambiar roles y gestionar tecnologías y asignaturas | | | | ✓ |
+| Ocultar y responder comentarios de sus proyectos | | ✓ (autor) | | ✓ (ocultar) |
+| Dar y quitar roles, periodos académicos y correo de envío | | | | ✓ |
 
-Toda cuenta nueva es de estudiante. Un admin asigna los roles de profesor o admin.
+Toda cuenta nueva es de estudiante. Un admin le da o le quita roles, y **una persona puede tener
+varios** (por ejemplo, estudiante y admin). Quien tiene más de uno elige en el menú de su cuenta
+**Entrar como: …**; lo que ve y puede hacer depende de ese **rol activo**, que siempre se muestra
+en el encabezado. Al iniciar sesión se usa el último rol con el que entró. Nadie revisa un proyecto
+del que es autor.
 
 ## Tecnologías
 
@@ -199,8 +204,25 @@ Vitrina-de-proyectos-/
    Las asignaturas de la malla y las tecnologías se cargan solas con `migrate`. Las imágenes y
    los PDF que suban los estudiantes se guardan en la carpeta `media/`, que no se sube a Git.
    El superusuario que creaste con `createsuperuser` es admin. Para nombrar profesores: entra
-   con él → **Mi panel** → **Gestionar usuarios** → elige la cuenta → rol **Profesor**. Al
-   iniciar sesión, cada persona llega a su panel (estudiante, profesor o admin).
+   con él → **Mi panel** → **Gestionar usuarios** → elige la cuenta → marca el rol **Profesor**.
+   Al iniciar sesión, cada persona llega al panel de su rol activo (estudiante, profesor o admin).
+   La migración crea el periodo académico del semestre actual; los demás se crean en
+   **Mi panel** → **Periodos académicos**.
+
+### Si ya tenías el proyecto y bajas la versión 008
+
+```bash
+git pull
+pip install -r requirements.txt          # agrega cryptography
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+#   → copia el resultado en tu .env como CLAVE_CIFRADO=...
+python manage.py migrate                 # roles múltiples, periodos, correo y respuestas
+python manage.py compilemessages         # solo si tienes gettext; el .mo ya viene compilado
+python manage.py runserver
+```
+
+Tus datos se conservan: cada usuario queda con el rol que tenía y cada proyecto con su periodo
+(los periodos "AAAA-1"/"AAAA-2" se convierten en periodos ordinarios con ese nombre).
 
 ## Variables de entorno
 
@@ -219,6 +241,8 @@ EMAIL_HOST_USER=vitrinadeproyectosuteq@gmail.com
 EMAIL_HOST_PASSWORD=contraseña_de_aplicación_de_gmail
 
 SITIO_URL=
+
+CLAVE_CIFRADO=clave_fernet_de_44_caracteres
 ```
 
 - `EMAIL_HOST_PASSWORD` es una **contraseña de aplicación** de Google, no la contraseña normal
@@ -226,6 +250,10 @@ SITIO_URL=
 - Si dejas el correo vacío en desarrollo, los correos se muestran en la terminal en lugar de
   enviarse.
 - En producción, `DEBUG` va en `False` y `ALLOWED_HOSTS` lleva el dominio real.
+- `CLAVE_CIFRADO` cifra la contraseña del correo que un admin guarda desde la app (ver
+  [Correo de envío](#correo-de-envío)). Genera una con
+  `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`.
+  Si la cambias, la contraseña guardada ya no se puede leer y hay que volver a escribirla.
 - `SITIO_URL` es opcional: es la dirección que va dentro de los QR. Vacía, se usa la dirección con
   la que entras. Para que un celular abra el QR durante la demo, conecta ambos a la misma red,
   pon la IP del portátil (`SITIO_URL=http://192.168.1.20:8000`), agrégala a `ALLOWED_HOSTS` y
@@ -238,13 +266,24 @@ Para generar una `SECRET_KEY`:
 python -c "from django.core.management.utils import get_random_secret_key as g; print(g())"
 ```
 
-## Logo
+## Correo de envío
 
-Copia el logo oficial como `static/img/logo-uteq.svg` (o `.png`). La plataforma lo detecta sola
-y lo muestra en el encabezado; mientras no exista, se muestra el nombre en texto.
+Un admin puede cambiar desde la app la cuenta que envía los correos: **Mi panel → Correo de
+envío**. Tiene configuración rápida para Gmail y Outlook/Office 365, un botón **Probar
+configuración** (envía un correo de prueba al admin sin guardar nada) y una tarjeta con el estado.
 
-El certificado PDF solo puede usar PNG o JPG: para que el logo salga también en el certificado,
-agrega una copia como `static/img/logo-uteq.png`.
+- La contraseña de aplicación se guarda **cifrada** con `CLAVE_CIFRADO` y nunca se vuelve a mostrar;
+  dejar el campo vacío conserva la anterior.
+- Si nadie la ha configurado, todo sigue como antes: Gmail con los datos del `.env` o, sin
+  contraseña, la terminal.
+
+## Identidad visual
+
+Los logos, los sellos de la Facultad y de la Carrera, el favicon y la imagen para compartir ya
+están en `static/img/` (qué va dónde: [LEEME-identidad.md](LEEME-identidad.md)). El encabezado
+usa el logo verde en modo claro y el blanco en modo oscuro; el certificado PDF usa las versiones
+PNG de `static/img/marca/`, porque reportlab no lee SVG ni WEBP. Si consiguen el logo oficial en
+SVG, cópienlo como `static/img/logo-uteq.svg` y la plataforma lo usará.
 
 ## Estilos con Tailwind
 

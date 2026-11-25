@@ -285,6 +285,39 @@
   .insignia-aprobado { background: var(--color-aprobado); color: var(--color-aprobado-texto); }
   .insignia-rechazado { background: var(--color-rechazado); color: var(--color-rechazado-texto); }
 
+  /* Etiqueta de rol (spec 008): verde sobrio; el admin en tinta para que se note que actúas con más permisos */
+  .insignia-rol {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.5rem;
+    border: 1.5px solid var(--color-tinta);
+    background: var(--color-uteq-tinte);
+    color: var(--color-uteq-verde);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .dark .insignia-rol { background: var(--color-uteq-verde); color: #ffffff; border-color: var(--color-uteq-claro); }
+  .insignia-rol-admin { background: var(--color-tinta); color: #ffffff; }
+  .dark .insignia-rol-admin { background: var(--color-uteq-claro); color: var(--color-tinta); }
+
+  /* Etiqueta "Autor" en los comentarios (spec 008): amarilla con texto oscuro, se lee sin depender del color */
+  .insignia-autor {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.5rem;
+    border: 1.5px solid var(--color-tinta);
+    background: var(--color-uteq-amarillo);
+    color: var(--color-tinta);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
   /* Formularios */
   .campo-etiqueta { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.35rem; }
   .campo-control {

@@ -41,6 +41,8 @@
                     {% if p.estado == "aprobado" and p.codigo %}<a class="enlace" href="{% url 'vitrina:certificado' p.codigo %}">{% translate "Certificado" %}</a>{% endif %}
                     {% if fila.editable %}<a class="enlace" href="{% url 'proyectos:editar' p.slug %}">{% translate "Editar" %}</a>{% endif %}
                     {% if fila.enviable %}<a class="enlace" href="{% url 'proyectos:enviar' p.slug %}">{% if p.estado == "con_observaciones" %}{% translate "Reenviar" %}{% else %}{% translate "Enviar" %}{% endif %}</a>{% endif %}
+                    {% if fila.transferible %}<a class="enlace" href="{% url 'proyectos:transferir' p.slug %}">{% translate "Transferir" %}</a>{% endif %}
+                    {% if fila.puede_salir %}<a class="font-semibold text-rechazado-texto underline underline-offset-4 dark:text-[#f4a19a]" href="{% url 'proyectos:salir' p.slug %}">{% translate "Salir" %}</a>{% endif %}
                     {% if fila.eliminable %}<a class="font-semibold text-rechazado-texto underline underline-offset-4 dark:text-[#f4a19a]" href="{% url 'proyectos:eliminar' p.slug %}">{% translate "Eliminar" %}</a>{% endif %}
                   </div>
                 </td>

@@ -6,6 +6,7 @@
 {% block panel_texto %}{% translate "Entra para subir proyectos, seguir su revisión y descargar tu QR y certificado." %}{% endblock %}
 
 {% block formulario %}
+{% include "cuentas/_sello.html" %}
 {% include "cuentas/_pestanas.html" with activa="entrar" %}
 
 <div class="tarjeta-sobria p-6 sm:p-8">

@@ -1,0 +1,1 @@
+{% load i18n %}{% blocktranslate with titulo=proyecto.titulo %}Ahora el proyecto «{{ titulo }}» está a tu cargo{% endblocktranslate %}

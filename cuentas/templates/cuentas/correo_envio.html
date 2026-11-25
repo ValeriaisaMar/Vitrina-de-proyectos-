@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Correo de envío" %}{% endblock %}
+
+{% block contenido %}
+<section class="bg-seccion py-10 sm:py-14">
+  <div class="contenedor">
+    <nav aria-label="{% translate 'Ruta' %}" class="text-sm text-texto-suave">
+      <a class="enlace" href="{% url 'vitrina:panel' %}">{% translate "Mi panel" %}</a><span aria-hidden="true"> / </span>{% translate "Correo de envío" %}
+    </nav>
+    <h1 class="mt-3 text-3xl font-extrabold sm:text-4xl">{% translate "Correo de envío" %}</h1>
+    <p class="mt-2 max-w-2xl text-texto-suave">{% translate "La cuenta desde la que la plataforma envía los enlaces de activación, la recuperación de contraseña y los avisos de revisión." %}</p>
+
+    {% if sin_clave_cifrado %}
+      <div class="mt-6">{% translate "Falta la variable CLAVE_CIFRADO en el archivo .env del servidor: sin ella no se puede guardar una contraseña nueva. Mira el README, sección «Correo de envío»." as t %}{% include "componentes/aviso.html" with tipo="warning" texto=t %}</div>
+    {% endif %}
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+      <div class="tarjeta-sobria p-6 sm:p-8">
+        <h2 class="text-xl font-extrabold">{% translate "Configuración rápida" %}</h2>
+        <div class="mt-4 flex flex-wrap gap-3" data-proveedores>
+          <a href="?proveedor=gmail" class="btn btn-secundario" data-servidor="smtp.gmail.com" data-puerto="587" data-seguridad="starttls">Gmail</a>
+          <a href="?proveedor=outlook" class="btn btn-secundario" data-servidor="smtp.office365.com" data-puerto="587" data-seguridad="starttls">Outlook / Office 365</a>
+          <a href="{% url 'cuentas:correo_envio' %}" class="btn btn-secundario" data-personalizado>{% translate "Personalizado" %}</a>
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="mt-6">{% for error in form.non_field_errors %}{% include "componentes/aviso.html" with tipo="error" texto=error %}{% endfor %}</div>
+        {% endif %}
+
+        <form method="post" class="mt-8 flex flex-col gap-5" novalidate>
+          {% csrf_token %}
+          <div class="grid gap-5 sm:grid-cols-[2fr_1fr]">
+            {% include "componentes/campo.html" with campo=form.servidor %}
+            {% include "componentes/campo.html" with campo=form.puerto %}
+          </div>
+          {% include "componentes/campo.html" with campo=form.seguridad %}
+          {% include "componentes/campo.html" with campo=form.usuario %}
+          <div>
+            {% include "componentes/campo.html" with campo=form.clave %}
+            {% if form.tiene_clave %}<p class="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-acento"><span aria-hidden="true">●●●●</span> {% translate "Contraseña guardada" %}</p>{% endif %}
+          </div>
+          <div class="grid gap-5 sm:grid-cols-2">
+            {% include "componentes/campo.html" with campo=form.nombre_remitente %}
+            {% include "componentes/campo.html" with campo=form.correo_remitente %}
+          </div>
+          <div class="flex flex-wrap gap-4">
+            <button type="submit" name="accion" value="guardar" class="btn btn-primario">{% translate "Guardar" %}</button>
+            <button type="submit" name="accion" value="probar" class="btn btn-secundario">{% translate "Probar configuración" %}</button>
+          </div>
+          <p class="campo-ayuda">{% blocktranslate with correo=user.email %}«Probar configuración» usa lo que escribiste, sin guardarlo, y envía un correo de prueba a {{ correo }}.{% endblocktranslate %}</p>
+        </form>
+      </div>
+
+      <div class="flex flex-col gap-6">
+        <section class="tarjeta-sobria p-6" aria-labelledby="titulo-estado-correo">
+          <h2 id="titulo-estado-correo" class="text-sm font-bold uppercase tracking-wider text-texto-suave">{% translate "Estado" %}</h2>
+          <dl class="mt-4 flex flex-col gap-4 text-sm">
+            <div>
+              <dt class="font-bold text-texto-suave">{% translate "Se envía desde" %}</dt>
+              <dd class="mt-1 break-all font-semibold">{% if configuracion and configuracion.tiene_clave %}{{ configuracion.nombre_remitente }} &lt;{{ configuracion.remitente }}&gt;{% else %}{{ remitente_env }} <span class="font-normal text-texto-suave">({% translate "datos del archivo .env" %})</span>{% endif %}</dd>
+            </div>
+            {% if configuracion %}
+              <div>
+                <dt class="font-bold text-texto-suave">{% translate "Último cambio" %}</dt>
+                <dd class="mt-1">{{ configuracion.actualizado_en|date:"SHORT_DATETIME_FORMAT" }}{% if configuracion.actualizado_por %} · {{ configuracion.actualizado_por.nombre_completo }}{% endif %}</dd>
+              </div>
+              <div>
+                <dt class="font-bold text-texto-suave">{% translate "Última prueba" %}</dt>
+                <dd class="mt-1">
+                  {% if configuracion.ultima_prueba_en %}
+                    {% if configuracion.ultima_prueba_ok %}<span class="insignia insignia-aprobado">{% translate "Correcta" %}</span>{% else %}<span class="insignia insignia-rechazado">{% translate "Falló" %}</span>{% endif %}
+                    <span class="text-texto-suave">{{ configuracion.ultima_prueba_en|date:"SHORT_DATETIME_FORMAT" }}</span>
+                    {% if configuracion.ultima_prueba_mensaje %}<span class="mt-1 block text-texto-suave">{{ configuracion.ultima_prueba_mensaje }}</span>{% endif %}
+                  {% else %}{% translate "Todavía no se ha probado." %}{% endif %}
+                </dd>
+              </div>
+            {% endif %}
+          </dl>
+        </section>
+
+        <section class="tarjeta-sobria p-6" aria-labelledby="titulo-ayuda-gmail">
+          <h2 id="titulo-ayuda-gmail" class="text-sm font-bold uppercase tracking-wider text-texto-suave">{% translate "Contraseña de aplicación de Gmail" %}</h2>
+          <ol class="mt-4 flex list-decimal flex-col gap-2 pl-5 text-sm leading-relaxed">
+            <li>{% translate "Entra a la cuenta de Google desde la que se enviarán los correos." %}</li>
+            <li>{% translate "Activa la verificación en dos pasos (Seguridad → Verificación en dos pasos). Sin ella Google no ofrece contraseñas de aplicación." %}</li>
+            <li>{% translate "Busca «Contraseñas de aplicación» en la configuración de la cuenta y crea una con el nombre «Vitrina»." %}</li>
+            <li>{% translate "Copia los 16 caracteres y pégalos aquí. Los espacios se quitan solos." %}</li>
+          </ol>
+          <p class="mt-4 text-sm text-texto-suave">{% translate "La contraseña se guarda cifrada y nunca se vuelve a mostrar." %}</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  /* Configuración rápida: llena servidor, puerto y seguridad sin recargar (sin JS, el enlace recarga con ?proveedor=). */
+  document.querySelectorAll("[data-proveedores] a").forEach(function (boton) {
+    boton.addEventListener("click", function (evento) {
+      evento.preventDefault();
+      var servidor = document.getElementById("id_servidor");
+      if (boton.hasAttribute("data-personalizado")) { servidor.value = ""; servidor.focus(); return; }
+      servidor.value = boton.dataset.servidor;
+      document.getElementById("id_puerto").value = boton.dataset.puerto;
+      document.getElementById("id_seguridad").value = boton.dataset.seguridad;
+      document.getElementById("id_usuario").focus();
+    });
+  });
+</script>
+{% endblock %}

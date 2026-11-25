@@ -36,7 +36,8 @@ class PerfilTests(TestCase):
         })
         self.usuario.refresh_from_db()
         self.assertEqual(self.usuario.email, "ana@correo.com")
-        self.assertEqual(self.usuario.rol, Rol.ESTUDIANTE)
+        self.usuario.olvidar_roles()
+        self.assertEqual(self.usuario.roles, [Rol.ESTUDIANTE])
 
     def test_cambia_la_contrasena_y_sigue_con_sesion(self):
         respuesta = self.client.post(reverse("cuentas:cambiar_contrasena"), {

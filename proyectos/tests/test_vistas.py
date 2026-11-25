@@ -6,7 +6,7 @@ from django.urls import reverse
 from cuentas.models import Rol
 from cuentas.tests.utilidades import CLAVE, crear_usuario
 from proyectos.models import Asignatura, Estado, Proyecto, Tecnologia
-from proyectos.tests.utilidades import MediaTemporal, crear_proyecto, imagen_png, pdf
+from proyectos.tests.utilidades import MediaTemporal, crear_proyecto, imagen_png, pdf, periodo
 
 
 class BaseProyectos(MediaTemporal, TestCase):
@@ -14,6 +14,7 @@ class BaseProyectos(MediaTemporal, TestCase):
         self.ana = crear_usuario("ana@correo.com")
         self.asignatura = Asignatura.objects.get(nombre="Programación orientada a objetos")
         self.django = Tecnologia.objects.get(nombre="Django")
+        self.periodo = periodo("2026-2")
 
     def entrar(self, usuario):
         self.client.login(username=usuario.email, password=CLAVE)
@@ -24,7 +25,7 @@ class BaseProyectos(MediaTemporal, TestCase):
             "resumen": "Resumen corto del proyecto.",
             "descripcion": "Descripción completa.",
             "asignatura": self.asignatura.pk,
-            "periodo": "2026-2",
+            "periodo": self.periodo.pk,
             "tecnologias": [self.django.pk],
             "repositorio": "https://github.com/uteq/vitrina",
             "demo": "",

@@ -1,0 +1,25 @@
+{% load i18n %}{% comment %}
+Rol con el que actúa la persona (spec 008). Recibe "ancho" (clases del contenedor).
+- Con varios roles: "Entrar como" y un botón por rol; cada uno es un POST con CSRF.
+- Con un solo rol: solo la etiqueta, sin selector.
+Las variables rol_activo, rol_activo_etiqueta y roles_disponibles vienen de config.contexto.roles.
+{% endcomment %}
+{% if roles_disponibles|length > 1 %}
+  <form method="post" action="{% url 'cuentas:cambiar_rol' %}" class="flex flex-col gap-1.5 border-b-2 border-linea-suave pb-3">
+    {% csrf_token %}
+    <span class="px-1 text-xs font-bold uppercase tracking-wider text-texto-suave">{% translate "Entrar como" %}</span>
+    {% for valor, etiqueta in roles_disponibles %}
+      <button type="submit" name="rol" value="{{ valor }}"
+              class="flex min-h-11 w-full items-center justify-between gap-2 border-2 px-3 text-left text-sm font-bold {% if valor == rol_activo %}border-linea bg-uteq-tinte text-uteq-verde dark:bg-uteq-verde dark:text-white{% else %}border-transparent hover:border-linea{% endif %}"
+              {% if valor == rol_activo %}aria-current="true" disabled{% endif %}>
+        <span>{{ etiqueta }}</span>
+        {% if valor == rol_activo %}<span class="text-xs font-semibold">✓ {% translate "actual" %}</span>{% endif %}
+      </button>
+    {% endfor %}
+  </form>
+{% else %}
+  <p class="flex items-center gap-2 border-b-2 border-linea-suave px-1 pb-3 text-sm">
+    <span class="font-semibold text-texto-suave">{% translate "Tu rol" %}:</span>
+    <span class="insignia-rol {% if rol_activo == 'admin' %}insignia-rol-admin{% endif %}">{{ rol_activo_etiqueta }}</span>
+  </p>
+{% endif %}

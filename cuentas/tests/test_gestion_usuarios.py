@@ -21,9 +21,9 @@ class AccesoTests(TestCase):
         for rol in (Rol.ESTUDIANTE, Rol.PROFESOR):
             self.client.force_login(crear_usuario(f"{rol}@correo.com", rol=rol))
             self.assertEqual(self.client.get(LISTA).status_code, 403)
-            self.assertEqual(self.client.post(editar(objetivo), {"rol": Rol.ADMIN, "is_active": "on"}).status_code, 403)
-        objetivo.refresh_from_db()
-        self.assertEqual(objetivo.rol, Rol.ESTUDIANTE)
+            self.assertEqual(self.client.post(editar(objetivo), {"roles": [Rol.ADMIN], "is_active": "on"}).status_code, 403)
+        objetivo.olvidar_roles()
+        self.assertEqual(objetivo.roles, [Rol.ESTUDIANTE])
 
 
 class ListaTests(TestCase):
@@ -60,24 +60,24 @@ class EditarTests(TestCase):
         self.client.force_login(self.admin)
 
     def test_nombrar_profesor_queda_registrado(self):
-        respuesta = self.client.post(editar(self.ana), {"rol": Rol.PROFESOR, "is_active": "on"})
+        respuesta = self.client.post(editar(self.ana), {"roles": [Rol.ESTUDIANTE, Rol.PROFESOR], "is_active": "on"})
         self.assertRedirects(respuesta, LISTA)
         self.ana.refresh_from_db()
-        self.assertEqual(self.ana.rol, Rol.PROFESOR)
+        self.assertEqual(self.ana.roles, [Rol.ESTUDIANTE, Rol.PROFESOR])
         self.assertFalse(self.ana.is_staff)  # el rol no da acceso a /admin/
         accion = LogEntry.objects.get()
         self.assertEqual((accion.user, accion.object_id), (self.admin, str(self.ana.pk)))
-        self.assertIn("Estudiante → Profesor", accion.change_message)
-        self.assertContains(self.client.get(editar(self.ana)), "Estudiante → Profesor")
+        self.assertIn("+ Profesor", accion.change_message)
+        self.assertContains(self.client.get(editar(self.ana)), "Se le dio el rol Profesor")
 
     def test_sin_cambios_no_registra_nada(self):
-        self.client.post(editar(self.ana), {"rol": Rol.ESTUDIANTE, "is_active": "on"})
+        self.client.post(editar(self.ana), {"roles": [Rol.ESTUDIANTE], "is_active": "on"})
         self.assertFalse(LogEntry.objects.exists())
 
     def test_desactivar_impide_entrar_y_cierra_la_sesion(self):
         otra_sesion = self.client_class()
         otra_sesion.force_login(self.ana)
-        self.client.post(editar(self.ana), {"rol": Rol.ESTUDIANTE})  # casilla sin marcar = desactivar
+        self.client.post(editar(self.ana), {"roles": [Rol.ESTUDIANTE]})  # casilla sin marcar = desactivar
         self.ana.refresh_from_db()
         self.assertFalse(self.ana.is_active)
         self.assertFalse(otra_sesion.login(username=self.ana.email, password=CLAVE))
@@ -85,22 +85,22 @@ class EditarTests(TestCase):
 
     def test_activar_a_mano_una_cuenta_pendiente(self):
         pendiente = crear_usuario("pendiente@correo.com", activo=False)
-        self.client.post(editar(pendiente), {"rol": Rol.ESTUDIANTE, "is_active": "on"})
+        self.client.post(editar(pendiente), {"roles": [Rol.ESTUDIANTE], "is_active": "on"})
         pendiente.refresh_from_db()
         self.assertTrue(pendiente.is_active)
 
-    def test_no_puede_cambiarse_a_si_mismo(self):
-        respuesta = self.client.post(editar(self.admin), {"rol": Rol.ESTUDIANTE, "is_active": "on"})
+    def test_el_ultimo_admin_no_se_quita_el_rol(self):
+        respuesta = self.client.post(editar(self.admin), {"roles": [Rol.ESTUDIANTE], "confirmar_quitar_admin": "on"})
         self.assertEqual(respuesta.status_code, 200)
-        self.admin.refresh_from_db()
-        self.assertEqual(self.admin.rol, Rol.ADMIN)
+        self.admin.olvidar_roles()
+        self.assertEqual(self.admin.roles, [Rol.ADMIN])
         self.assertContains(respuesta, "otro admin")
 
     def test_las_cuentas_tecnicas_no_se_tocan(self):
         root = crear_usuario("root@correo.com", rol=Rol.ADMIN, is_staff=True, is_superuser=True)
-        self.client.post(editar(root), {"rol": Rol.ESTUDIANTE, "is_active": "on"})
-        root.refresh_from_db()
-        self.assertEqual(root.rol, Rol.ADMIN)
+        self.client.post(editar(root), {"roles": [Rol.ESTUDIANTE], "is_active": "on"})
+        root.olvidar_roles()
+        self.assertEqual(root.roles, [Rol.ADMIN])
 
     def test_avisa_si_el_profesor_tiene_revisiones(self):
         from proyectos.models import Estado

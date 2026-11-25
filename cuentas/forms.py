@@ -16,18 +16,19 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
+from cuentas import roles as servicio_roles
 from cuentas.managers import UsuarioManager
-from cuentas.models import Rol, Usuario
+from cuentas.models import Rol, RolAsignado, Seguridad, Usuario
 
 # --------------------------------------------------------------------------- Panel de Django
 
 
 class UsuarioCreacionForm(AdminUserCreationForm):
-    """Crear un usuario desde el admin."""
+    """Crear un usuario desde el admin. Los roles se agregan después, en la misma página."""
 
     class Meta:
         model = Usuario
-        fields = ("email", "nombres", "apellidos", "rol")
+        fields = ("email", "nombres", "apellidos")
 
 
 class UsuarioCambioForm(UserChangeForm):
@@ -35,7 +36,7 @@ class UsuarioCambioForm(UserChangeForm):
 
     class Meta:
         model = Usuario
-        fields = ("email", "nombres", "apellidos", "rol", "is_active", "is_staff")
+        fields = ("email", "nombres", "apellidos", "is_active", "is_staff")
 
 
 # --------------------------------------------------------------------------- Registro
@@ -74,6 +75,7 @@ class FormularioRegistro(BaseUserCreationForm):
         usuario.is_active = False  # se activa con el enlace del correo
         if commit:
             usuario.save()
+            RolAsignado.objects.create(usuario=usuario, rol=Rol.ESTUDIANTE)  # toda cuenta nace estudiante
         return usuario
 
 
@@ -167,8 +169,8 @@ class FormularioFiltroUsuarios(forms.Form):
         if datos["q"]:
             q = datos["q"]
             usuarios = usuarios.filter(Q(email__icontains=q) | Q(nombres__icontains=q) | Q(apellidos__icontains=q))
-        if datos["rol"]:
-            usuarios = usuarios.filter(rol=datos["rol"])
+        if datos["rol"]:  # quien TIENE ese rol, aunque ahora actúe con otro
+            usuarios = usuarios.filter(roles_asignados__rol=datos["rol"])
         if datos["estado"] == "activas":
             usuarios = usuarios.filter(is_active=True)
         elif datos["estado"] == "sin_activar":  # nunca abrió el enlace de activación
@@ -179,38 +181,122 @@ class FormularioFiltroUsuarios(forms.Form):
 
 
 class FormularioGestionUsuario(forms.ModelForm):
-    """El admin cambia el rol de una cuenta y la activa o desactiva (constitución, principio V).
+    """El admin da o quita roles a una cuenta y la activa o desactiva (constitución, principio V).
 
-    Reglas: nadie cambia su propio rol ni se desactiva (así la plataforma nunca se queda sin
-    admin por un clic), y las cuentas técnicas (superusuarios de Django) se gestionan en /admin/.
+    Reglas (spec 008):
+    - Una casilla por rol; toda cuenta conserva al menos uno.
+    - No se le quita el rol admin al último admin activo (lo valida cuentas/roles.py).
+    - Quitarse el rol admin a uno mismo pide marcar una casilla de confirmación.
+    - Nadie se desactiva a sí mismo, y las cuentas técnicas (superusuarios de Django) se gestionan en /admin/.
     """
+
+    roles = forms.MultipleChoiceField(
+        label=_("Roles"), choices=Rol.choices, required=False, widget=forms.CheckboxSelectMultiple,
+    )
+    confirmar_quitar_admin = forms.BooleanField(
+        label=_("Sí, quiero dejar de ser admin. Entiendo que perderé el acceso a la gestión de usuarios."),
+        required=False,
+    )
 
     class Meta:
         model = Usuario
-        fields = ("rol", "is_active")
-        widgets = {"rol": forms.RadioSelect}
+        fields = ("is_active",)
         labels = {"is_active": _("Cuenta activa")}
         help_texts = {"is_active": _("Si la desactivas, no podrá iniciar sesión. Sus proyectos y su historial se conservan.")}
 
     def __init__(self, *args, editor, **kwargs):
         super().__init__(*args, **kwargs)
         self.editor = editor
+        self.es_uno_mismo = self.instance.pk == editor.pk
+        self.fields["roles"].initial = self.instance.roles
+        if self.es_uno_mismo:
+            # Un campo deshabilitado ignora lo que llegue en el POST y conserva el valor actual
+            self.fields["is_active"].disabled = True
+        # La casilla de confirmación solo aparece cuando hace falta (ver clean)
+        self.pide_confirmacion = False
+
+    def clean_roles(self):
+        return servicio_roles.ordenar(self.cleaned_data.get("roles") or [])
 
     def clean(self):
         datos = super().clean()
-        if self.has_changed():
-            if self.instance.pk == self.editor.pk:
-                raise forms.ValidationError(_("No puedes cambiar tu propio rol ni desactivar tu cuenta. Pídeselo a otro admin."))
-            if self.instance.is_superuser:
-                raise forms.ValidationError(_("Esta es una cuenta técnica de Django: su rol y estado se cambian en /admin/."))
+        if not self.has_changed():
+            return datos
+        if self.instance.is_superuser:
+            raise forms.ValidationError(_("Esta es una cuenta técnica de Django: sus roles y su estado se cambian en /admin/."))
+        if self.es_uno_mismo and "is_active" in self.changed_data:
+            raise forms.ValidationError(_("No puedes desactivar tu propia cuenta. Pídeselo a otro admin."))
+        if "roles" in datos:
+            try:
+                servicio_roles.validar_roles(self.instance, datos["roles"])
+            except forms.ValidationError as error:
+                self.add_error("roles", error)
+                return datos
+            quita_admin = self.instance.tiene_rol(Rol.ADMIN) and Rol.ADMIN not in datos["roles"]
+            if self.es_uno_mismo and quita_admin and not datos.get("confirmar_quitar_admin"):
+                self.pide_confirmacion = True
+                self.add_error("confirmar_quitar_admin", _("Confirma que quieres quitarte el rol admin."))
         return datos
 
-    def resumen_cambios(self):
-        """Texto para el registro de acciones, por ejemplo: «Rol: Estudiante → Profesor»."""
+    def guardar(self):
+        """Guarda el estado de la cuenta y los roles. Devuelve el texto para el registro de acciones."""
         partes = []
-        if "rol" in self.changed_data:
-            antes = Rol(self.initial["rol"]).label
-            partes.append(f"Rol: {antes} → {self.instance.get_rol_display()}")
         if "is_active" in self.changed_data:
+            self.save()
             partes.append(f"Cuenta activa: {'sí' if self.initial['is_active'] else 'no'} → {'sí' if self.instance.is_active else 'no'}")
+        agregados, quitados = servicio_roles.asignar_roles(self.instance, self.cleaned_data["roles"], self.editor)
+        if agregados or quitados:
+            partes.append(servicio_roles.resumen(agregados, quitados))
         return ". ".join(partes)
+
+
+# --------------------------------------------------------------------------- Correo de envío (spec 008)
+
+
+class FormularioCorreoEnvio(forms.Form):
+    """Datos de la cuenta desde la que la plataforma envía sus correos.
+
+    La contraseña nunca se vuelve a mostrar: el campo siempre llega vacío y, si se deja vacío,
+    se conserva la que estaba guardada.
+    """
+
+    servidor = forms.CharField(label=_("Servidor SMTP"), max_length=120, widget=forms.TextInput(attrs={"placeholder": "smtp.gmail.com", "autocomplete": "off"}))
+    puerto = forms.IntegerField(label=_("Puerto"), min_value=1, max_value=65535, initial=587)
+    seguridad = forms.ChoiceField(label=_("Seguridad"), choices=Seguridad.choices, initial=Seguridad.STARTTLS)
+    usuario = forms.CharField(
+        label=_("Usuario o correo de acceso"), max_length=254,
+        widget=forms.TextInput(attrs={"autocomplete": "off", "placeholder": "vitrinadeproyectosuteq@gmail.com"}),
+    )
+    clave = forms.CharField(
+        label=_("Contraseña de aplicación"), required=False, strip=True,
+        widget=forms.PasswordInput(render_value=False, attrs={"autocomplete": "new-password"}),
+    )
+    nombre_remitente = forms.CharField(label=_("Nombre del remitente"), max_length=80, initial="Vitrina de Proyectos UTEQ")
+    correo_remitente = forms.EmailField(
+        label=_("Correo del remitente"), required=False,
+        help_text=_("Opcional. Si lo dejas vacío se usa el mismo usuario de acceso."),
+    )
+
+    def __init__(self, *args, configuracion=None, **kwargs):
+        if configuracion is not None and "initial" not in kwargs:
+            kwargs["initial"] = {
+                campo: getattr(configuracion, campo)
+                for campo in ("servidor", "puerto", "seguridad", "usuario", "nombre_remitente", "correo_remitente")
+            }
+        super().__init__(*args, **kwargs)
+        self.configuracion = configuracion
+        self.tiene_clave = bool(configuracion and configuracion.tiene_clave)
+        if self.tiene_clave:
+            self.fields["clave"].help_text = _("Contraseña guardada. Déjala vacía para conservarla, o escribe una nueva para cambiarla.")
+        else:
+            self.fields["clave"].help_text = _("Los 16 caracteres que te da Google, sin espacios.")
+
+    def clean_clave(self):
+        # Google muestra la contraseña de aplicación en grupos de 4 con espacios: se quitan
+        return "".join((self.cleaned_data.get("clave") or "").split())
+
+    def clean(self):
+        datos = super().clean()
+        if not datos.get("clave") and not self.tiene_clave:
+            self.add_error("clave", _("Escribe la contraseña de aplicación."))
+        return datos

@@ -54,6 +54,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # Rol con el que actúa la persona (spec 008). Va después de AuthenticationMiddleware.
+    "config.middleware.RolActivoMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -73,6 +75,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "config.contexto.marca",
+                "config.contexto.roles",
             ],
         },
     },
@@ -161,33 +164,45 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 
 # ---------------------------------------------------------------------------
-# Correo: Gmail con contraseña de aplicación; sin contraseña, los correos salen en la consola
+# Correo (spec 008, historia 3)
+#
+# 1. Si un admin configuró el correo de envío en la app (Mi panel → Correo de envío), se usa ese.
+# 2. Si no, Gmail con la contraseña de aplicación del .env.
+# 3. Sin contraseña en el .env, los correos salen en la consola.
+# config/correo.py decide en cada envío; aquí solo se le pasa el respaldo (2 o 3).
 # ---------------------------------------------------------------------------
 
 EMAIL_REMITENTE = variable("EMAIL_HOST_USER", "vitrinadeproyectosuteq@gmail.com")
 _CLAVE_CORREO = variable("EMAIL_HOST_PASSWORD", "")
 
 if _CLAVE_CORREO:
-    MAILERS = {
-        "default": {
-            "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
-            "OPTIONS": {
-                "host": "smtp.gmail.com",
-                "port": 587,
-                "username": EMAIL_REMITENTE,
-                "password": _CLAVE_CORREO,
-                "use_tls": True,
-                "timeout": 20,
-            },
+    _RESPALDO_CORREO = {
+        "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+        "OPTIONS": {
+            "host": "smtp.gmail.com",
+            "port": 587,
+            "username": EMAIL_REMITENTE,
+            "password": _CLAVE_CORREO,
+            "use_tls": True,
+            "timeout": 20,
         },
     }
 else:
-    MAILERS = {
-        "default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"},
-    }
+    _RESPALDO_CORREO = {"BACKEND": "django.core.mail.backends.console.EmailBackend"}
+
+MAILERS = {
+    "default": {
+        "BACKEND": "config.correo.CorreoConfigurableBackend",
+        "OPTIONS": {"respaldo": _RESPALDO_CORREO, "timeout": 20},
+    },
+}
 
 DEFAULT_FROM_EMAIL = f"Vitrina de Proyectos UTEQ <{EMAIL_REMITENTE}>"
 SERVER_EMAIL = EMAIL_REMITENTE
+
+# Clave Fernet con la que se cifra la contraseña del correo guardada desde la app (cuentas/cifrado.py).
+# Si falta, la app no deja guardar una contraseña nueva, pero el correo del .env sigue funcionando.
+CLAVE_CIFRADO = variable("CLAVE_CIFRADO", "")
 
 
 # ---------------------------------------------------------------------------

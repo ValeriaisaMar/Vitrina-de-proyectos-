@@ -1,0 +1,8 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with nuevo=nuevo.nombres %}Hola, {{ nuevo }}:{% endblocktranslate %}
+
+{% blocktranslate with anterior=anterior.nombre_completo titulo=proyecto.titulo %}{{ anterior }} te pasó el proyecto «{{ titulo }}». Ahora figuras como quien lo creó: puedes cambiar los coautores y, mientras sea borrador, eliminarlo. {{ anterior }} sigue como coautor.{% endblocktranslate %}
+
+{% translate "Ver el proyecto:" %} {{ enlace }}
+
+{% translate "Vitrina de Proyectos · UTEQ" %}
+{% endautoescape %}

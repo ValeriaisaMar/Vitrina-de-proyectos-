@@ -91,13 +91,23 @@ def _registrar_fuentes():
             pdfmetrics.registerFont(TTFont(nombre, str(carpeta / f"{nombre}.ttf")))
 
 
-def _logo():
-    """El logo oficial si el equipo lo agregó como PNG o JPG en static/img/ (reportlab no lee SVG)."""
-    for nombre in ("img/logo-uteq.png", "img/logo-uteq.jpg"):
+def _imagen(*nombres):
+    """La primera imagen que exista en static/ como ImageReader, o None. reportlab no lee SVG ni webp."""
+    for nombre in nombres:
         ruta = finders.find(nombre)
         if ruta:
             return ImageReader(ruta)
     return None
+
+
+def _logo():
+    """Logo UTEQ en blanco, para la banda verde del certificado (spec 008)."""
+    return _imagen("img/marca/uteq-blanco-grande.png", "img/logo-uteq-blanco.png", "img/marca/uteq-verde-pdf.png", "img/logo-uteq.png")
+
+
+def _sellos():
+    """Sellos de la Facultad y de la Carrera en PNG grande (marca/*-pdf.png)."""
+    return [s for s in (_imagen("img/marca/sello-facultad-pdf.png"), _imagen("img/marca/sello-carrera-pdf.png")) if s]
 
 
 def _parrafo(c, texto, fuente, tamano, x, y, ancho, interlineado=1.25, color=TINTA):
@@ -141,8 +151,23 @@ def certificado_pdf(proyecto, url):
     x = margen + 32
     logo = _logo()
     if logo:
-        c.drawImage(logo, x, tope - banda + 14, height=50, width=50, preserveAspectRatio=True, mask="auto")
-        x += 64
+        ancho_img, alto_img = logo.getSize()
+        alto_logo = 38
+        ancho_logo = ancho_img * alto_logo / alto_img
+        c.drawImage(logo, x, tope - banda + (banda - alto_logo) / 2, width=ancho_logo, height=alto_logo, mask="auto")
+        x += ancho_logo + 22
+        # Línea fina amarilla que separa el logo del nombre de la universidad
+        c.setFillColor(AMARILLO)
+        c.rect(x - 11, tope - banda + 18, 2, banda - 36, stroke=0, fill=1)
+    # Sellos de la Facultad y de la Carrera a la derecha de la banda, sobre un círculo blanco
+    lado_sello = 58
+    x_sello = ancho - margen - 32 - lado_sello
+    for sello in reversed(_sellos()):
+        centro_x, centro_y = x_sello + lado_sello / 2, tope - banda / 2
+        c.setFillColor(white)
+        c.circle(centro_x, centro_y, lado_sello / 2 + 1.5, stroke=0, fill=1)
+        c.drawImage(sello, x_sello, centro_y - lado_sello / 2, width=lado_sello, height=lado_sello, mask="auto")
+        x_sello -= lado_sello + 12
     c.setFillColor(white)
     c.setFont(titulo, 15)
     c.drawString(x, tope - 36, _("Universidad Técnica Estatal de Quevedo").upper())
@@ -194,7 +219,7 @@ def certificado_pdf(proyecto, url):
     y -= 30
     fecha = formats.date_format(timezone.localtime(proyecto.aprobado_en), "DATE_FORMAT")
     docente = proyecto.revisor.nombre_completo if proyecto.revisor else _("un docente de la carrera")
-    frase = _("en la asignatura %(asignatura)s, periodo %(periodo)s, fue revisado y aprobado por %(docente)s el %(fecha)s, y forma parte de la Vitrina de Proyectos de la carrera.") % {"asignatura": proyecto.asignatura.nombre, "periodo": proyecto.periodo, "docente": docente, "fecha": fecha}
+    frase = _("en la asignatura %(asignatura)s, periodo %(periodo)s, fue revisado y aprobado por %(docente)s el %(fecha)s, y forma parte de la Vitrina de Proyectos de la carrera.") % {"asignatura": proyecto.asignatura.nombre, "periodo": proyecto.periodo.nombre, "docente": docente, "fecha": fecha}
     _parrafo(c, frase, texto, 12, x, y, ancho_texto, interlineado=1.45)
 
     # Pie: cómo comprobarlo

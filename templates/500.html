@@ -18,12 +18,18 @@ Nunca muestra detalles técnicos.
       }
     })();
   </script>
+  <link rel="icon" href="{% static 'img/favicon.ico' %}" sizes="48x48">
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
 </head>
 <body class="flex min-h-screen flex-col bg-fondo text-texto">
   <header class="border-b-2 border-linea">
-    <div class="contenedor py-4">
-      <a href="/" class="font-titulo font-extrabold">{% translate "Vitrina de Proyectos" %}</a>
+    {# Sin procesadores de contexto: el logo se pide con {% static %} directo (spec 008) #}
+    <div class="contenedor flex items-center gap-3 py-3">
+      <a href="/" class="flex min-h-11 items-center gap-3">
+        <img src="{% static 'img/logo-uteq.png' %}" alt="UTEQ" width="376" height="120" class="h-10 w-auto dark:hidden">
+        <img src="{% static 'img/logo-uteq-blanco.png' %}" alt="UTEQ" width="381" height="120" class="hidden h-10 w-auto dark:block">
+        <span class="font-titulo font-extrabold">{% translate "Vitrina de Proyectos" %}</span>
+      </a>
     </div>
   </header>
   <main class="contenedor flex-1 py-20 lg:py-28">

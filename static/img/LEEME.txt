@@ -1,2 +1,12 @@
-Copia aquí el logo oficial como logo-uteq.svg (o logo-uteq.png).
-La plataforma lo detecta sola y lo muestra en el encabezado.
+Imágenes de la marca (spec 008). Ya están todas en el repositorio: no hay que copiar nada a mano.
+
+- logo-uteq.png / .webp           logo verde: encabezado en modo claro y página de error 500
+- logo-uteq-blanco.png / .webp    logo blanco: encabezado en modo oscuro, pie de página, verificación
+- marca/                          sellos de la Facultad y de la Carrera, logos grandes, logo para correos
+                                  y versiones PNG grandes para el certificado PDF (reportlab no lee webp)
+- iconos/ y favicon.ico           favicon, ícono de iPhone, Android y Windows (ver templates/parciales/iconos.html)
+- compartir.png                   vista previa 1200×630 al pegar un enlace en WhatsApp, LinkedIn o Facebook
+
+Qué logo va dónde y las reglas de uso: LEEME-identidad.md, en la raíz del proyecto.
+config/contexto.py detecta logo-uteq.(svg|png|webp) y logo-uteq-blanco.*; si consiguen el SVG oficial,
+basta con copiarlo con ese nombre.

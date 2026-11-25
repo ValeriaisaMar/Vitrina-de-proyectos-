@@ -16,6 +16,7 @@ urlpatterns = [
     # Entrar y salir
     path("entrar/", views.entrar, name="entrar"),
     path("salir/", views.salir, name="salir"),
+    path("cambiar-rol/", views.cambiar_rol, name="cambiar_rol"),
     # Perfil
     path("perfil/", views.perfil, name="perfil"),
     path("perfil/contrasena/", views.CambiarContrasena.as_view(), name="cambiar_contrasena"),
@@ -40,4 +41,6 @@ urlpatterns = [
     # Gestión de usuarios (solo admins, módulo 006)
     path("usuarios/", views.usuarios, name="usuarios"),
     path("usuarios/<int:pk>/", views.usuario_editar, name="usuario_editar"),
+    # Correo de envío (solo admins, spec 008)
+    path("correo-de-envio/", views.correo_envio, name="correo_envio"),
 ]
