@@ -131,6 +131,21 @@ class EditarTests(BaseProyectos):
         self.assertEqual(self.proyecto.titulo, "Nuevo título")
         self.assertEqual(self.proyecto.creador, self.ana)
 
+    def test_un_coautor_no_cambia_la_lista_de_coautores(self):
+        otra = crear_usuario("otra@correo.com")
+        self.entrar(self.luis)
+        respuesta = self.client.post(self.url, self.datos(titulo="Cambio de Luis", coautores="otra@correo.com"))
+        self.assertRedirects(respuesta, self.proyecto.get_absolute_url())
+        self.proyecto.refresh_from_db()
+        self.assertEqual(self.proyecto.titulo, "Cambio de Luis")  # el resto sí lo puede editar
+        self.assertEqual(set(self.proyecto.autores.all()), {self.ana, self.luis})
+        self.assertNotIn(otra, self.proyecto.autores.all())
+
+    def test_un_coautor_ve_la_lista_bloqueada(self):
+        self.entrar(self.luis)
+        respuesta = self.client.get(self.url)
+        self.assertTrue(respuesta.context["form"].fields["coautores"].disabled)
+
     def test_quitar_un_coautor(self):
         self.entrar(self.ana)
         self.client.post(self.url, self.datos(coautores=""))

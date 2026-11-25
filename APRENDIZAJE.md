@@ -528,3 +528,27 @@ nunca envía la parte `#...` al servidor, así que Django solo sabe que estás e
 - `aria-current="location"` le dice al lector de pantalla que esa es la sección actual dentro de
   la página (`"page"` es para la página completa).
 - **Mejora progresiva:** sin JavaScript todo sigue funcionando; solo se pierde el resaltado.
+
+### Cuentas · una cuenta desactivada se podía reactivar sola
+**Qué:** si un admin desactivaba una cuenta, la persona podía pedir "reenviar activación", abrir
+el enlace y quedar activa otra vez. Ahora el enlace solo sirve para cuentas que nunca se activaron,
+y al intentar entrar una cuenta desactivada ve un mensaje propio en vez de "abre el enlace".
+**Por qué:** "sin activar" y "desactivada" se guardaban igual (`is_active=False`). Lo que las
+distingue es `last_login`: activar la cuenta inicia sesión, así que una cuenta que ya se usó
+siempre tiene fecha de último ingreso. Es el mismo criterio que ya usaba el filtro de usuarios.
+**Concepto:** cuando un campo booleano mezcla dos situaciones distintas, hay que buscar otro dato
+que las separe (o agregar un campo). Las pruebas `cuentas/tests/test_desactivadas.py` lo cubren.
+
+### Revisión · el certificado nombraba a quien tomó el proyecto, no a quien lo aprobó
+**Qué:** si un profesor tomaba un proyecto y luego decidía un admin, el certificado y la página de
+verificación decían "aprobado por" el profesor. Ahora `cambiar_estado()` deja como revisor a quien
+toma el proyecto y, al decidir, a quien decide.
+**Concepto:** un dato público que "certifica" algo debe salir del hecho que certifica (la
+decisión), no de un paso anterior (tomar el proyecto). El historial completo sigue en `EventoEstado`.
+
+### Proyectos · solo el creador cambia la lista de coautores
+**Qué:** un coautor podía, al editar, quitar a otros coautores o quitarse a sí mismo. Ahora el
+campo aparece bloqueado para quien no es el creador; el resto del proyecto lo sigue editando.
+**Concepto:** `field.disabled = True` en un formulario de Django no solo desactiva el control en
+el HTML: Django ignora lo que llegue en el POST para ese campo y usa el valor inicial, así que
+tampoco sirve modificar la petición a mano.

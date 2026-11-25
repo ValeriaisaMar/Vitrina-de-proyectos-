@@ -92,6 +92,7 @@ class FormularioEntrar(AuthenticationForm):
     error_messages = {
         "invalid_login": _("El correo o la contraseña no son correctos."),
         "inactive": _("Tu cuenta aún no está activa. Abre el enlace que te enviamos al correo."),
+        "desactivada": _("Tu cuenta está desactivada. Si crees que es un error, escribe a la administración de la carrera."),
     }
 
     def __init__(self, *args, **kwargs):
@@ -107,17 +108,21 @@ class FormularioEntrar(AuthenticationForm):
             if self.user_cache is None:
                 # authenticate() no devuelve cuentas inactivas. Si la contraseña es correcta,
                 # se avisa que falta activar; si no, el mensaje es el genérico.
-                if self._es_cuenta_inactiva(email, password):
+                inactiva = self._cuenta_inactiva(email, password)
+                if inactiva is not None:
                     self.cuenta_inactiva = True
-                    raise ValidationError(self.error_messages["inactive"], code="inactive")
+                    if inactiva.last_login is None:  # nunca abrió el enlace de activación
+                        raise ValidationError(self.error_messages["inactive"], code="inactive")
+                    raise ValidationError(self.error_messages["desactivada"], code="desactivada")
                 raise self.get_invalid_login_error()
             self.confirm_login_allowed(self.user_cache)
         return self.cleaned_data
 
     @staticmethod
-    def _es_cuenta_inactiva(email, password):
+    def _cuenta_inactiva(email, password):
+        """La cuenta inactiva con ese correo si la contraseña es correcta; si no, None."""
         usuario = Usuario.objects.filter(email__iexact=email, is_active=False).first()
-        return bool(usuario and usuario.check_password(password))
+        return usuario if usuario and usuario.check_password(password) else None
 
     def get_invalid_login_error(self):
         return ValidationError(self.error_messages["invalid_login"], code="invalid_login")

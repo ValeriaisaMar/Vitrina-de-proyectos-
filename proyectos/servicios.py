@@ -98,7 +98,9 @@ def cambiar_estado(proyecto, nuevo, actor, comentario=""):
 
         bloqueado.estado = nuevo
         campos = ["estado", "actualizado_en"]
-        if nuevo == Estado.EN_REVISION:
+        if nuevo == Estado.EN_REVISION or nuevo in ESTADOS_DE_DECISION:
+            # Al tomar queda a nombre de quien lo toma; al decidir, de quien decide. Así el
+            # certificado y la verificación nombran a quien de verdad aprobó (puede ser un admin).
             bloqueado.revisor = actor
             campos.append("revisor")
         if nuevo == Estado.APROBADO:

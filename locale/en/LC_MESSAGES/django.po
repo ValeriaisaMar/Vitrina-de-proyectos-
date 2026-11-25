@@ -2220,3 +2220,15 @@ msgstr "Latest changes"
 #: proyectos/models.py
 msgid "último número"
 msgstr "last number"
+
+#: cuentas/forms.py
+msgid ""
+"Tu cuenta está desactivada. Si crees que es un error, escribe a la "
+"administración de la carrera."
+msgstr ""
+"Your account has been deactivated. If you think this is a mistake, contact "
+"the program's administration."
+
+#: proyectos/forms.py
+msgid "Solo quien creó el proyecto puede cambiar los coautores."
+msgstr "Only the person who created the project can change the co-authors."
