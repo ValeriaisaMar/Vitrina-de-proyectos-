@@ -198,9 +198,9 @@ Vitrina-de-proyectos-/
 
    Las asignaturas de la malla y las tecnologías se cargan solas con `migrate`. Las imágenes y
    los PDF que suban los estudiantes se guardan en la carpeta `media/`, que no se sube a Git.
-   Para probar la revisión necesitas una cuenta de profesor: crea una cuenta normal y, desde
-   `/admin/` → Usuarios, cámbiale el rol a **Profesor**. Ese usuario verá "Bandeja" en el
-   encabezado. El superusuario que creaste con `createsuperuser` ya es admin y también la ve.
+   El superusuario que creaste con `createsuperuser` es admin. Para nombrar profesores: entra
+   con él → **Mi panel** → **Gestionar usuarios** → elige la cuenta → rol **Profesor**. Al
+   iniciar sesión, cada persona llega a su panel (estudiante, profesor o admin).
 
 ## Variables de entorno
 

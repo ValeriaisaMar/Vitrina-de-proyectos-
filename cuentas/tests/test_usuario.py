@@ -80,4 +80,4 @@ class AutenticacionTests(TestCase):
         respuesta = self.client.post(
             "/cuentas/entrar/", {"username": "Luis@correo.com", "password": "clave-segura-123"}
         )
-        self.assertRedirects(respuesta, "/")
+        self.assertRedirects(respuesta, "/panel/")

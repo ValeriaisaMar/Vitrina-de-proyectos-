@@ -35,6 +35,7 @@
             </summary>
             <div class="absolute right-0 top-[calc(100%+0.75rem)] flex w-56 flex-col gap-2 border-2 border-linea bg-superficie p-3 shadow-duro-verde">
               <p class="truncate px-1 text-xs text-texto-suave">{{ user.email }}</p>
+              <a href="{% url 'vitrina:panel' %}" class="btn btn-primario w-full">{% translate "Mi panel" %}</a>
               <a href="{% url 'cuentas:perfil' %}" class="btn btn-secundario w-full">{% translate "Mi perfil" %}</a>
               <form method="post" action="{% url 'cuentas:salir' %}">
                 {% csrf_token %}
@@ -59,8 +60,9 @@
           </nav>
           <div class="mt-4 flex flex-col gap-3">
             {% if user.is_authenticated %}
-              {% if user.es_estudiante %}<a href="{% url 'proyectos:mis_proyectos' %}" class="btn btn-primario w-full">{% translate "Mis proyectos" %}</a>{% endif %}
-              {% if user.es_profesor or user.es_admin %}<a href="{% url 'proyectos:bandeja' %}" class="btn btn-primario w-full">{% translate "Bandeja" %}</a>{% endif %}
+              <a href="{% url 'vitrina:panel' %}" class="btn btn-primario w-full">{% translate "Mi panel" %}</a>
+              {% if user.es_estudiante %}<a href="{% url 'proyectos:mis_proyectos' %}" class="btn btn-secundario w-full">{% translate "Mis proyectos" %}</a>{% endif %}
+              {% if user.es_profesor or user.es_admin %}<a href="{% url 'proyectos:bandeja' %}" class="btn btn-secundario w-full">{% translate "Bandeja" %}</a>{% endif %}
               <a href="{% url 'cuentas:perfil' %}" class="btn btn-secundario w-full">{% translate "Mi perfil" %}</a>
               <form method="post" action="{% url 'cuentas:salir' %}">
                 {% csrf_token %}

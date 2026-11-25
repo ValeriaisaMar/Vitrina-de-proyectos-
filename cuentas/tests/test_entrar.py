@@ -19,7 +19,7 @@ class EntrarTests(TestCase):
 
     def test_entra_con_el_correo_en_cualquier_mayuscula(self):
         respuesta = self.entrar(email="ANA@Correo.com")
-        self.assertRedirects(respuesta, reverse("vitrina:inicio"))
+        self.assertRedirects(respuesta, reverse("vitrina:panel"))
         self.assertEqual(int(self.client.session["_auth_user_id"]), self.usuario.pk)
 
     def test_vuelve_a_la_pagina_de_la_que_venia(self):
@@ -28,7 +28,7 @@ class EntrarTests(TestCase):
 
     def test_ignora_un_next_de_otro_sitio(self):
         respuesta = self.entrar(next="https://sitio-malicioso.com/")
-        self.assertRedirects(respuesta, reverse("vitrina:inicio"))
+        self.assertRedirects(respuesta, reverse("vitrina:panel"))
 
     def test_datos_incorrectos_dan_un_mensaje_que_no_revela_la_cuenta(self):
         r1 = self.entrar(clave="mala-clave")
@@ -53,7 +53,7 @@ class EntrarTests(TestCase):
     def test_el_bloqueo_es_por_correo(self):
         for _ in range(limite.MAXIMO_INTENTOS):
             self.entrar(email="otra@correo.com", clave="mala-clave")
-        self.assertRedirects(self.entrar(), reverse("vitrina:inicio"))
+        self.assertRedirects(self.entrar(), reverse("vitrina:panel"))
 
     def test_un_acierto_reinicia_el_conteo(self):
         for _ in range(limite.MAXIMO_INTENTOS - 1):
@@ -61,7 +61,7 @@ class EntrarTests(TestCase):
         self.entrar()
         self.client.logout()
         self.entrar(clave="mala-clave")
-        self.assertRedirects(self.entrar(), reverse("vitrina:inicio"))
+        self.assertRedirects(self.entrar(), reverse("vitrina:panel"))
 
     def test_sin_recordar_la_sesion_termina_al_cerrar_el_navegador(self):
         self.entrar()
@@ -73,7 +73,7 @@ class EntrarTests(TestCase):
 
     def test_con_sesion_iniciada_no_muestra_el_formulario(self):
         self.client.force_login(self.usuario)
-        self.assertRedirects(self.client.get(self.url), reverse("vitrina:inicio"))
+        self.assertRedirects(self.client.get(self.url), reverse("vitrina:panel"))
 
 
 class SalirTests(TestCase):

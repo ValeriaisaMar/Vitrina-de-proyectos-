@@ -424,3 +424,52 @@ PNG y el PDF sean de verdad PNG y PDF (`Pillow` abre la imagen; el PDF empieza p
 Las capturas a 390 px mostraron que el campo del código desbordaba la pantalla: un `<input>` tiene
 un ancho mínimo propio y hay que permitirle encogerse con `min-w-0 w-full`.
 
+---
+
+## Módulo 006 · Paneles por rol
+
+### T001–T003 · Un panel por rol
+**Qué:** `/panel/` muestra un resumen distinto al estudiante, al profesor y al admin
+(`vitrina/paneles.py`), y es la página a la que se llega después de iniciar sesión.
+**Conceptos:**
+- **Contar en la base de datos:** `aggregate(aprobados=Count("id", filter=Q(estado="aprobado")), ...)`
+  devuelve todas las cifras en **una** consulta. Recorrer los proyectos en Python y contar haría
+  una consulta (o más) por proyecto.
+- **`Prefetch(..., to_attr=...)`** trae la última observación de varios proyectos en una sola
+  consulta extra. La prueba `assertNumQueries(7)` lo comprueba: con 3 o con 4 proyectos para
+  corregir, el panel hace exactamente las mismas consultas.
+- **Barras sin librerías:** una barra es un `<span>` con `width: X%`. Todas son de un mismo color
+  porque miden lo mismo; el número va escrito al lado para que nadie dependa del color o del largo.
+- `LOGIN_REDIRECT_URL` decide adónde va la persona al entrar; `resolve_url()` lo convierte en una
+  dirección aunque sea un nombre de ruta.
+
+### T004 · Gestión de usuarios y roles
+**Qué:** `/cuentas/usuarios/` (lista con búsqueda, filtros y paginación) y la página de gestión de
+cada cuenta, solo para admins.
+**Conceptos:**
+- **Reglas de negocio en el formulario:** `clean()` impide cambiar el propio rol o desactivarse
+  (la plataforma nunca se queda sin admin por un clic) y no toca cuentas técnicas de Django.
+- `form.has_changed()` y `form.changed_data` dicen qué cambió: si nada cambió, no se registra nada.
+- **`LogEntry`** es el registro de acciones que ya trae Django; `log_actions()` guarda quién
+  cambió qué. No hizo falta crear un modelo nuevo.
+- **Desactivar cierra la sesión:** Django revisa `is_active` en cada petición; una cuenta
+  desactivada queda fuera aunque tuviera la sesión abierta (está probado).
+- Ser "admin" de la plataforma (`rol`) es distinto de entrar a `/admin/` de Django (`is_staff`):
+  uno es de negocio, el otro es técnico.
+
+### T007 · Una migración de datos para arreglar el pasado
+**Qué:** `0004_codigos_faltantes` da código a los proyectos que se aprobaron a mano en el 003.
+**Conceptos:** las capturas del panel mostraron "None" donde debía ir el código. El arreglo no es
+tocar la plantilla, sino los **datos**: una migración `RunPython` que corre una sola vez en cada
+base. Su reversa es `noop` porque un código entregado no debe cambiar. Para probar una migración se
+usa `MigrationExecutor` (ir a la 0003, crear datos, migrar a la 0004 y revisar), con
+`serialized_rollback = True` para que la base quede como estaba para las demás pruebas.
+
+### Ajuste · Las consultas de la bandeja pasan a servicios.py
+**Qué:** `consultas_bandeja()` se mudó de `proyectos/views.py` a `proyectos/servicios.py`.
+**Por qué:** el panel del profesor (`vitrina/paneles.py`) la necesita, y una app solo puede
+importar modelos, formularios o servicios de otra, nunca sus vistas (constitución, principio I).
+**Conceptos:** si dos apps necesitan la misma lógica, esa lógica no es de una vista: se lleva a la
+capa de servicios y las dos vistas la llaman. Las vistas quedan como "pegamento" entre la petición
+y la respuesta.
+

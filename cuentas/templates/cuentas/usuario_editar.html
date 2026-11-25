@@ -1,0 +1,58 @@
+{% extends "cuentas/base_tarjeta.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Gestionar usuario" %}{% endblock %}
+
+{% block tarjeta %}
+<nav aria-label="{% translate 'Ruta' %}" class="text-sm text-texto-suave">
+  <a class="enlace" href="{% url 'cuentas:usuarios' %}">{% translate "Usuarios" %}</a><span aria-hidden="true"> / </span>{{ usuario_editado.nombre_completo }}
+</nav>
+<h1 class="mt-4 text-3xl font-extrabold">{{ usuario_editado.nombre_completo }}</h1>
+<p class="mt-1 text-texto-suave">{{ usuario_editado.email }}</p>
+
+{% if es_uno_mismo %}
+  <div class="mt-6">{% translate "Esta es tu cuenta: tu rol y tu estado solo los puede cambiar otro admin." as t %}{% include "componentes/aviso.html" with tipo="info" texto=t %}</div>
+{% elif usuario_editado.is_superuser %}
+  <div class="mt-6">{% translate "Esta es una cuenta técnica de Django: su rol y estado se cambian en /admin/." as t %}{% include "componentes/aviso.html" with tipo="info" texto=t %}</div>
+{% endif %}
+{% if en_revision and usuario_editado.rol == "profesor" %}
+  <div class="mt-4">{% blocktranslate with n=en_revision asvar t %}Tiene {{ n }} proyecto(s) en revisión. Si deja de ser profesor, un admin tendrá que decidirlos.{% endblocktranslate %}{% include "componentes/aviso.html" with tipo="warning" texto=t %}</div>
+{% endif %}
+
+{% if form.non_field_errors %}
+  <div class="mt-6">{% for error in form.non_field_errors %}{% include "componentes/aviso.html" with tipo="error" texto=error %}{% endfor %}</div>
+{% endif %}
+
+{% if not es_uno_mismo and not usuario_editado.is_superuser %}
+<form method="post" class="mt-8 flex flex-col gap-6">
+  {% csrf_token %}
+  <fieldset>
+    <legend class="campo-etiqueta">{{ form.rol.label }}</legend>
+    <div class="mt-2 grid gap-2 sm:grid-cols-3">
+      {% for opcion in form.rol %}
+        <label class="flex cursor-pointer items-center gap-3 border-2 border-linea p-3 font-bold has-checked:bg-uteq-tinte has-checked:shadow-duro-verde dark:has-checked:bg-uteq-verde [&_input]:h-5 [&_input]:w-5 [&_input]:accent-uteq-verde">
+          {{ opcion.tag }} {{ opcion.choice_label }}
+        </label>
+      {% endfor %}
+    </div>
+    <p class="campo-ayuda">{% translate "Profesor: revisa proyectos. Admin: además gestiona usuarios. Ninguno de los dos da acceso al panel técnico /admin/." %}</p>
+  </fieldset>
+  {% include "componentes/campo.html" with campo=form.is_active %}
+  <div class="flex flex-wrap gap-4">
+    <button type="submit" class="btn btn-primario">{% translate "Guardar cambios" %}</button>
+    <a href="{% url 'cuentas:usuarios' %}" class="btn btn-secundario">{% translate "Cancelar" %}</a>
+  </div>
+</form>
+{% endif %}
+
+{% if acciones %}
+  <section class="mt-10 border-t-2 border-linea-suave pt-6" aria-labelledby="titulo-registro">
+    <h2 id="titulo-registro" class="text-sm font-bold uppercase tracking-wider text-texto-suave">{% translate "Últimos cambios" %}</h2>
+    <ul class="mt-3 flex flex-col gap-2 text-sm">
+      {% for accion in acciones %}
+        <li><span class="font-semibold">{{ accion.action_time|date:"SHORT_DATETIME_FORMAT" }}</span> · {{ accion.change_message }} <span class="text-texto-suave">({{ accion.user.nombre_completo }})</span></li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endif %}
+{% endblock %}

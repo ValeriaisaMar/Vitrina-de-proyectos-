@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Usuarios y roles" %}{% endblock %}
+
+{% block contenido %}
+<section class="bg-seccion py-10 sm:py-14">
+  <div class="contenedor">
+    <nav aria-label="{% translate 'Ruta' %}" class="text-sm text-texto-suave">
+      <a class="enlace" href="{% url 'vitrina:panel' %}">{% translate "Mi panel" %}</a><span aria-hidden="true"> / </span>{% translate "Usuarios" %}
+    </nav>
+    <h1 class="mt-3 text-3xl font-extrabold sm:text-4xl">{% translate "Usuarios y roles" %}</h1>
+    <p class="mt-2 max-w-2xl text-texto-suave">{% translate "Toda cuenta nace como estudiante. Aquí nombras profesores y admins, y desactivas cuentas." %}</p>
+
+    <form method="get" class="tarjeta-sobria mt-8 grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_auto] lg:items-end">
+      <div class="flex flex-col gap-1.5">
+        <label for="{{ form.q.id_for_label }}" class="campo-etiqueta">{{ form.q.label }}</label>
+        <input type="search" name="q" id="{{ form.q.id_for_label }}" value="{{ form.q.value|default:'' }}" placeholder="{% translate 'Nombre o correo' %}" class="campo-control">
+      </div>
+      {% for campo in form %}{% if campo.name != "q" %}
+        <div class="flex flex-col gap-1.5">
+          <label for="{{ campo.id_for_label }}" class="campo-etiqueta">{{ campo.label }}</label>
+          <select name="{{ campo.name }}" id="{{ campo.id_for_label }}" class="campo-control">
+            {% for valor, texto in campo.field.choices %}<option value="{{ valor }}" {% if campo.value == valor %}selected{% endif %}>{{ texto }}</option>{% endfor %}
+          </select>
+        </div>
+      {% endif %}{% endfor %}
+      <button type="submit" class="btn btn-primario">{% translate "Filtrar" %}</button>
+    </form>
+
+    {% if pagina.object_list %}
+      <div class="tarjeta-sobria mt-6 overflow-x-auto">
+        <table class="w-full min-w-[46rem] border-collapse text-sm">
+          <caption class="sr-only">{% translate "Usuarios" %}</caption>
+          <thead>
+            <tr class="border-b-2 border-linea bg-uteq-tinte text-left text-xs font-bold uppercase tracking-wider text-uteq-verde dark:bg-uteq-verde dark:text-white">
+              <th scope="col" class="px-5 py-3">{% translate "Nombre" %}</th>
+              <th scope="col" class="px-3 py-3">{% translate "Rol" %}</th>
+              <th scope="col" class="px-3 py-3">{% translate "Estado" %}</th>
+              <th scope="col" class="px-3 py-3 text-right">{% translate "Proyectos" %}</th>
+              <th scope="col" class="px-3 py-3">{% translate "Registro" %}</th>
+              <th scope="col" class="px-5 py-3 text-right"><span class="sr-only">{% translate "Acciones" %}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in pagina.object_list %}
+              <tr class="border-b border-linea-suave last:border-b-0">
+                <td class="px-5 py-3">
+                  <span class="block font-bold">{{ u.nombre_completo }}{% if u == user %} <span class="font-normal text-texto-suave">({% translate "tú" %})</span>{% endif %}</span>
+                  <span class="text-texto-suave">{{ u.email }}</span>
+                </td>
+                <td class="px-3 py-3"><span class="insignia {% if u.rol == 'admin' %}bg-tinta text-white dark:bg-uteq-claro dark:text-tinta{% elif u.rol == 'profesor' %}insignia-aprobado{% else %}bg-superficie text-texto{% endif %}">{{ u.get_rol_display }}</span></td>
+                <td class="px-3 py-3">
+                  {% if u.is_active %}{% translate "Activa" %}{% elif u.last_login %}<span class="font-semibold text-rechazado-texto dark:text-[#f4a19a]">{% translate "Desactivada" %}</span>{% else %}<span class="text-texto-suave">{% translate "Sin activar" %}</span>{% endif %}
+                </td>
+                <td class="px-3 py-3 text-right tabular-nums">{{ u.total_proyectos }}</td>
+                <td class="px-3 py-3 text-texto-suave">{{ u.fecha_registro|date:"SHORT_DATE_FORMAT" }}</td>
+                <td class="px-5 py-3 text-right"><a class="enlace font-semibold" href="{% url 'cuentas:usuario_editar' u.pk %}">{% translate "Gestionar" %}<span class="sr-only"> {{ u.nombre_completo }}</span></a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if pagina.has_other_pages %}
+        <nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="{% translate 'Paginación' %}">
+          {% if pagina.has_previous %}<a class="btn btn-secundario min-w-12 px-3" href="{% querystring pagina=pagina.previous_page_number %}" aria-label="{% translate 'Página anterior' %}">‹</a>{% endif %}
+          <span class="px-3 text-sm font-semibold">{{ pagina.number }} / {{ pagina.paginator.num_pages }}</span>
+          {% if pagina.has_next %}<a class="btn btn-secundario min-w-12 px-3" href="{% querystring pagina=pagina.next_page_number %}" aria-label="{% translate 'Página siguiente' %}">›</a>{% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <div class="tarjeta-sobria mt-6 p-8">
+        <p class="font-bold">{% translate "No hay usuarios con esos filtros." %}</p>
+        <a href="{% url 'cuentas:usuarios' %}" class="enlace mt-2 inline-block">{% translate "Limpiar" %}</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

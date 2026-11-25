@@ -1,0 +1,20 @@
+{% comment %}
+Barras horizontales de una sola serie. Recibe "filas" (etiqueta, valor, ancho) y "titulo".
+Un solo color porque todas miden lo mismo; el número va escrito al lado de cada barra.
+{% endcomment %}
+<section class="tarjeta-sobria p-6" aria-label="{{ titulo }}">
+  <h2 class="font-extrabold">{{ titulo }}</h2>
+  {% if filas %}
+    <ul class="mt-5 flex flex-col gap-3">
+      {% for fila in filas %}
+        <li class="grid grid-cols-[minmax(0,9rem)_1fr_2.5rem] items-center gap-3 text-sm" title="{{ fila.etiqueta }}: {{ fila.valor }}">
+          <span class="truncate text-texto-suave">{{ fila.etiqueta }}</span>
+          <span class="h-3 bg-seccion" aria-hidden="true"><span class="block h-full bg-uteq-verde dark:bg-uteq-claro" style="width: {{ fila.ancho }}%"></span></span>
+          <span class="text-right font-bold tabular-nums">{{ fila.valor }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="mt-3 text-sm text-texto-suave">{{ vacio }}</p>
+  {% endif %}
+</section>
