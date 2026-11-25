@@ -4,7 +4,7 @@
   <div class="contenedor flex items-center gap-4 py-3">
 
     {# Marca: el logo si existe en static/img/, si no el nombre en texto #}
-    <a href="{% url 'vitrina:inicio' %}" class="flex min-h-11 items-center gap-3" aria-label="{% translate 'Vitrina de Proyectos, ir al inicio' %}">
+    <a href="{% url 'vitrina:inicio' %}" class="flex min-h-11 shrink-0 items-center gap-3" aria-label="{% translate 'Vitrina de Proyectos, ir al inicio' %}">
       {% if logo_url %}
         {# Logo verde en modo claro y blanco en modo oscuro; width/height evitan que la página salte al cargar #}
         <picture class="shrink-0 dark:hidden">
@@ -16,10 +16,11 @@
           <img src="{{ logo_blanco_url }}" alt="UTEQ" width="381" height="120" class="h-10 w-auto">
         </picture>
       {% endif %}
-      {# Con logo, el nombre en texto solo se muestra donde cabe: en el celular y entre 1280 y 1536 px el encabezado va justo #}
-      <span class="{% if logo_url %}hidden sm:flex xl:hidden 2xl:flex{% else %}flex{% endif %} flex-col leading-tight">
+      {% comment %}Con logo, el nombre en texto solo va en tablet (sm–xl), donde el menú está plegado y sobra espacio.
+      En escritorio el menú, el idioma, la bandeja y la cuenta ocupan la fila: con el nombre se amontonaba.{% endcomment %}
+      <span class="{% if logo_url %}hidden sm:flex xl:hidden{% else %}flex{% endif %} flex-col leading-tight">
         <span class="whitespace-nowrap font-titulo text-[0.95rem] font-extrabold sm:text-base">{% translate "Vitrina de Proyectos" %}</span>
-        <span class="text-xs font-semibold text-texto-suave">UTEQ · {% translate "Ingeniería de Software" %}</span>
+        <span class="whitespace-nowrap text-xs font-semibold text-texto-suave">UTEQ · {% translate "Ingeniería de Software" %}</span>
       </span>
     </a>
 
@@ -64,7 +65,7 @@
 
       {% if user.is_authenticated %}
         {# En pantallas pequeñas el rol activo se ve junto al botón del menú #}
-        <span class="insignia-rol {% if rol_activo == 'admin' %}insignia-rol-admin{% endif %} hidden sm:inline-flex xl:hidden"><span class="sr-only">{% translate "Rol activo:" %} </span>{{ rol_activo_etiqueta }}</span>
+        <span class="insignia-rol {% if rol_activo == 'admin' %}insignia-rol-admin{% endif %} hidden md:inline-flex xl:hidden"><span class="sr-only">{% translate "Rol activo:" %} </span>{{ rol_activo_etiqueta }}</span>
       {% endif %}
       {# Menú móvil: <details> funciona aunque no cargue JavaScript #}
       <details class="relative xl:hidden" data-menu>
