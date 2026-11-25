@@ -11,6 +11,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 
+from comunidad.consultas import datos_comunidad
 from cuentas.models import Rol
 from proyectos.models import Estado, Proyecto, Tecnologia
 from proyectos.permisos import puede_editar, puede_ver, puede_ver_historial
@@ -29,7 +30,10 @@ def inicio(request):
         "autores": get_user_model().objects.filter(proyectos__in=publicados).distinct().count(),
         "tecnologias": Tecnologia.objects.filter(proyectos__in=publicados).distinct().count(),
     }
-    destacados = publicados.con_relaciones().order_by("-aprobado_en", "-actualizado_en")[:3]
+    destacados = (
+        publicados.con_relaciones().annotate(total_me_gusta=Count("me_gustas", distinct=True))
+        .order_by("-aprobado_en", "-actualizado_en")[:3]
+    )
     pasos = [
         {"numero": "01", "titulo": _("Sube tu proyecto"),
          "texto": _("Descripción, coautores, tecnologías, repositorio y documento PDF.")},
@@ -98,6 +102,8 @@ def detalle(request, slug):
         raise Http404  # para los demás, el proyecto "no existe"
     ver_historial = puede_ver_historial(request.user, proyecto)
     return render(request, "vitrina/detalle.html", {
+        # Me gusta, favoritos y comentarios: solo en proyectos publicados (módulo 007)
+        "comunidad": datos_comunidad(request.user, proyecto) if proyecto.publicado else None,
         "proyecto": proyecto,
         "autorias": proyecto.autorias.select_related("usuario"),
         "puede_editar": puede_editar(request.user, proyecto),

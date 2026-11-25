@@ -473,3 +473,40 @@ importar modelos, formularios o servicios de otra, nunca sus vistas (constituci�
 capa de servicios y las dos vistas la llaman. Las vistas quedan como "pegamento" entre la petición
 y la respuesta.
 
+---
+
+## Módulo 007 · Comunidad
+
+### T001 · Unicidad garantizada por la base de datos
+**Qué:** `MeGusta`, `Favorito` y `Comentario` en la app `comunidad`.
+**Conceptos:** `UniqueConstraint(fields=["usuario", "proyecto"])` asegura un solo me gusta por
+persona aunque pulse dos veces muy rápido: la segunda inserción falla con `IntegrityError` y la
+vista simplemente la ignora. Comprobar "¿ya existe?" en Python no basta, porque entre la
+comprobación y el guardado puede colarse otra petición (condición de carrera).
+
+### T002 · Un botón que pone y quita
+**Qué:** `me_gusta` y `favorito` son "interruptores": la misma URL agrega o quita.
+**Conceptos:** `delete()` devuelve cuántas filas borró; si borró alguna, era quitar; si no, se
+crea. `transaction.atomic()` alrededor del `create` aísla el posible `IntegrityError` para que
+no rompa el resto de la petición.
+
+### T003 · Comentarios y moderación
+**Qué:** comentar, borrar el propio comentario y ocultar (autores del proyecto y admins).
+**Conceptos:**
+- **Ocultar en vez de borrar:** el moderador puede equivocarse; con `oculto`, `ocultado_por` y
+  `ocultado_en` la decisión es reversible y queda constancia.
+- **Límite de envíos con la caché:** `cache.add()` crea el contador solo si no existe (con su
+  vencimiento de 10 minutos) y `cache.incr()` lo sube. Es el mismo patrón del límite de intentos
+  de inicio de sesión del módulo 002.
+- **Escapado:** `{{ com.texto|linebreaksbr }}` escapa el HTML antes de convertir los saltos de
+  línea; un `<script>` en un comentario se ve como texto (está probado).
+- Los botones son formularios POST que redirigen a la ficha con un ancla (`#comentario-12`):
+  todo funciona sin JavaScript.
+
+### T004 · Contar sin duplicar
+**Qué:** las tarjetas muestran los me gusta y Explorar ordena por "Más gustados".
+**Concepto:** al filtrar por tecnología o autor, la consulta une otras tablas y cada proyecto
+puede aparecer varias veces antes del `distinct()`. `Count("me_gustas", distinct=True)` cuenta
+personas distintas, no filas repetidas. Hay una prueba que busca por tecnología justo para
+comprobar que el conteo no se infla.
+

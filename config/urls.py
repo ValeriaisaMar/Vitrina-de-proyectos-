@@ -16,6 +16,7 @@ urlpatterns = [
     path("cuentas/", include("cuentas.urls")),
     # Proyectos de los estudiantes: mis proyectos, crear, editar y eliminar (módulo 003)
     path("proyectos/", include("proyectos.urls")),
+    path("comunidad/", include("comunidad.urls")),
     path("", include("vitrina.urls")),
 ]
 

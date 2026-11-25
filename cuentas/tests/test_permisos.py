@@ -18,6 +18,7 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path("cuentas/", include("cuentas.urls")),
     path("proyectos/", include("proyectos.urls")),
+    path("comunidad/", include("comunidad.urls")),
     path("", include("vitrina.urls")),
 ]
 

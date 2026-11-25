@@ -24,6 +24,11 @@ msgstr "%(docente)s rejected the project"
 msgid "%(docente)s revisó tu proyecto «%(titulo)s»."
 msgstr "%(docente)s reviewed your project “%(titulo)s”."
 
+#: comunidad/templates/comunidad/_seccion.html
+#, python-format
+msgid "%(n)s me gusta"
+msgstr "%(n)s likes"
+
 #: vitrina/views.py
 msgid "Abre la cámara del celular"
 msgstr "Open your phone's camera"
@@ -140,9 +145,17 @@ msgstr "Courses and technologies"
 msgid "Atajos"
 msgstr "Shortcuts"
 
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Autor"
+msgstr "Author"
+
 #: proyectos/templates/proyectos/formulario.html proyectos/templates/proyectos/revisar.html vitrina/templates/vitrina/detalle.html vitrina/templates/vitrina/verificado.html
 msgid "Autores"
 msgstr "Authors"
+
+#: comunidad/templates/comunidad/favoritos.html
+msgid "Aún no guardas ningún proyecto"
+msgstr "You haven't saved any projects yet"
 
 #: proyectos/templates/proyectos/revisar.html templates/parciales/encabezado.html
 msgid "Bandeja"
@@ -167,6 +180,14 @@ msgstr "Unsent draft"
 #: vitrina/templates/vitrina/paneles/estudiante.html
 msgid "Borradores"
 msgstr "Drafts"
+
+#: comunidad/views.py
+msgid "Borramos tu comentario."
+msgstr "We deleted your comment."
+
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Borrar"
+msgstr "Delete"
 
 #: cuentas/forms.py vitrina/forms.py vitrina/templates/vitrina/explorar.html
 msgid "Buscar"
@@ -247,9 +268,22 @@ msgstr "Professor's comment"
 msgid "Comentario del docente:"
 msgstr "Professor's comment:"
 
+#: comunidad/views.py
+msgid "Comentario oculto."
+msgstr "Comment hidden."
+
 #: proyectos/forms.py
 msgid "Comentario para los autores"
 msgstr "Comment for the authors"
+
+#: comunidad/views.py
+msgid "Comentario visible de nuevo."
+msgstr "Comment visible again."
+
+#: comunidad/templates/comunidad/_seccion.html
+#, python-format
+msgid "Comentarios (%(n)s)"
+msgstr "Comments (%(n)s)"
 
 #: vitrina/views.py
 msgid "Compara los datos"
@@ -262,6 +296,10 @@ msgstr "Make sure the description explains what it does and how to use it."
 #: vitrina/views.py
 msgid "Compártelo con QR"
 msgstr "Share it with a QR"
+
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Comunidad"
+msgstr "Community"
 
 #: proyectos/models.py vitrina/templates/vitrina/paneles/estudiante.html
 msgid "Con observaciones"
@@ -534,6 +572,10 @@ msgstr "Delete"
 msgid "Eliminar proyecto"
 msgstr "Delete project"
 
+#: comunidad/templates/comunidad/favoritos.html
+msgid "En la ficha de cualquier proyecto, pulsa «Guardar» para tenerlo a mano aquí."
+msgstr "On any project page, press “Save” to keep it handy here."
+
 #: proyectos/models.py proyectos/templates/proyectos/bandeja.html vitrina/templates/vitrina/inicio.html vitrina/templates/vitrina/paneles/estudiante.html
 msgid "En revisión"
 msgstr "In review"
@@ -607,6 +649,10 @@ msgstr "Scan to verify"
 msgid "Escanea y comprueba"
 msgstr "Scan and check"
 
+#: comunidad/forms.py
+msgid "Escribe al menos 2 caracteres."
+msgstr "Write at least 2 characters."
+
 #: cuentas/templates/cuentas/reenviar.html
 msgid "Escribe el correo con el que te registraste y te enviaremos un enlace nuevo."
 msgstr "Enter the email you signed up with and we'll send you a new link."
@@ -618,6 +664,10 @@ msgstr "Enter your account email and we'll send you a link to create a new passw
 #: proyectos/forms.py proyectos/servicios.py
 msgid "Escribe un comentario para explicar la decisión."
 msgstr "Write a comment to explain the decision."
+
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Escribe un comentario respetuoso…"
+msgstr "Write a respectful comment…"
 
 #: vitrina/forms.py
 msgid "Escribe un código con la forma VP-2026-0001."
@@ -709,7 +759,7 @@ msgstr "Student authors"
 msgid "Explorar"
 msgstr "Explore"
 
-#: templates/parciales/pie.html vitrina/templates/vitrina/explorar.html vitrina/templates/vitrina/inicio.html
+#: comunidad/templates/comunidad/favoritos.html templates/parciales/pie.html vitrina/templates/vitrina/explorar.html vitrina/templates/vitrina/inicio.html
 msgid "Explorar proyectos"
 msgstr "Explore projects"
 
@@ -757,6 +807,14 @@ msgstr "Manage users"
 msgid "Gracias por registrarte en la Vitrina de Proyectos de Ingeniería de Software de la UTEQ."
 msgstr "Thanks for signing up for the UTEQ Software Engineering Project Showcase."
 
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Guardado"
+msgstr "Saved"
+
+#: comunidad/views.py
+msgid "Guardado en tus favoritos."
+msgstr "Saved to your favorites."
+
 #: cuentas/views.py
 #, python-format
 msgid "Guardamos los cambios de %(nombre)s."
@@ -769,6 +827,10 @@ msgstr "Your profile changes were saved."
 #: proyectos/views.py
 msgid "Guardamos los cambios del proyecto."
 msgstr "We saved the project changes."
+
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Guardar"
+msgstr "Save"
 
 #: cuentas/templates/cuentas/perfil.html cuentas/templates/cuentas/usuario_editar.html proyectos/templates/proyectos/formulario.html
 msgid "Guardar cambios"
@@ -824,7 +886,7 @@ msgstr "Software Engineering"
 msgid "Inglés"
 msgstr "English"
 
-#: cuentas/templates/cuentas/registro.html
+#: comunidad/templates/comunidad/_seccion.html cuentas/templates/cuentas/registro.html
 msgid "Inicia sesión"
 msgstr "Log in"
 
@@ -913,9 +975,17 @@ msgstr "Catalogs are edited in the technical Django panel."
 msgid "Los proyectos en los que eres autor o coautor."
 msgstr "The projects where you are an author or co-author."
 
+#: comunidad/templates/comunidad/favoritos.html
+msgid "Los proyectos que guardaste. Solo tú ves esta lista."
+msgstr "The projects you saved. Only you can see this list."
+
 #: cuentas/forms.py
 msgid "Mantener la sesión iniciada"
 msgstr "Keep me logged in"
+
+#: comunidad/templates/comunidad/_seccion.html vitrina/templates/vitrina/_tarjeta_proyecto.html
+msgid "Me gusta"
+msgstr "Like"
 
 #: proyectos/forms.py
 msgid "Mensaje para el docente"
@@ -937,6 +1007,10 @@ msgstr "Member since"
 msgid "Mis certificados"
 msgstr "My certificates"
 
+#: comunidad/templates/comunidad/favoritos.html templates/parciales/encabezado.html
+msgid "Mis favoritos"
+msgstr "My favorites"
+
 #: proyectos/templates/proyectos/formulario.html proyectos/templates/proyectos/mis_proyectos.html templates/parciales/encabezado.html
 msgid "Mis proyectos"
 msgstr "My projects"
@@ -953,9 +1027,21 @@ msgstr "My ongoing reviews"
 msgid "Mis últimas decisiones"
 msgstr "My latest decisions"
 
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Mostrar"
+msgstr "Show"
+
+#: comunidad/admin.py
+msgid "Mostrar los comentarios seleccionados"
+msgstr "Show the selected comments"
+
 #: cuentas/templates/cuentas/registro.html
 msgid "Muestra lo que construyes."
 msgstr "Show what you build."
+
+#: vitrina/forms.py
+msgid "Más gustados"
+msgstr "Most liked"
 
 #: vitrina/forms.py
 msgid "Más recientes"
@@ -989,6 +1075,10 @@ msgstr "No users match those filters."
 #: cuentas/forms.py
 msgid "No puedes cambiar tu propio rol ni desactivar tu cuenta. Pídeselo a otro admin."
 msgstr "You can't change your own role or deactivate your account. Ask another admin."
+
+#: comunidad/views.py
+msgid "No puedes dar me gusta a tu propio proyecto."
+msgstr "You can't like your own project."
 
 #: templates/403.html
 msgid "No tienes permiso para ver esta página"
@@ -1029,6 +1119,18 @@ msgstr "New project"
 #: proyectos/forms.py
 msgid "Obligatorio si pides cambios o rechazas. Los autores lo reciben por correo."
 msgstr "Required if you request changes or reject. The authors receive it by email."
+
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Ocultar"
+msgstr "Hide"
+
+#: comunidad/admin.py
+msgid "Ocultar los comentarios seleccionados"
+msgstr "Hide the selected comments"
+
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Oculto"
+msgstr "Hidden"
 
 #: proyectos/forms.py
 msgid "Opcional. Donde se puede probar el proyecto."
@@ -1194,6 +1296,14 @@ msgstr "Try another word or remove a filter."
 msgid "Próximamente"
 msgstr "Coming soon"
 
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Publicar"
+msgstr "Post"
+
+#: comunidad/views.py
+msgid "Publicaste varios comentarios seguidos. Espera unos minutos e intenta de nuevo."
+msgstr "You posted several comments in a row. Wait a few minutes and try again."
+
 #: templates/404.html
 msgid "Puede que la dirección esté mal escrita o que la página ya no exista."
 msgstr "The address may be misspelled or the page may no longer exist."
@@ -1235,9 +1345,17 @@ msgstr "Verifiable QR"
 msgid "Queda verificado"
 msgstr "It gets verified"
 
+#: comunidad/views.py
+msgid "Quitado de tus favoritos."
+msgstr "Removed from your favorites."
+
 #: proyectos/templates/proyectos/formulario.html
 msgid "Quitar"
 msgstr "Remove"
+
+#: comunidad/templates/comunidad/favoritos.html
+msgid "Quitar de favoritos"
+msgstr "Remove from favorites"
 
 #: vitrina/templates/vitrina/explorar.html
 #, python-format
@@ -1524,6 +1642,10 @@ msgstr "No activity yet."
 msgid "Todavía no hay cambios: el proyecto está en borrador."
 msgstr "No changes yet: the project is a draft."
 
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Todavía no hay comentarios. ¡Sé quien abra la conversación!"
+msgstr "No comments yet. Be the one to start the conversation!"
+
 #: vitrina/templates/vitrina/paneles/admin.html
 msgid "Todavía no hay proyectos aprobados."
 msgstr "No approved projects yet."
@@ -1560,6 +1682,10 @@ msgstr "Take this project"
 #: proyectos/views.py
 msgid "Tomaste el proyecto. Ahora está en revisión a tu nombre."
 msgstr "You took the project. It is now in review under your name."
+
+#: comunidad/forms.py
+msgid "Tu comentario"
+msgstr "Your comment"
 
 #: cuentas/templates/cuentas/recuperar_listo.html
 msgid "Tu contraseña cambió"
@@ -1794,6 +1920,10 @@ msgstr "course"
 msgid "asignaturas"
 msgstr "courses"
 
+#: comunidad/models.py
+msgid "autor"
+msgstr "author"
+
 #: proyectos/models.py
 msgid "autores"
 msgstr "authors"
@@ -1810,9 +1940,13 @@ msgstr "authorships"
 msgid "año"
 msgstr "year"
 
-#: proyectos/models.py
+#: comunidad/models.py proyectos/models.py
 msgid "comentario"
 msgstr "comment"
+
+#: comunidad/models.py
+msgid "comentarios"
+msgstr "comments"
 
 #: proyectos/models.py
 msgid "consecutivo de códigos"
@@ -1887,7 +2021,15 @@ msgstr "new status"
 msgid "evento del historial"
 msgstr "history event"
 
-#: proyectos/models.py
+#: comunidad/models.py
+msgid "favorito"
+msgstr "favorite"
+
+#: comunidad/models.py
+msgid "favoritos"
+msgstr "favorites"
+
+#: comunidad/models.py proyectos/models.py
 msgid "fecha"
 msgstr "date"
 
@@ -1916,6 +2058,10 @@ msgstr "image"
 msgid "imágenes"
 msgstr "images"
 
+#: comunidad/models.py
+msgid "me gusta"
+msgstr "like"
+
 #: proyectos/models.py
 msgid "nombre"
 msgstr "name"
@@ -1924,9 +2070,25 @@ msgstr "name"
 msgid "nombres"
 msgstr "first names"
 
+#: comunidad/models.py
+msgid "ocultado en"
+msgstr "hidden at"
+
+#: comunidad/models.py
+msgid "ocultado por"
+msgstr "hidden by"
+
+#: comunidad/models.py
+msgid "oculto"
+msgstr "hidden"
+
 #: proyectos/models.py
 msgid "orden"
 msgstr "order"
+
+#: comunidad/templates/comunidad/_seccion.html
+msgid "para dar me gusta, guardar el proyecto o comentar."
+msgstr "to like, save the project or comment."
 
 #: proyectos/models.py
 msgid "periodo"
@@ -1936,7 +2098,7 @@ msgstr "term"
 msgid "pidió cambios"
 msgstr "requested changes"
 
-#: proyectos/models.py
+#: comunidad/models.py proyectos/models.py
 msgid "proyecto"
 msgstr "project"
 

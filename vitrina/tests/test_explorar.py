@@ -77,3 +77,22 @@ class ExplorarTests(TestCase):
         respuesta = self.client.get(URL, {"orden": "titulo"})
         titulos = [p.titulo for p in respuesta.context["pagina"].object_list]
         self.assertEqual(titulos, sorted(titulos))
+
+
+class ExplorarMeGustaTests(TestCase):
+    """Módulo 007: las tarjetas muestran los me gusta y se puede ordenar por ellos."""
+
+    def test_orden_por_mas_gustados_sin_contar_doble(self):
+        from comunidad.models import MeGusta
+
+        ana = crear_usuario("ana@correo.com")
+        poco = crear_proyecto(ana, titulo="Poco gustado", estado=Estado.APROBADO, tecnologias=("Django", "Python"))
+        mucho = crear_proyecto(ana, titulo="Muy gustado", estado=Estado.APROBADO, tecnologias=("Django", "Python"))
+        for i in range(3):
+            MeGusta.objects.create(usuario=crear_usuario(f"fan{i}@correo.com"), proyecto=mucho)
+        MeGusta.objects.create(usuario=crear_usuario("otro@correo.com"), proyecto=poco)
+        # Buscar por tecnología une la tabla de tecnologías: el conteo no debe duplicarse
+        respuesta = self.client.get(URL, {"orden": "populares", "q": "django"})
+        lista = list(respuesta.context["pagina"].object_list)
+        self.assertEqual([p.titulo for p in lista], ["Muy gustado", "Poco gustado"])
+        self.assertEqual([p.total_me_gusta for p in lista], [3, 1])
