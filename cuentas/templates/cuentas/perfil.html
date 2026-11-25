@@ -16,15 +16,28 @@
           <dd class="mt-1 break-all font-semibold">{{ user.email }}</dd>
         </div>
         <div>
-          <dt class="font-bold text-texto-suave">{% translate "Rol" %}</dt>
-          <dd class="mt-1.5"><span class="insignia {% if user.es_admin %}insignia-aprobado{% elif user.es_profesor %}insignia-en_revision{% else %}insignia-enviado{% endif %}">{{ user.get_rol_display }}</span></dd>
+          <dt class="font-bold text-texto-suave">{% translate "Actúas como" %}</dt>
+          <dd class="mt-1.5"><span class="insignia-rol {% if user.es_admin %}insignia-rol-admin{% endif %}">{{ user.get_rol_activo_display }}</span></dd>
         </div>
         <div>
           <dt class="font-bold text-texto-suave">{% translate "Miembro desde" %}</dt>
           <dd class="mt-1 font-semibold">{{ user.fecha_registro|date:"DATE_FORMAT" }}</dd>
         </div>
       </dl>
-      <p class="mt-6 text-sm text-texto-suave">{% translate "Para cambiar tu correo o tu rol, escríbele a un administrador." %}</p>
+      <section class="mt-8 border-t-2 border-linea-suave pt-6" aria-labelledby="titulo-mis-roles">
+        <h2 id="titulo-mis-roles" class="text-sm font-bold uppercase tracking-wider text-texto-suave">{% translate "Mis roles" %}</h2>
+        <ul class="mt-3 flex flex-col gap-2 text-sm">
+          {% for asignado in mis_roles %}
+            <li class="flex flex-wrap items-center gap-2">
+              <span class="insignia-rol {% if asignado.rol == 'admin' %}insignia-rol-admin{% endif %}">{{ asignado.get_rol_display }}</span>
+              <span class="text-texto-suave">{% blocktranslate with fecha=asignado.asignado_en|date:"DATE_FORMAT" %}desde el {{ fecha }}{% endblocktranslate %}</span>
+              {% if asignado.rol == user.rol_activo %}<span class="text-xs font-bold text-acento">· {% translate "activo" %}</span>{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+        {% if mis_roles|length > 1 %}<p class="mt-3 text-sm text-texto-suave">{% translate "Cambia de rol desde el menú de tu cuenta, arriba a la derecha." %}</p>{% endif %}
+      </section>
+      <p class="mt-6 text-sm text-texto-suave">{% translate "Para cambiar tu correo o tus roles, escríbele a un administrador." %}</p>
     </div>
 
     <div class="tarjeta-sobria p-6 sm:p-8">

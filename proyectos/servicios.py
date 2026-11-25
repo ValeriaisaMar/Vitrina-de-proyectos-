@@ -16,10 +16,11 @@ from django.utils.translation import gettext as _
 from cuentas.models import Rol
 from proyectos.models import ESTADOS_DE_DECISION, Consecutivo, Estado, EventoEstado, Proyecto
 
-# Quién puede hacer cada cambio:
-#   "autor"   → cualquier autor del proyecto
-#   "docente" → cualquier profesor o admin
-#   "revisor" → el profesor que tomó el proyecto, o un admin
+# Quién puede hacer cada cambio (siempre según el ROL ACTIVO, spec 008):
+#   "autor"   → cualquier autor del proyecto, actuando como estudiante
+#   "docente" → cualquier profesor o admin que NO sea autor del proyecto
+#   "revisor" → el profesor que tomó el proyecto, o un admin, que NO sea autor del proyecto
+# Conflicto de interés: nadie revisa, aprueba ni rechaza un proyecto del que es autor.
 AUTOR, DOCENTE, REVISOR = "autor", "docente", "revisor"
 
 TRANSICIONES = {
@@ -41,13 +42,21 @@ class TransicionNoPermitida(Exception):
 def _cumple(usuario, proyecto, quien):
     if not usuario.is_authenticated or not usuario.is_active:
         return False
+    rol = usuario.rol_activo
     if quien == AUTOR:
-        return proyecto.es_autor(usuario)
+        return rol == Rol.ESTUDIANTE and proyecto.es_autor(usuario)
+    if conflicto_de_interes(usuario, proyecto):
+        return False
     if quien == DOCENTE:
-        return usuario.rol in (Rol.PROFESOR, Rol.ADMIN)
+        return rol in (Rol.PROFESOR, Rol.ADMIN)
     if quien == REVISOR:
-        return usuario.rol == Rol.ADMIN or (usuario.rol == Rol.PROFESOR and proyecto.revisor_id == usuario.pk)
+        return rol == Rol.ADMIN or (rol == Rol.PROFESOR and proyecto.revisor_id == usuario.pk)
     return False
+
+
+def conflicto_de_interes(usuario, proyecto):
+    """True si el docente es autor del proyecto: entonces no puede revisarlo ni decidirlo."""
+    return proyecto.es_autor(usuario)
 
 
 def puede_cambiar(usuario, proyecto, nuevo):
@@ -126,8 +135,14 @@ def cambiar_estado(proyecto, nuevo, actor, comentario=""):
 
 
 def consultas_bandeja(usuario):
-    """Las tres listas de la bandeja. Cada proyecto trae la fecha que importa en esa lista."""
-    base = Proyecto.objects.select_related("asignatura", "revisor").prefetch_related("autores")
+    """Las tres listas de la bandeja. Cada proyecto trae la fecha que importa en esa lista.
+
+    Los proyectos de los que el docente es autor no aparecen (conflicto de interés, spec 008).
+    """
+    base = (
+        Proyecto.objects.exclude(autores=usuario)
+        .select_related("asignatura", "revisor", "periodo").prefetch_related("autores")
+    )
     eventos_a = lambda estado: Q(eventos__estado_nuevo=estado)  # noqa: E731
 
     pendientes = (
@@ -138,7 +153,7 @@ def consultas_bandeja(usuario):
     )
 
     en_revision = base.filter(estado=Estado.EN_REVISION)
-    if usuario.rol == Rol.PROFESOR:
+    if usuario.rol_activo == Rol.PROFESOR:
         en_revision = en_revision.filter(revisor=usuario)  # el admin ve todos
     en_revision = en_revision.annotate(
         fecha=Max("eventos__creado_en", filter=eventos_a(Estado.EN_REVISION))

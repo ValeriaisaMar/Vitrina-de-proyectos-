@@ -3,7 +3,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from proyectos.models import Asignatura, Proyecto, Tecnologia
+from proyectos.models import Asignatura, Periodo, Proyecto, Tecnologia
 from vitrina.verificacion import normalizar_codigo
 
 ORDENES = [("recientes", _("Más recientes")), ("populares", _("Más gustados")), ("titulo", _("Nombre (A–Z)"))]
@@ -16,7 +16,10 @@ class FormularioFiltros(forms.Form):
         widget=forms.CheckboxSelectMultiple,
     )
     asignatura = forms.ModelChoiceField(label=_("Asignatura"), queryset=Asignatura.objects.none(), required=False, empty_label=_("Todas"))
-    periodo = forms.ChoiceField(label=_("Periodo"), required=False)
+    # El valor en la URL es el slug del periodo: ?periodo=intensivo-noviembre-2026
+    periodo = forms.ModelChoiceField(
+        label=_("Periodo"), queryset=Periodo.objects.none(), required=False, to_field_name="slug", empty_label=_("Todos"),
+    )
     orden = forms.ChoiceField(label=_("Ordenar"), choices=ORDENES, required=False)
 
     def __init__(self, *args, **kwargs):
@@ -24,8 +27,9 @@ class FormularioFiltros(forms.Form):
         publicados = Proyecto.objects.publicados()
         # Solo se ofrecen asignaturas y periodos que tienen proyectos publicados
         self.fields["asignatura"].queryset = Asignatura.objects.filter(proyectos__in=publicados).distinct()
-        periodos = publicados.order_by("-periodo").values_list("periodo", flat=True).distinct()
-        self.fields["periodo"].choices = [("", _("Todos"))] + [(p, p) for p in periodos]
+        self.fields["periodo"].queryset = (
+            Periodo.objects.filter(proyectos__in=publicados).distinct().order_by("-fecha_inicio", "-id")
+        )
 
     def filtrar(self, consulta):
         """Aplica a la consulta los filtros que pasaron la validación; los inválidos se ignoran."""

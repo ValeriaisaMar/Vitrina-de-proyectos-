@@ -2229,6 +2229,735 @@ msgstr ""
 "Your account has been deactivated. If you think this is a mistake, contact "
 "the program's administration."
 
+msgid ""
+"Solo quien creó el proyecto puede cambiar los coautores. Si quieres dejar el"
+" proyecto, usa «Salir del proyecto» en Mis proyectos."
+msgstr ""
+"Only the person who created the project can change the co-authors. If you "
+"want to leave the project, use “Leave project” in My projects."
+
+#, python-format
+msgid "Saliste del proyecto «%(titulo)s»."
+msgstr "You left the project “%(titulo)s”."
+
+msgid "Salir del proyecto"
+msgstr "Leave project"
+
+msgid "Salir"
+msgstr "Leave"
+
+msgid "Solo el creador puede volver a agregarte"
+msgstr "Only the creator can add you back"
+
+#, python-format
+msgid "¿Salir de «%(titulo)s»?"
+msgstr "Leave “%(titulo)s”?"
+
+#, python-format
+msgid ""
+"Dejarás de ser coautor: el proyecto ya no aparecerá en tus proyectos y no "
+"saldrás en su certificado. Le avisaremos por correo a %(creador)s, que lo "
+"creó."
+msgstr ""
+"You will no longer be a co-author: the project won't appear in your projects"
+" and you won't be on its certificate. We'll email %(creador)s, who created "
+"it."
+
+msgid "Sí, salir del proyecto"
+msgstr "Yes, leave the project"
+
+#, python-format
+msgid "%(nombre)s salió de tu proyecto «%(titulo)s»"
+msgstr "%(nombre)s left your project “%(titulo)s”"
+
+#, python-format
+msgid "Hola, %(creador)s:"
+msgstr "Hi %(creador)s,"
+
+#, python-format
+msgid "%(nombre)s (%(correo)s) dejó de ser coautor de «%(titulo)s»."
+msgstr "%(nombre)s (%(correo)s) is no longer a co-author of “%(titulo)s”."
+
+msgid ""
+"Si fue un error, puedes volver a agregarle desde Editar proyecto, en el "
+"campo Coautores."
+msgstr ""
+"If this was a mistake, you can add them back from Edit project, in the Co-"
+"authors field."
+
+msgid "Nuevo creador"
+msgstr "New creator"
+
+msgid "Elige a quién le pasas el proyecto."
+msgstr "Choose who you're handing the project to."
+
+#, python-format
+msgid "Ahora %(nombre)s es quien creó «%(titulo)s». Tú sigues como coautor."
+msgstr ""
+"%(nombre)s is now the creator of “%(titulo)s”. You remain a co-author."
+
+msgid "Transferir"
+msgstr "Transfer"
+
+msgid "Transferir proyecto"
+msgstr "Transfer project"
+
+#, python-format
+msgid "Pasar «%(titulo)s» a un coautor"
+msgstr "Hand “%(titulo)s” over to a co-author"
+
+msgid ""
+"La persona que elijas quedará como creadora: podrá cambiar los coautores, "
+"transferirlo de nuevo y eliminarlo mientras sea borrador. Tú sigues como "
+"coautor y puedes salir después si quieres."
+msgstr ""
+"The person you choose becomes the creator: they can change the co-authors, "
+"transfer it again and delete it while it's a draft. You remain a co-author "
+"and can leave later if you want."
+
+#, python-format
+msgid "Ahora el proyecto «%(titulo)s» está a tu cargo"
+msgstr "The project “%(titulo)s” is now in your hands"
+
+#, python-format
+msgid "Hola, %(nuevo)s:"
+msgstr "Hi %(nuevo)s,"
+
+#, python-format
+msgid ""
+"%(anterior)s te pasó el proyecto «%(titulo)s». Ahora figuras como quien lo "
+"creó: puedes cambiar los coautores y, mientras sea borrador, eliminarlo. "
+"%(anterior)s sigue como coautor."
+msgstr ""
+"%(anterior)s handed the project “%(titulo)s” over to you. You are now listed"
+" as its creator: you can change the co-authors and, while it's a draft, "
+"delete it. %(anterior)s remains a co-author."
+
+#: comunidad/templates/comunidad/correos/respuesta.txt
+#, python-format
+msgid "%(autor)s, autor de «%(titulo)s», respondió tu comentario:"
+msgstr "%(autor)s, author of “%(titulo)s”, replied to your comment:"
+
+#: vitrina/templates/vitrina/paneles/admin.html
+#, python-format
+msgid "%(n)s abierto para entregas"
+msgid_plural "%(n)s abiertos para entregas"
+msgstr[0] "%(n)s open for submissions"
+msgstr[1] "%(n)s open for submissions"
+
+#: comunidad/templates/comunidad/correos/respuesta_asunto.txt
+#, python-format
+msgid "%(nombre)s respondió tu comentario en «%(titulo)s»"
+msgstr "%(nombre)s replied to your comment on “%(titulo)s”"
+
+#: proyectos/templates/proyectos/periodos.html
+msgid "Abierto"
+msgstr "Open"
+
+#: proyectos/templates/proyectos/periodos.html
+msgid "Abrir"
+msgstr "Open"
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Activa la verificación en dos pasos (Seguridad → Verificación en dos pasos). Sin ella Google no ofrece contraseñas de aplicación."
+msgstr "Turn on 2-Step Verification (Security → 2-Step Verification). Without it, Google does not offer app passwords."
+
+#: cuentas/templates/cuentas/perfil.html
+msgid "Actúas como"
+msgstr "Acting as"
+
+#: cuentas/views.py
+#, python-format
+msgid "Ahora entras como %(rol)s."
+msgstr "You are now signed in as %(rol)s."
+
+#: proyectos/views.py
+#, python-format
+msgid "Borramos el periodo «%(nombre)s»."
+msgstr "We deleted the term “%(nombre)s”."
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Busca «Contraseñas de aplicación» en la configuración de la cuenta y crea una con el nombre «Vitrina»."
+msgstr "Search for “App passwords” in your account settings and create one named “Vitrina”."
+
+#: cuentas/templates/cuentas/perfil.html
+msgid "Cambia de rol desde el menú de tu cuenta, arriba a la derecha."
+msgstr "Switch roles from your account menu, at the top right."
+
+#: cuentas/templates/cuentas/_sello.html templates/parciales/pie.html
+msgid "Carrera de Software"
+msgstr "Software Engineering Program"
+
+#: proyectos/templates/proyectos/periodos.html
+msgid "Cerrado"
+msgstr "Closed"
+
+#: proyectos/templates/proyectos/periodos.html
+msgid "Cerrar"
+msgstr "Close"
+
 #: proyectos/forms.py
-msgid "Solo quien creó el proyecto puede cambiar los coautores."
-msgstr "Only the person who created the project can change the co-authors."
+msgid "Como lo verán los estudiantes y la vitrina. Debe ser único."
+msgstr "As students and the showcase will see it. Must be unique."
+
+#: vitrina/templates/vitrina/paneles/admin.html
+msgid "Configuración"
+msgstr "Settings"
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Configuración rápida"
+msgstr "Quick setup"
+
+#: cuentas/forms.py
+msgid "Confirma que quieres quitarte el rol admin."
+msgstr "Confirm that you want to remove your admin role."
+
+#: cuentas/forms.py
+msgid "Contraseña de aplicación"
+msgstr "App password"
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Contraseña de aplicación de Gmail"
+msgstr "Gmail app password"
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Contraseña guardada"
+msgstr "Password saved"
+
+#: cuentas/forms.py
+msgid "Contraseña guardada. Déjala vacía para conservarla, o escribe una nueva para cambiarla."
+msgstr "Password saved. Leave it empty to keep it, or type a new one to change it."
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Copia los 16 caracteres y pégalos aquí. Los espacios se quitan solos."
+msgstr "Copy the 16 characters and paste them here. Spaces are removed automatically."
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Correcta"
+msgstr "Passed"
+
+#: cuentas/templates/cuentas/correo_envio.html vitrina/templates/vitrina/paneles/admin.html
+msgid "Correo de envío"
+msgstr "Sending email"
+
+#: cuentas/forms.py
+msgid "Correo del remitente"
+msgstr "Sender email"
+
+#: proyectos/templates/proyectos/periodos.html
+msgid "Crea uno para que los estudiantes puedan registrar sus proyectos."
+msgstr "Create one so students can register their projects."
+
+#: comunidad/templates/comunidad/_comentario.html
+msgid "Docente revisor"
+msgstr "Reviewing professor"
+
+#: proyectos/templates/proyectos/periodo_formulario.html
+msgid "Editar periodo"
+msgstr "Edit term"
+
+#: proyectos/views.py
+#, python-format
+msgid "El periodo «%(nombre)s» está abierto para entregas."
+msgstr "The term “%(nombre)s” is open for submissions."
+
+#: proyectos/views.py
+#, python-format
+msgid "El periodo «%(nombre)s» quedó cerrado."
+msgstr "The term “%(nombre)s” is now closed."
+
+#: cuentas/correo_envio.py
+msgid "El servidor de correo respondió con un error. Revisa los datos e intenta de nuevo."
+msgstr "The mail server returned an error. Check the details and try again."
+
+#: cuentas/correo_envio.py
+msgid "El servidor no aceptó el correo de destino de la prueba."
+msgstr "The server did not accept the test recipient address."
+
+#: cuentas/correo_envio.py
+msgid "El servidor no aceptó el correo del remitente. Muchos servidores solo dejan enviar desde la misma cuenta con la que inicias sesión."
+msgstr "The server did not accept the sender address. Many servers only allow sending from the same account you sign in with."
+
+#: cuentas/correo_envio.py
+msgid "El servidor o el puerto no responden. Revisa que estén bien escritos y que la red permita la conexión."
+msgstr "The server or port is not responding. Check that they are spelled correctly and that the network allows the connection."
+
+#: cuentas/correo_envio.py
+msgid "El servidor rechazó el usuario o la contraseña. En Gmail usa una contraseña de aplicación, no la contraseña normal de la cuenta."
+msgstr "The server rejected the username or password. For Gmail, use an app password, not the account’s regular password."
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Entra a la cuenta de Google desde la que se enviarán los correos."
+msgstr "Sign in to the Google account that will send the emails."
+
+#: templates/parciales/selector_rol.html
+msgid "Entrar como"
+msgstr "Sign in as"
+
+#: proyectos/templates/proyectos/periodos.html
+msgid "Entregas"
+msgstr "Submissions"
+
+#: cuentas/correo_envio.py
+#, python-format
+msgid "Enviamos un correo de prueba a %(correo)s. Revisa la bandeja de entrada (y la de spam)."
+msgstr "We sent a test email to %(correo)s. Check your inbox (and the spam folder)."
+
+#: proyectos/templates/proyectos/revisar.html
+msgid "Eres autor de este proyecto: no puedes revisarlo, aprobarlo ni rechazarlo. Lo decidirá otro docente."
+msgstr "You are an author of this project: you cannot review, approve or reject it. Another professor will decide."
+
+#: cuentas/forms.py
+msgid "Escribe la contraseña de aplicación."
+msgstr "Enter the app password."
+
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Escribe tu respuesta…"
+msgstr "Write your reply…"
+
+#: cuentas/templates/cuentas/usuario_editar.html
+msgid "Esta es tu cuenta: puedes cambiar tus roles, pero no desactivarla. Si te quitas el rol admin te pediremos confirmarlo."
+msgstr "This is your account: you can change your roles, but you cannot deactivate it. If you remove your admin role we will ask you to confirm."
+
+#: cuentas/forms.py cuentas/templates/cuentas/usuario_editar.html
+msgid "Esta es una cuenta técnica de Django: sus roles y su estado se cambian en /admin/."
+msgstr "This is a technical Django account: its roles and status are changed in /admin/."
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Falló"
+msgstr "Failed"
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Falta la variable CLAVE_CIFRADO en el archivo .env del servidor: sin ella no se puede guardar una contraseña nueva. Mira el README, sección «Correo de envío»."
+msgstr "The CLAVE_CIFRADO variable is missing from the server’s .env file: without it a new password cannot be saved. See the README, “Sending email” section."
+
+#: proyectos/views.py
+#, python-format
+msgid "Guardamos el periodo «%(nombre)s»."
+msgstr "We saved the term “%(nombre)s”."
+
+#: cuentas/views.py
+msgid "Guardamos la configuración de correo. Los próximos correos saldrán desde esta cuenta."
+msgstr "We saved the email settings. Upcoming emails will be sent from this account."
+
+#: cuentas/views.py
+msgid "Hiciste varias pruebas seguidas. Espera unos minutos antes de intentar de nuevo."
+msgstr "You ran several tests in a row. Wait a few minutes before trying again."
+
+#: cuentas/templates/cuentas/usuario_editar.html
+msgid "Historial de roles"
+msgstr "Role history"
+
+#: cuentas/correo_envio.py
+msgid "Hubo un problema con la conexión segura (TLS/SSL). Revisa que la seguridad y el puerto coincidan: STARTTLS suele ir con 587 y SSL/TLS con 465."
+msgstr "There was a problem with the secure connection (TLS/SSL). Check that security and port match: STARTTLS usually uses 587 and SSL/TLS uses 465."
+
+#: proyectos/models.py
+msgid "Intensivo"
+msgstr "Intensive"
+
+#: proyectos/models.py
+msgid "Intersemestral"
+msgstr "Intersession"
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "La contraseña se guarda cifrada y nunca se vuelve a mostrar."
+msgstr "The password is stored encrypted and is never shown again."
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "La cuenta desde la que la plataforma envía los enlaces de activación, la recuperación de contraseña y los avisos de revisión."
+msgstr "The account the platform uses to send activation links, password recovery and review notifications."
+
+#: proyectos/models.py
+msgid "La fecha de fin no puede ser anterior a la de inicio."
+msgstr "The end date cannot be earlier than the start date."
+
+#: comunidad/models.py
+msgid "La respuesta debe ser del mismo proyecto."
+msgstr "The reply must belong to the same project."
+
+#: cuentas/forms.py
+msgid "Los 16 caracteres que te da Google, sin espacios."
+msgstr "The 16 characters Google gives you, without spaces."
+
+#: cuentas/templates/cuentas/usuario_editar.html
+msgid "Marca todos los que tenga: la persona elige con cuál entrar. Profesor: revisa proyectos. Admin: además gestiona usuarios, periodos y correo. Ninguno da acceso al panel técnico /admin/."
+msgstr "Check every role they have: the person chooses which one to sign in with. Professor: reviews projects. Admin: also manages users, terms and email. None gives access to the technical /admin/ panel."
+
+#: cuentas/templates/cuentas/perfil.html
+msgid "Mis roles"
+msgstr "My roles"
+
+#: cuentas/models.py
+msgid "Ninguna"
+msgstr "None"
+
+#: proyectos/forms.py
+msgid "No hay periodos abiertos para registrar proyectos. Avísale a la administración de la carrera."
+msgstr "There are no terms open for registering projects. Let the program administration know."
+
+#: cuentas/forms.py
+msgid "No puedes desactivar tu propia cuenta. Pídeselo a otro admin."
+msgstr "You cannot deactivate your own account. Ask another admin."
+
+#: cuentas/roles.py
+msgid "No puedes quitarle el rol admin: es la única cuenta admin activa. Primero nombra a otro admin."
+msgstr "You cannot remove the admin role: it is the only active admin account. Appoint another admin first."
+
+#: cuentas/correo_envio.py
+msgid "No se pudo enviar el correo de prueba."
+msgstr "The test email could not be sent."
+
+#: proyectos/views.py
+#, python-format
+msgid "No se puede borrar «%(nombre)s» porque tiene proyectos. Ciérralo para que no reciba más."
+msgstr "“%(nombre)s” cannot be deleted because it has projects. Close it so it receives no more."
+
+#: cuentas/views.py
+msgid "No se puede guardar la contraseña: falta la variable CLAVE_CIFRADO en el archivo .env del servidor."
+msgstr "The password cannot be saved: the CLAVE_CIFRADO variable is missing from the server’s .env file."
+
+#: comunidad/models.py
+msgid "No se puede responder a una respuesta."
+msgstr "You cannot reply to a reply."
+
+#: cuentas/views.py
+msgid "No tienes ese rol."
+msgstr "You do not have that role."
+
+#: cuentas/forms.py
+msgid "Nombre del remitente"
+msgstr "Sender name"
+
+#: proyectos/templates/proyectos/periodo_formulario.html proyectos/templates/proyectos/periodos.html
+msgid "Nuevo periodo"
+msgstr "New term"
+
+#: proyectos/forms.py
+msgid "Opcional."
+msgstr "Optional."
+
+#: cuentas/forms.py
+msgid "Opcional. Si lo dejas vacío se usa el mismo usuario de acceso."
+msgstr "Optional. If left empty, the sign-in username is used."
+
+#: proyectos/models.py
+msgid "Ordinario"
+msgstr "Regular"
+
+#: proyectos/templates/proyectos/periodos.html
+msgid "Ordinarios, intersemestrales, intensivos… Los estudiantes solo pueden registrar proyectos en los periodos abiertos."
+msgstr "Regular, intersession, intensive… Students can only register projects in open terms."
+
+#: proyectos/models.py
+msgid "Otro"
+msgstr "Other"
+
+#: cuentas/templates/cuentas/perfil.html
+msgid "Para cambiar tu correo o tus roles, escríbele a un administrador."
+msgstr "To change your email or your roles, write to an administrator."
+
+#: proyectos/templates/proyectos/periodo_formulario.html proyectos/templates/proyectos/periodos.html
+msgid "Periodos"
+msgstr "Terms"
+
+#: proyectos/templates/proyectos/periodos.html vitrina/templates/vitrina/paneles/admin.html
+msgid "Periodos académicos"
+msgstr "Academic terms"
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Personalizado"
+msgstr "Custom"
+
+#: proyectos/templates/proyectos/formulario.html
+msgid "Por ahora no hay ningún periodo académico abierto para registrar proyectos. Puedes escribir tu proyecto cuando la administración abra uno."
+msgstr "There is no academic term open for registering projects right now. You can write your project once the administration opens one."
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Probar configuración"
+msgstr "Test settings"
+
+#: templates/parciales/iconos.html
+msgid "Proyectos de la carrera de Software de la UTEQ, revisados y verificados por docentes."
+msgstr "Projects from UTEQ’s Software program, reviewed and verified by professors."
+
+#: cuentas/correo_envio.py
+msgid "Prueba de correo de la Vitrina de Proyectos"
+msgstr "Project Showcase test email"
+
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Publicar respuesta"
+msgstr "Post reply"
+
+#: cuentas/forms.py
+msgid "Puerto"
+msgstr "Port"
+
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Responder"
+msgstr "Reply"
+
+#: comunidad/templates/comunidad/_seccion.html
+#, python-format
+msgid "Responder a %(nombre)s"
+msgstr "Reply to %(nombre)s"
+
+#: comunidad/templates/comunidad/_seccion.html
+msgid "Respuestas"
+msgstr "Replies"
+
+#: templates/parciales/encabezado.html
+msgid "Rol activo:"
+msgstr "Active role:"
+
+#: templates/parciales/encabezado.html
+msgid "Rol con el que estás actuando"
+msgstr "Role you are acting as"
+
+#: cuentas/forms.py cuentas/templates/cuentas/usuarios.html
+msgid "Roles"
+msgstr "Roles"
+
+#: cuentas/models.py
+msgid "SSL/TLS"
+msgstr "SSL/TLS"
+
+#: cuentas/models.py
+msgid "STARTTLS"
+msgstr "STARTTLS"
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Se envía desde"
+msgstr "Sent from"
+
+#: cuentas/templates/cuentas/usuario_editar.html
+#, python-format
+msgid "Se le dio el rol %(rol)s"
+msgstr "Was given the %(rol)s role"
+
+#: cuentas/templates/cuentas/usuario_editar.html
+#, python-format
+msgid "Se le quitó el rol %(rol)s"
+msgstr "The %(rol)s role was removed"
+
+#: cuentas/forms.py
+msgid "Seguridad"
+msgstr "Security"
+
+#: templates/parciales/pie.html
+msgid "Sellos institucionales"
+msgstr "Institutional seals"
+
+#: cuentas/forms.py
+msgid "Servidor SMTP"
+msgstr "SMTP server"
+
+#: proyectos/models.py
+msgid "Si está abierto, los estudiantes pueden elegirlo al registrar un proyecto."
+msgstr "If open, students can choose it when registering a project."
+
+#: cuentas/correo_envio.py
+msgid "Si recibes este mensaje, la configuración de correo de la Vitrina de Proyectos funciona."
+msgstr "If you receive this message, the Project Showcase email settings work."
+
+#: proyectos/forms.py
+msgid "Sirve para ordenar los periodos del más reciente al más antiguo."
+msgstr "Used to sort terms from newest to oldest."
+
+#: cuentas/forms.py
+msgid "Sí, quiero dejar de ser admin. Entiendo que perderé el acceso a la gestión de usuarios."
+msgstr "Yes, I want to stop being an admin. I understand I will lose access to user management."
+
+#: proyectos/templates/proyectos/periodos.html
+msgid "Tipo"
+msgstr "Type"
+
+#: cuentas/templates/cuentas/usuarios.html
+msgid "Toda cuenta nace como estudiante. Aquí das o quitas roles (una persona puede tener varios) y desactivas cuentas."
+msgstr "Every account starts as a student. Here you give or remove roles (a person can have several) and deactivate accounts."
+
+#: cuentas/roles.py
+msgid "Toda cuenta necesita al menos un rol."
+msgstr "Every account needs at least one role."
+
+#: proyectos/templates/proyectos/periodos.html
+msgid "Todavía no hay periodos."
+msgstr "There are no terms yet."
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Todavía no se ha probado."
+msgstr "Not tested yet."
+
+#: templates/parciales/selector_rol.html
+msgid "Tu rol"
+msgstr "Your role"
+
+#: proyectos/templates/proyectos/periodos.html
+msgid "Un periodo con proyectos no se puede borrar: ciérralo para que no reciba más."
+msgstr "A term with projects cannot be deleted: close it so it receives no more."
+
+#: vitrina/templates/vitrina/paneles/admin.html
+msgid "Usa los datos del archivo .env"
+msgstr "Uses the .env file settings"
+
+#: cuentas/forms.py
+msgid "Usuario o correo de acceso"
+msgstr "Sign-in username or email"
+
+#: comunidad/templates/comunidad/correos/respuesta.txt
+msgid "Ver la conversación:"
+msgstr "See the conversation:"
+
+#: proyectos/forms.py
+msgid "Ya existe un periodo con ese nombre."
+msgstr "A term with that name already exists."
+
+#: proyectos/models.py
+msgid "abierto para entregas"
+msgstr "open for submissions"
+
+#: cuentas/models.py
+msgid "acción"
+msgstr "action"
+
+#: templates/parciales/selector_rol.html
+msgid "actual"
+msgstr "current"
+
+#: cuentas/models.py
+msgid "actualizado por"
+msgstr "updated by"
+
+#: cuentas/models.py
+msgid "agregado"
+msgstr "added"
+
+#: cuentas/models.py
+msgid "asignado en"
+msgstr "assigned on"
+
+#: cuentas/models.py
+msgid "asignado por"
+msgstr "assigned by"
+
+#: cuentas/models.py
+msgid "cambio de rol"
+msgstr "role change"
+
+#: cuentas/models.py
+msgid "cambios de rol"
+msgstr "role changes"
+
+#: cuentas/models.py
+msgid "configuración de correo"
+msgstr "email settings"
+
+#: cuentas/models.py
+msgid "contraseña cifrada"
+msgstr "encrypted password"
+
+#: cuentas/models.py
+msgid "correo del remitente"
+msgstr "sender email"
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "datos del archivo .env"
+msgstr ".env file settings"
+
+#: cuentas/templates/cuentas/perfil.html
+#, python-format
+msgid "desde el %(fecha)s"
+msgstr "since %(fecha)s"
+
+#: comunidad/models.py
+msgid "en respuesta a"
+msgstr "in reply to"
+
+#: proyectos/models.py
+msgid "fecha de fin"
+msgstr "end date"
+
+#: proyectos/models.py
+msgid "fecha de inicio"
+msgstr "start date"
+
+#: cuentas/models.py
+msgid "nombre del remitente"
+msgstr "sender name"
+
+#: proyectos/models.py
+msgid "periodo académico"
+msgstr "academic term"
+
+#: proyectos/models.py
+msgid "periodos académicos"
+msgstr "academic terms"
+
+#: cuentas/models.py
+msgid "puerto"
+msgstr "port"
+
+#: cuentas/models.py
+msgid "quitado"
+msgstr "removed"
+
+#: comunidad/templates/comunidad/_comentario.html
+msgid "respondió"
+msgstr "replied"
+
+#: cuentas/models.py
+msgid "resultado de la última prueba"
+msgstr "last test result"
+
+#: cuentas/models.py
+msgid "rol asignado"
+msgstr "assigned role"
+
+#: cuentas/admin.py
+msgid "roles"
+msgstr "roles"
+
+#: cuentas/models.py
+msgid "roles asignados"
+msgstr "assigned roles"
+
+#: cuentas/models.py
+msgid "seguridad"
+msgstr "security"
+
+#: cuentas/models.py
+msgid "servidor SMTP"
+msgstr "SMTP server"
+
+#: proyectos/models.py
+msgid "tipo"
+msgstr "type"
+
+#: cuentas/models.py
+msgid "usuario o correo de acceso"
+msgstr "sign-in username or email"
+
+#: cuentas/templates/cuentas/correo_envio.html
+#, python-format
+msgid "«Probar configuración» usa lo que escribiste, sin guardarlo, y envía un correo de prueba a %(correo)s."
+msgstr "“Test settings” uses what you typed, without saving it, and sends a test email to %(correo)s."
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Última prueba"
+msgstr "Last test"
+
+#: cuentas/templates/cuentas/correo_envio.html
+msgid "Último cambio"
+msgstr "Last change"
+
+#: cuentas/models.py
+msgid "última prueba"
+msgstr "last test"
+
+#: cuentas/models.py
+msgid "última prueba correcta"
+msgstr "last test passed"
+
+#: cuentas/models.py
+msgid "último rol usado"
+msgstr "last role used"

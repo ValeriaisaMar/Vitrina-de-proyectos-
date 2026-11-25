@@ -40,9 +40,17 @@ class ComentarioQuerySet(models.QuerySet):
     def visibles(self):
         return self.filter(oculto=False)
 
+    def principales(self):
+        """Los comentarios que no son respuesta de otro."""
+        return self.filter(respuesta_a__isnull=True)
+
 
 class Comentario(models.Model):
-    """Comentario público sobre un proyecto. Moderar es ocultar (reversible), no borrar."""
+    """Comentario público sobre un proyecto. Moderar es ocultar (reversible), no borrar.
+
+    Los autores del proyecto pueden responder (spec 008). Hay un solo nivel: una respuesta no
+    se responde. Si se oculta un comentario, sus respuestas dejan de mostrarse al público.
+    """
 
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, related_name="comentarios", verbose_name=_("proyecto"))
     autor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comentarios", verbose_name=_("autor"))
@@ -55,6 +63,10 @@ class Comentario(models.Model):
         related_name="comentarios_ocultados", verbose_name=_("ocultado por"),
     )
     ocultado_en = models.DateTimeField(_("ocultado en"), null=True, blank=True)
+    respuesta_a = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True,
+        related_name="respuestas", verbose_name=_("en respuesta a"),
+    )
 
     objects = ComentarioQuerySet.as_manager()
 
@@ -65,3 +77,14 @@ class Comentario(models.Model):
 
     def __str__(self):
         return f"{self.autor} · {self.proyecto}"
+
+    def clean(self):
+        """Un solo nivel de respuesta, y del mismo proyecto."""
+        from django.core.exceptions import ValidationError
+
+        padre = self.respuesta_a
+        if padre is not None:
+            if padre.respuesta_a_id is not None:
+                raise ValidationError(_("No se puede responder a una respuesta."), code="segundo_nivel")
+            if padre.proyecto_id != self.proyecto_id:
+                raise ValidationError(_("La respuesta debe ser del mismo proyecto."), code="otro_proyecto")

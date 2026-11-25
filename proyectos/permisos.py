@@ -14,20 +14,51 @@ def puede_ver(usuario, proyecto):
         return True
     if not usuario.is_authenticated:
         return False
-    return usuario.rol in (Rol.PROFESOR, Rol.ADMIN) or proyecto.es_autor(usuario)
+    return usuario.es_docente or proyecto.es_autor(usuario)
+
+
+def _actua_como_estudiante(usuario):
+    """Las acciones de autor (editar, enviar, salir…) son del rol estudiante (spec 008)."""
+    return usuario.is_authenticated and usuario.rol_activo == Rol.ESTUDIANTE
 
 
 def puede_editar(usuario, proyecto):
     """Cualquier autor, solo en Borrador o Con observaciones."""
-    return usuario.is_authenticated and proyecto.editable and proyecto.es_autor(usuario)
+    return _actua_como_estudiante(usuario) and proyecto.editable and proyecto.es_autor(usuario)
 
 
 def puede_eliminar(usuario, proyecto):
     """Solo el creador, y solo mientras el proyecto no haya salido de Borrador."""
     return (
-        usuario.is_authenticated
+        _actua_como_estudiante(usuario)
         and proyecto.estado == Estado.BORRADOR
         and proyecto.autorias.filter(usuario=usuario, es_creador=True).exists()
+    )
+
+
+def puede_salir(usuario, proyecto):
+    """Un coautor (no el creador) puede dejar el proyecto mientras se pueda editar.
+
+    Después de enviado ya no: la autoría de un proyecto en revisión o aprobado es parte de lo
+    que se certifica. El creador no puede salir; si ya no quiere el proyecto, lo elimina.
+    """
+    return (
+        _actua_como_estudiante(usuario)
+        and proyecto.editable
+        and proyecto.autorias.filter(usuario=usuario, es_creador=False).exists()
+    )
+
+
+def puede_transferir(usuario, proyecto):
+    """El creador puede pasarle el proyecto a un coautor mientras se pueda editar.
+
+    Hace falta al menos un coautor con cuenta activa que lo reciba.
+    """
+    return (
+        _actua_como_estudiante(usuario)
+        and proyecto.editable
+        and proyecto.autorias.filter(usuario=usuario, es_creador=True).exists()
+        and proyecto.autorias.filter(es_creador=False, usuario__is_active=True).exists()
     )
 
 
@@ -35,5 +66,5 @@ def puede_ver_historial(usuario, proyecto):
     """El historial lo ven los autores, los profesores y los admins; el público no."""
     if not usuario.is_authenticated:
         return False
-    return usuario.rol in (Rol.PROFESOR, Rol.ADMIN) or proyecto.es_autor(usuario)
+    return usuario.es_docente or proyecto.es_autor(usuario)
 

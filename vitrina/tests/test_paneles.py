@@ -84,10 +84,11 @@ class PanelEstudianteTests(PanelBase):
             self.proyecto_en(Estado.CON_OBSERVACIONES, f"Corregir {i}")
         self.client.force_login(self.ana)
         self.client.get(URL)  # calienta sesión y caché de tipos de contenido
-        with self.assertNumQueries(7):
+        # 8 = las 7 de antes + 1 de los roles de la persona (RolActivoMiddleware, spec 008)
+        with self.assertNumQueries(8):
             self.client.get(URL)
         self.proyecto_en(Estado.CON_OBSERVACIONES, "Uno más")
-        with self.assertNumQueries(7):
+        with self.assertNumQueries(8):
             self.client.get(URL)
 
 

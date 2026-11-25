@@ -1,6 +1,7 @@
 """Modelos de la app proyectos.
 
 - Asignatura y Tecnologia: catálogos que administra el admin.
+- Periodo: periodos académicos (ordinarios, intersemestrales, intensivos…) que crea el admin.
 - Proyecto: el trabajo de uno o varios estudiantes.
 - Autoria: une a cada autor con su proyecto y marca al creador.
 - Imagen: capturas de la galería del proyecto.
@@ -20,7 +21,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
-from proyectos.validadores import validar_imagen, validar_pdf, validar_periodo, validar_url_web
+from proyectos.validadores import validar_imagen, validar_pdf, validar_url_web
 
 MAX_AUTORES = 6
 MAX_IMAGENES = 4
@@ -63,6 +64,65 @@ class Tecnologia(models.Model):
         return self.nombre
 
 
+class TipoPeriodo(models.TextChoices):
+    ORDINARIO = "ordinario", _("Ordinario")
+    INTERSEMESTRAL = "intersemestral", _("Intersemestral")
+    INTENSIVO = "intensivo", _("Intensivo")
+    OTRO = "otro", _("Otro")
+
+
+class PeriodoQuerySet(models.QuerySet):
+    def abiertos(self):
+        """Periodos en los que los estudiantes pueden registrar proyectos."""
+        return self.filter(abierto=True)
+
+
+class Periodo(models.Model):
+    """Periodo académico (spec 008, historia 2). Lo crea y lo abre o cierra el admin desde la app.
+
+    El nombre es libre ("2026-2", "Intensivo noviembre 2026"); la fecha de inicio sirve para
+    ordenar del más reciente al más antiguo. Un periodo con proyectos no se borra: se cierra.
+    """
+
+    nombre = models.CharField(_("nombre"), max_length=60, unique=True)
+    slug = models.SlugField(_("dirección"), max_length=70, unique=True, editable=False)
+    tipo = models.CharField(_("tipo"), max_length=15, choices=TipoPeriodo.choices, default=TipoPeriodo.ORDINARIO)
+    fecha_inicio = models.DateField(_("fecha de inicio"))
+    fecha_fin = models.DateField(_("fecha de fin"), null=True, blank=True)
+    abierto = models.BooleanField(
+        _("abierto para entregas"), default=True,
+        help_text=_("Si está abierto, los estudiantes pueden elegirlo al registrar un proyecto."),
+    )
+
+    objects = PeriodoQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = _("periodo académico")
+        verbose_name_plural = _("periodos académicos")
+        ordering = ["-fecha_inicio", "-id"]
+
+    def __str__(self):
+        return self.nombre
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self._slug_unico()
+        super().save(*args, **kwargs)
+
+    def _slug_unico(self):
+        base = slugify(self.nombre)[:60] or "periodo"
+        slug, n = base, 2
+        while Periodo.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+            slug, n = f"{base}-{n}", n + 1
+        return slug
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        if self.fecha_fin and self.fecha_inicio and self.fecha_fin < self.fecha_inicio:
+            raise ValidationError({"fecha_fin": _("La fecha de fin no puede ser anterior a la de inicio.")})
+
+
 # --------------------------------------------------------------------------- Proyecto
 
 
@@ -100,7 +160,7 @@ class ProyectoQuerySet(models.QuerySet):
 
     def con_relaciones(self):
         """Trae asignatura, tecnologías, autores e imágenes sin consultas extra por proyecto."""
-        return self.select_related("asignatura").prefetch_related("tecnologias", "autores", "imagenes")
+        return self.select_related("asignatura", "periodo").prefetch_related("tecnologias", "autores", "imagenes")
 
 
 class Proyecto(models.Model):
@@ -109,7 +169,7 @@ class Proyecto(models.Model):
     resumen = models.CharField(_("resumen"), max_length=300, help_text=_("Una o dos frases. Aparece en las tarjetas."))
     descripcion = models.TextField(_("descripción"))
     asignatura = models.ForeignKey(Asignatura, verbose_name=_("asignatura"), on_delete=models.PROTECT, related_name="proyectos")
-    periodo = models.CharField(_("periodo"), max_length=6, validators=[validar_periodo])
+    periodo = models.ForeignKey(Periodo, verbose_name=_("periodo"), on_delete=models.PROTECT, related_name="proyectos")
     tecnologias = models.ManyToManyField(Tecnologia, verbose_name=_("tecnologías"), related_name="proyectos")
     repositorio = models.URLField(_("repositorio"), validators=[validar_url_web])
     demo = models.URLField(_("demo en línea"), blank=True, validators=[validar_url_web])

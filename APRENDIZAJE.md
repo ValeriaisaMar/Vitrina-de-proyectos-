@@ -552,3 +552,152 @@ campo aparece bloqueado para quien no es el creador; el resto del proyecto lo si
 **Concepto:** `field.disabled = True` en un formulario de Django no solo desactiva el control en
 el HTML: Django ignora lo que llegue en el POST para ese campo y usa el valor inicial, así que
 tampoco sirve modificar la petición a mano.
+
+### Proyectos · un coautor puede salir del proyecto
+**Qué:** en Mis proyectos, un coautor tiene el enlace "Salir". Pide confirmación, lo quita del
+proyecto y le avisa por correo al creador. El creador sigue quitando a cualquiera desde el campo
+Coautores al editar.
+**Reglas y por qué:**
+- Solo mientras el proyecto se puede editar (Borrador o Con observaciones). Después de enviado,
+  la lista de autores es parte de lo que el docente revisa y de lo que el certificado garantiza;
+  si cambiara, un certificado ya entregado mostraría otros nombres en la página de verificación.
+- El creador no puede salir: el proyecto se quedaría sin dueño. Si ya no lo quiere, lo elimina.
+- Es un botón aparte con su propia confirmación, no borrar tu correo del campo Coautores: una
+  acción que te deja sin acceso no debe pasar por accidente al editar otra cosa.
+- El correo al creador se envía después de guardar; si falla, la salida igual queda hecha.
+**Concepto:** las reglas de "quién puede" viven en `proyectos/permisos.py` (`puede_salir`) y las
+usan tanto la vista (403) como la plantilla (mostrar el enlace).
+
+### Proyectos · transferir el proyecto a un coautor
+**Qué:** en Mis proyectos, el creador tiene el enlace "Transferir". Elige a un coautor, ese pasa
+a ser el creador y el anterior queda como coautor (si quiere irse, después usa "Salir"). Se le
+avisa por correo al nuevo creador.
+**Reglas:** solo el creador, solo en Borrador o Con observaciones (las mismas reglas que "Salir")
+y solo a coautores con cuenta activa. Siempre hay exactamente un creador.
+**Conceptos:**
+- El dueño no es un campo de Proyecto sino `Autoria.es_creador`. Transferir es cambiar dos filas:
+  quitar la marca a una y ponérsela a otra. Por eso van dentro de `transaction.atomic()`: o
+  cambian las dos o ninguna, y nunca queda un proyecto con cero o dos creadores.
+- `select_for_update()` bloquea esas filas mientras dura la transacción. Si el creador manda el
+  formulario dos veces seguidas, la segunda petición espera y luego ve que ya no es el creador.
+- `ModelChoiceField` solo acepta valores de su `queryset`: si alguien manda en el POST el id de
+  una persona que no es coautora, el formulario lo rechaza sin que escribamos esa validación.
+
+---
+
+## Spec 008 · Ajustes pedidos por el profesor
+
+### Historia 1 · Una persona puede tener varios roles y elige con cuál entrar
+**Qué:** antes `Usuario.rol` era un solo campo. Ahora cada rol que tiene una persona es una fila de
+`RolAsignado` (estudiante, profesor, admin) y en la sesión se guarda con cuál está actuando: el
+**rol activo**. Quien tiene más de uno ve "Entrar como" en el menú de su cuenta; el rol activo
+siempre se ve en el encabezado. En el perfil, "Mis roles" dice desde cuándo tiene cada uno.
+**Reglas y por qué:**
+- Lo que ves y puedes hacer depende del rol activo, no de todos tus roles juntos. Así una
+  profesora que también es estudiante no mezcla sus proyectos con la bandeja de revisión, y un
+  admin sabe cuándo está actuando con más permisos.
+- Toda cuenta conserva al menos un rol y nunca se le quita el rol admin al último admin activo:
+  si no, la plataforma podría quedarse sin nadie que gestione usuarios.
+- Conflicto de interés: quien actúa como profesor o admin no revisa un proyecto del que es autor.
+  Su proyecto no aparece en su bandeja y, si llega a la ficha de revisión, ve el motivo.
+- Cada rol dado o quitado queda en `CambioRol` con quién lo hizo y cuándo.
+**Conceptos de Django:**
+- **Relación uno a muchos en vez de un campo con opciones.** `RolAsignado` tiene una
+  `ForeignKey` al usuario y `UniqueConstraint(usuario, rol)`: la base de datos garantiza que nadie
+  tenga el mismo rol dos veces.
+- **Middleware** (`config/middleware.py`): código que corre en cada petición antes de la vista.
+  `RolActivoMiddleware` lee el rol de la sesión, comprueba que la persona todavía lo tenga y lo
+  deja en `request.user.rol_activo`. La sesión nunca se cree a ciegas: si alguien la manipula o
+  un admin le quitó ese rol, se usa su rol por defecto.
+- **Procesador de contexto** (`config/contexto.py:roles`): entrega `rol_activo` y
+  `roles_disponibles` a todas las plantillas sin pasarlos en cada vista.
+- **Migración de datos en tres pasos** (cuentas 0002–0004): 1) crear las tablas nuevas, 2)
+  `RunPython` copia el rol de cada usuario a `RolAsignado`, 3) borrar el campo viejo. Cada paso
+  tiene su vuelta atrás: al revertir, `Usuario.rol` recibe el rol de mayor privilegio.
+- **`prefetch_related("roles_asignados")`** en la lista de usuarios: las etiquetas de rol de 20
+  personas llegan en una sola consulta extra, no en 20.
+- Un **servicio único** (`cuentas/roles.py`), como `cambiar_estado`: las reglas viven en un solo
+  lugar y se cumplen se cambie el rol desde la web, el admin de Django o una prueba.
+
+### Historia 2 · El admin administra los periodos académicos
+**Qué:** el periodo dejó de ser un texto "AAAA-1/AAAA-2" y ahora es el modelo `Periodo` (nombre
+libre, tipo, fechas y si está abierto para entregas). El admin lo gestiona en Mi panel →
+Periodos académicos. Al crear un proyecto solo se eligen periodos abiertos; Explorar filtra con
+un slug legible (`?periodo=intensivo-noviembre-2026`).
+**Reglas y por qué:**
+- Un periodo con proyectos no se borra (`on_delete=PROTECT`): se cierra. Borrarlo dejaría
+  proyectos aprobados, con certificado, sin periodo.
+- Si editas un proyecto cuyo periodo ya cerró, lo conservas como opción: cerrar un periodo no
+  debe obligar a cambiar proyectos viejos.
+**Conceptos de Django:**
+- **Pasar de `CharField` a `ForeignKey` sin perder datos** (proyectos 0005–0007): campo nuevo
+  nulo → `RunPython` crea un `Periodo` por cada texto distinto y lo asigna → quitar el texto y
+  renombrar. Antes de quitarlo se le pone un valor por defecto: así, al revertir, Django puede
+  volver a crear la columna en una tabla que ya tiene filas.
+- **`ModelChoiceField(to_field_name="slug")`**: el formulario de filtros recibe el slug en la URL
+  y devuelve el objeto `Periodo`.
+- **Unir querysets con `|`**: periodos abiertos `|` el periodo actual del proyecto.
+- Una migración vieja importa `validar_periodo` y las migraciones existentes no se tocan: la
+  función se conserva, documentada, solo para esa migración.
+
+### Historia 3 · El admin configura desde la app el correo que envía los mensajes
+**Qué:** página "Correo de envío" (solo admin): servidor, puerto, seguridad, usuario,
+contraseña de aplicación y remitente, con configuración rápida para Gmail y Outlook, botón
+"Probar configuración" y una tarjeta de estado. Sin configuración guardada, todo funciona como
+antes (`.env` o consola).
+**Reglas y por qué:**
+- La contraseña se guarda **cifrada** y nunca se vuelve a mostrar; dejar el campo vacío la
+  conserva. Quien vea la base de datos (o una copia de seguridad) no puede leerla sin `CLAVE_CIFRADO`.
+- "Probar" usa lo escrito sin guardarlo y tiene límite de intentos (`cuentas/limite.py`): así no
+  se puede usar la página para probar contraseñas a lo bruto.
+- Los errores se traducen a mensajes claros (credenciales rechazadas, servidor que no responde,
+  problema TLS/SSL) y nunca muestran el detalle técnico.
+**Conceptos:**
+- **Cifrado simétrico con Fernet** (`cryptography`): la misma clave cifra y descifra, y detecta
+  si el texto fue alterado. La clave vive en el `.env`, no en la base.
+- **`MAILERS` de Django 6.1**: cada entrada dice qué clase envía (`BACKEND`) y con qué opciones.
+  Escribimos un backend propio (`config/correo.py`) que en cada envío elige entre la configuración
+  de la app y el respaldo del `.env`, y delega en el backend SMTP de Django.
+- **Caché con invalidación**: la configuración se lee de la caché; `ConfiguracionCorreo.save()`
+  borra la clave para que el siguiente correo use los datos nuevos.
+- **Singleton**: `save()` fija `pk = 1`, así siempre hay una sola fila de configuración.
+- **Pruebas sin servidor real**: `override_settings(MAILERS=...)` con el backend en memoria y
+  `mock.patch` sobre `send_messages` para simular respuestas y errores SMTP.
+
+### Historia 4 · Comentarios: etiqueta de autor y respuestas del autor
+**Qué:** el comentario de un autor del proyecto lleva la etiqueta amarilla "Autor" y se destaca
+con un borde verde grueso. Los autores responden comentarios (un solo nivel, con sangría). Si
+quien comenta es el docente que revisó el proyecto, lleva "Docente revisor". Cuando un autor
+responde, se avisa por correo a quien comentó.
+**Reglas y por qué:**
+- Solo los autores responden: la conversación es entre el público y quienes hicieron el proyecto.
+- No se responde a una respuesta: con un nivel la página se lee fácil en el celular.
+- Ocultar un comentario oculta su hilo: las respuestas sin la pregunta no tienen sentido.
+- La etiqueta lleva texto, no solo color, para quien no distingue colores.
+**Conceptos de Django:**
+- **`ForeignKey("self")`**: un comentario apunta a otro comentario de la misma tabla.
+- **Validación en el modelo** con `clean()` y `full_clean()`: la regla de un solo nivel vale
+  aunque alguien arme el POST a mano.
+- **`Prefetch("respuestas", queryset=..., to_attr="hilo")`**: las respuestas de todos los
+  comentarios llegan en una sola consulta, ya filtradas y ordenadas. Los ids de los autores se
+  calculan una vez. Una prueba comprueba que más comentarios no significan más consultas (sin N+1).
+
+### Historia 5 · Identidad visual completa
+**Qué:** favicon, ícono de iPhone, manifest y vista previa al compartir en todas las páginas;
+logo verde en modo claro y blanco en modo oscuro; sellos de la Facultad y de la Carrera en el
+pie, en entrar/registro/recuperar y en la verificación; logo y sellos en el certificado PDF; logo
+en los correos HTML y en la página 500. Al compartir un proyecto aprobado por WhatsApp sale su
+título, su resumen y su portada.
+**Conceptos:**
+- **`<picture>`** con `<source type="image/webp">` y un `<img>` PNG de respaldo: el navegador
+  elige el formato más liviano que entienda.
+- **`width` y `height` en las imágenes**: el navegador reserva el espacio antes de descargarlas
+  y la página no "salta" al cargar.
+- **Open Graph** (`og:title`, `og:image`…): metadatos que leen WhatsApp, LinkedIn o Facebook para
+  armar la tarjeta. La imagen necesita una URL absoluta (`request.build_absolute_uri`).
+- **Correos**: los programas de correo no entienden rutas relativas, por eso el logo usa
+  `SITIO_URL` o la dirección de la petición. En la recuperación de contraseña, Django ya entrega
+  `protocol` y `domain` a la plantilla.
+- **La página 500 no usa procesadores de contexto** (puede que el error venga de ellos): el logo
+  se pide con `{% static %}` directo.
+- **reportlab no lee webp ni SVG**: el certificado usa las versiones PNG grandes de `static/img/marca/`.

@@ -7,7 +7,7 @@ from django.test import TestCase
 from cuentas.tests.utilidades import crear_usuario
 from proyectos.models import Asignatura, Estado, Proyecto, Tecnologia
 from proyectos.tests.utilidades import crear_proyecto, pdf
-from proyectos.validadores import validar_imagen, validar_pdf, validar_periodo, validar_url_web
+from proyectos.validadores import validar_imagen, validar_pdf, validar_url_web
 
 
 class DatosInicialesTests(TestCase):
@@ -89,8 +89,9 @@ class ValidadoresTests(TestCase):
             with self.assertRaises(ValidationError, msg=malo):
                 validar_url_web(malo)
 
-    def test_periodo(self):
-        validar_periodo("2026-2")
-        for malo in ("2026", "2026-3", "26-1", "2026-1x"):
-            with self.assertRaises(ValidationError, msg=malo):
-                validar_periodo(malo)
+    def test_el_periodo_ya_no_tiene_formato_fijo(self):
+        """Spec 008: el periodo es un modelo con nombre libre; validar_periodo solo queda para la migración 0001."""
+        from proyectos.models import Periodo, Proyecto
+
+        self.assertEqual(Proyecto._meta.get_field("periodo").related_model, Periodo)
+        self.assertEqual(Proyecto._meta.get_field("periodo").validators, [])

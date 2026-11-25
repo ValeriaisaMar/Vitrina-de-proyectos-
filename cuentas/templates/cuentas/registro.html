@@ -6,6 +6,7 @@
 {% block panel_texto %}{% translate "Crea tu cuenta con tu correo. Te enviaremos un enlace para activarla y listo: ya puedes subir tus proyectos." %}{% endblock %}
 
 {% block formulario %}
+{% include "cuentas/_sello.html" %}
 {% include "cuentas/_pestanas.html" with activa="registro" %}
 
 <div class="tarjeta-sobria p-6 sm:p-8">

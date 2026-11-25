@@ -4,6 +4,7 @@
 {% block titulo %}{% translate "Enlace no válido" %}{% endblock %}
 
 {% block tarjeta %}
+{% include "cuentas/_sello.html" %}
 <span class="insignia insignia-rechazado">{% translate "Enlace no válido" %}</span>
 <h1 class="mt-5 text-3xl font-extrabold">{% translate "Este enlace ya no sirve" %}</h1>
 <p class="mt-4 leading-relaxed text-texto-suave">{% translate "Puede que ya lo hayas usado, que hayan pasado más de 24 horas o que esté incompleto. Si tu cuenta ya está activa, solo inicia sesión." %}</p>

@@ -16,6 +16,8 @@ def rol_requerido(*roles):
     - Sin sesión: redirige a iniciar sesión y, al entrar, vuelve a la página pedida.
     - Con sesión pero sin el rol: responde 403 ("No tienes permiso").
 
+    Se compara con el ROL ACTIVO (spec 008): quien tiene los roles estudiante y admin pero está
+    actuando como estudiante no entra a las páginas de admin hasta que cambie de rol.
     La comprobación ocurre en el servidor, así que conocer la URL no basta para entrar.
     """
     if not roles:
@@ -26,7 +28,7 @@ def rol_requerido(*roles):
         def envoltura(request, *args, **kwargs):
             if not request.user.is_authenticated:
                 return redirect_to_login(request.get_full_path())
-            if request.user.rol not in roles:
+            if request.user.rol_activo not in roles:
                 raise PermissionDenied
             return vista(request, *args, **kwargs)
 

@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}{% translate "Vitrina de Proyectos" %}{% endblock %} · UTEQ</title>
   <meta name="description" content="{% translate 'Proyectos de Ingeniería de Software de la UTEQ, revisados por docentes y verificables con un QR.' %}">
-  <meta name="theme-color" content="#025a27">
+  {# Favicon, ícono de iPhone, manifest, theme-color y vista previa al compartir (spec 008) #}
+  {% include "parciales/iconos.html" %}
 
   {# Aplica el tema antes de pintar para que no haya destello: elección guardada o, si no hay, la del sistema. #}
   <script>

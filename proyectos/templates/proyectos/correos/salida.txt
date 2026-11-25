@@ -1,0 +1,10 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with creador=creador.nombres %}Hola, {{ creador }}:{% endblocktranslate %}
+
+{% blocktranslate with nombre=coautor.nombre_completo correo=coautor.email titulo=proyecto.titulo %}{{ nombre }} ({{ correo }}) dejó de ser coautor de «{{ titulo }}».{% endblocktranslate %}
+
+{% translate "Si fue un error, puedes volver a agregarle desde Editar proyecto, en el campo Coautores." %}
+
+{% translate "Ver el proyecto:" %} {{ enlace }}
+
+{% translate "Vitrina de Proyectos · UTEQ" %}
+{% endautoescape %}

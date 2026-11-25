@@ -8,7 +8,7 @@ bandeja de la web. El historial se ve aquí, pero no se puede editar ni borrar.
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from proyectos.models import Asignatura, Autoria, Consecutivo, Estado, EventoEstado, Imagen, Proyecto, Tecnologia
+from proyectos.models import Asignatura, Autoria, Consecutivo, Estado, EventoEstado, Imagen, Periodo, Proyecto, Tecnologia
 
 
 @admin.register(Asignatura)
@@ -16,6 +16,16 @@ class AsignaturaAdmin(admin.ModelAdmin):
     list_display = ("nombre", "semestre", "activa")
     list_filter = ("semestre", "activa")
     list_editable = ("activa",)
+    search_fields = ("nombre",)
+
+
+@admin.register(Periodo)
+class PeriodoAdmin(admin.ModelAdmin):
+    """También se gestionan desde la app (Mi panel → Periodos)."""
+
+    list_display = ("nombre", "tipo", "fecha_inicio", "fecha_fin", "abierto")
+    list_filter = ("tipo", "abierto")
+    list_editable = ("abierto",)
     search_fields = ("nombre",)
 
 
@@ -62,6 +72,7 @@ class EventoEnLinea(SoloLectura, admin.TabularInline):
 class ProyectoAdmin(admin.ModelAdmin):
     list_display = ("titulo", "estado", "asignatura", "periodo", "actualizado_en")
     list_filter = ("estado", "periodo", "asignatura__semestre")
+    list_select_related = ("asignatura", "periodo")
     search_fields = ("titulo", "resumen", "autores__email", "autores__nombres", "autores__apellidos")
     readonly_fields = ("slug", "estado", "revisor", "codigo", "aprobado_en", "creado_en", "actualizado_en")
     filter_horizontal = ("tecnologias",)

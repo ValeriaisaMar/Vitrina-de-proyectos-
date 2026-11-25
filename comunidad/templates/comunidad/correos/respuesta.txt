@@ -1,0 +1,10 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with nombre=comentario.autor.nombres %}Hola, {{ nombre }}:{% endblocktranslate %}
+
+{% blocktranslate with autor=respuesta.autor.nombre_completo titulo=proyecto.titulo %}{{ autor }}, autor de «{{ titulo }}», respondió tu comentario:{% endblocktranslate %}
+
+{{ respuesta.texto }}
+
+{% translate "Ver la conversación:" %} {{ enlace }}
+
+{% translate "Vitrina de Proyectos · UTEQ" %}
+{% endautoescape %}

@@ -13,4 +13,5 @@ urlpatterns = [
     path("proyecto/<slug:slug>/comentar/", views.comentar, name="comentar"),
     path("comentario/<int:pk>/ocultar/", views.ocultar, name="ocultar"),
     path("comentario/<int:pk>/borrar/", views.borrar, name="borrar"),
+    path("comentario/<int:pk>/responder/", views.responder, name="responder"),
 ]

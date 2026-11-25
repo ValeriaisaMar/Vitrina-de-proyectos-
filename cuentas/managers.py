@@ -21,28 +21,34 @@ class UsuarioManager(BaseUserManager):
         """Busca al usuario sin distinguir mayúsculas. La usa el inicio de sesión."""
         return self.get(email__iexact=self.normalizar_correo(email))
 
-    def _crear(self, email, password, **campos):
+    def _crear(self, email, password, roles, **campos):
+        from cuentas.models import RolAsignado  # import local para evitar un ciclo
+
         if not email:
             raise ValueError("El correo es obligatorio.")
         usuario = self.model(email=self.normalizar_correo(email), **campos)
         usuario.set_password(password)  # guarda la contraseña cifrada, nunca en texto plano
         usuario.save(using=self._db)
+        # Todo usuario tiene al menos un rol (spec 008)
+        for rol in dict.fromkeys(roles):  # sin repetidos, en el orden dado
+            RolAsignado.objects.using(self._db).create(usuario=usuario, rol=rol)
+        usuario.olvidar_roles()
         return usuario
 
-    def create_user(self, email, password=None, **campos):
-        """Crea una cuenta normal. El rol por defecto es estudiante."""
+    def create_user(self, email, password=None, rol=None, roles=None, **campos):
+        """Crea una cuenta normal. Por defecto con el rol estudiante.
+
+        Acepta un rol (rol="profesor") o varios (roles=["estudiante", "admin"]).
+        """
         campos.setdefault("is_staff", False)
         campos.setdefault("is_superuser", False)
-        return self._crear(email, password, **campos)
+        return self._crear(email, password, roles or [rol or "estudiante"], **campos)
 
-    def create_superuser(self, email, password=None, **campos):
-        """Crea un administrador con acceso al panel de Django y rol admin."""
-        from cuentas.models import Rol  # import local para evitar un ciclo
-
+    def create_superuser(self, email, password=None, rol=None, roles=None, **campos):
+        """Crea un administrador con acceso al panel de Django y el rol admin."""
         campos.setdefault("is_staff", True)
         campos.setdefault("is_superuser", True)
         campos.setdefault("is_active", True)
-        campos.setdefault("rol", Rol.ADMIN)
         if not campos["is_staff"] or not campos["is_superuser"]:
             raise ValueError("Un superusuario debe tener is_staff e is_superuser en True.")
-        return self._crear(email, password, **campos)
+        return self._crear(email, password, roles or [rol or "admin"], **campos)

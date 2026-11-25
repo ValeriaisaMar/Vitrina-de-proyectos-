@@ -6,21 +6,14 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from cuentas.models import Rol
-from proyectos.models import MAX_AUTORES, MAX_IMAGENES, MAX_TECNOLOGIAS, Asignatura, Estado, Imagen, Proyecto, Tecnologia
+from proyectos.models import MAX_AUTORES, MAX_IMAGENES, MAX_TECNOLOGIAS, Asignatura, Estado, Imagen, Periodo, Proyecto, Tecnologia
 from proyectos.validadores import validar_imagen
 
 Usuario = get_user_model()
 ROMANOS = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
-
-
-def opciones_de_periodo(desde=2020):
-    """Periodos académicos desde 2020 hasta el año siguiente, del más reciente al más antiguo."""
-    hasta = timezone.now().year + 1
-    return [(f"{a}-{s}", f"{a}-{s}") for a in range(hasta, desde - 1, -1) for s in (2, 1)]
 
 
 # ---------------------------------------------------------------- Varias imágenes en un campo
@@ -73,7 +66,6 @@ class FormularioProyecto(forms.ModelForm):
             "resumen": forms.Textarea(attrs={"rows": 2, "maxlength": 300}),
             "descripcion": forms.Textarea(attrs={"rows": 8}),
             "tecnologias": forms.CheckboxSelectMultiple,
-            "periodo": forms.Select,
             "repositorio": forms.URLInput(attrs={"placeholder": "https://github.com/usuario/proyecto"}),
             "demo": forms.URLInput(attrs={"placeholder": "https://"}),
             "documento_pdf": forms.ClearableFileInput(attrs={"accept": "application/pdf"}),
@@ -103,7 +95,15 @@ class FormularioProyecto(forms.ModelForm):
         self.fields["tecnologias"].queryset = tecnologias.distinct()
         self.fields["asignatura"].widget.choices = self._asignaturas_por_semestre(asignaturas.distinct())
 
-        self.fields["periodo"].widget.choices = [("", "—")] + opciones_de_periodo()
+        # Solo periodos abiertos; al editar se conserva el actual aunque ya esté cerrado (spec 008)
+        periodos = Periodo.objects.abiertos()
+        if not es_nuevo:
+            periodos = periodos | Periodo.objects.filter(pk=self.instance.periodo_id)
+        self.fields["periodo"].queryset = periodos.distinct().order_by("-fecha_inicio", "-id")
+        self.fields["periodo"].empty_label = "—"
+        self.sin_periodos = not self.fields["periodo"].queryset.exists()
+        if self.sin_periodos:
+            self.fields["periodo"].help_text = _("No hay periodos abiertos para registrar proyectos. Avísale a la administración de la carrera.")
         self.fields["tecnologias"].help_text = _("Elige entre 1 y 8.")
 
         if es_nuevo:
@@ -117,7 +117,7 @@ class FormularioProyecto(forms.ModelForm):
             if usuario != creador:
                 # Solo el creador agrega o quita coautores; los demás autores ven la lista bloqueada
                 self.fields["coautores"].disabled = True
-                self.fields["coautores"].help_text = _("Solo quien creó el proyecto puede cambiar los coautores.")
+                self.fields["coautores"].help_text = _("Solo quien creó el proyecto puede cambiar los coautores. Si quieres dejar el proyecto, usa «Salir del proyecto» en Mis proyectos.")
 
     @staticmethod
     def _asignaturas_por_semestre(asignaturas):
@@ -155,7 +155,8 @@ class FormularioProyecto(forms.ModelForm):
             except ValidationError:
                 invalidos.append(correo)
                 continue
-            usuario = Usuario.objects.filter(email__iexact=correo, is_active=True, rol=Rol.ESTUDIANTE).first()
+            # Debe TENER el rol estudiante (aunque además sea profesor o admin)
+            usuario = Usuario.objects.filter(email__iexact=correo, is_active=True, roles_asignados__rol=Rol.ESTUDIANTE).first()
             if usuario is None:
                 sin_cuenta.append(correo)
             else:
@@ -239,6 +240,22 @@ class FormularioProyecto(forms.ModelForm):
 # ---------------------------------------------------------------- Revisión (módulo 004)
 
 
+class FormularioTransferir(forms.Form):
+    """El creador elige a cuál coautor le pasa el proyecto."""
+
+    nuevo_creador = forms.ModelChoiceField(
+        label=_("Nuevo creador"), queryset=Usuario.objects.none(), widget=forms.RadioSelect,
+        empty_label=None, error_messages={"required": _("Elige a quién le pasas el proyecto.")},
+    )
+
+    def __init__(self, *args, proyecto, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["nuevo_creador"].queryset = Usuario.objects.filter(
+            autorias__proyecto=proyecto, autorias__es_creador=False, is_active=True,
+        ).order_by("apellidos", "nombres")
+        self.fields["nuevo_creador"].label_from_instance = lambda u: f"{u.nombre_completo} · {u.email}"
+
+
 class FormularioEnvio(forms.Form):
     """Mensaje opcional del autor al enviar o reenviar el proyecto."""
 
@@ -272,3 +289,38 @@ class FormularioDecision(forms.Form):
         if datos.get("decision") in (Estado.CON_OBSERVACIONES, Estado.RECHAZADO) and not datos.get("comentario", "").strip():
             self.add_error("comentario", _("Escribe un comentario para explicar la decisión."))
         return datos
+
+
+# ---------------------------------------------------------------- Periodos académicos (spec 008)
+
+
+class FormularioPeriodo(forms.ModelForm):
+    """El admin crea o edita un periodo académico."""
+
+    class Meta:
+        model = Periodo
+        fields = ("nombre", "tipo", "fecha_inicio", "fecha_fin", "abierto")
+        widgets = {
+            "nombre": forms.TextInput(attrs={"placeholder": "2026-2 · Intensivo noviembre 2026"}),
+            "fecha_inicio": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+            "fecha_fin": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+        }
+        help_texts = {
+            "nombre": _("Como lo verán los estudiantes y la vitrina. Debe ser único."),
+            "fecha_inicio": _("Sirve para ordenar los periodos del más reciente al más antiguo."),
+            "fecha_fin": _("Opcional."),
+        }
+
+    def clean_nombre(self):
+        nombre = " ".join(self.cleaned_data["nombre"].split())
+        if Periodo.objects.filter(nombre__iexact=nombre).exclude(pk=self.instance.pk).exists():
+            raise ValidationError(_("Ya existe un periodo con ese nombre."))
+        return nombre
+
+    def save(self, commit=True):
+        periodo = super().save(commit=False)
+        if "nombre" in self.changed_data:
+            periodo.slug = ""  # se recalcula con el nombre nuevo
+        if commit:
+            periodo.save()
+        return periodo

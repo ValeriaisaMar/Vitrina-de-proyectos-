@@ -40,21 +40,28 @@ class UsuarioAdminTests(TestCase):
         editar = reverse("admin:cuentas_usuario_change", args=[self.estudiante.pk])
         self.assertEqual(self.client.get(editar).status_code, 200)
 
-    def test_el_admin_cambia_el_rol(self):
+    def test_el_admin_agrega_un_rol(self):
         editar = reverse("admin:cuentas_usuario_change", args=[self.estudiante.pk])
+        actual = self.estudiante.roles_asignados.get()
         respuesta = self.client.post(editar, {
-            "email": "maria@correo.com", "nombres": "María", "apellidos": "Vera",
-            "rol": Rol.PROFESOR, "is_active": "on",
+            "email": "maria@correo.com", "nombres": "María", "apellidos": "Vera", "is_active": "on",
             "fecha_registro_0": "2026-11-23", "fecha_registro_1": "10:00:00",
+            "roles_asignados-TOTAL_FORMS": "2", "roles_asignados-INITIAL_FORMS": "1",
+            "roles_asignados-MIN_NUM_FORMS": "0", "roles_asignados-MAX_NUM_FORMS": "1000",
+            "roles_asignados-0-id": str(actual.pk), "roles_asignados-0-usuario": str(self.estudiante.pk),
+            "roles_asignados-0-rol": Rol.ESTUDIANTE,
+            "roles_asignados-1-usuario": str(self.estudiante.pk), "roles_asignados-1-rol": Rol.PROFESOR,
         })
         self.assertEqual(respuesta.status_code, 302, getattr(respuesta, "context", None) and respuesta.context["adminform"].form.errors)
-        self.estudiante.refresh_from_db()
-        self.assertEqual(self.estudiante.rol, Rol.PROFESOR)
+        self.estudiante.olvidar_roles()
+        self.assertEqual(self.estudiante.roles, [Rol.ESTUDIANTE, Rol.PROFESOR])
 
     def test_el_admin_crea_un_usuario(self):
         respuesta = self.client.post(reverse("admin:cuentas_usuario_add"), {
-            "email": "Nuevo@Correo.com", "nombres": "Nuevo", "apellidos": "Usuario", "rol": Rol.ESTUDIANTE,
+            "email": "Nuevo@Correo.com", "nombres": "Nuevo", "apellidos": "Usuario",
+            "roles_asignados-TOTAL_FORMS": "0", "roles_asignados-INITIAL_FORMS": "0",
             "usable_password": "true", "password1": "una-clave-larga-123", "password2": "una-clave-larga-123",
         })
         self.assertEqual(respuesta.status_code, 302)
-        self.assertTrue(Usuario.objects.filter(email="nuevo@correo.com").exists())
+        nuevo = Usuario.objects.get(email="nuevo@correo.com")
+        self.assertEqual(nuevo.roles, [Rol.ESTUDIANTE])  # sin roles marcados, recibe el de estudiante

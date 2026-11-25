@@ -1,0 +1,29 @@
+{
+  "name": "Vitrina de Proyectos UTEQ",
+  "short_name": "Vitrina UTEQ",
+  "description": "Proyectos de la carrera de Software de la UTEQ, revisados y verificados por docentes.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#025a27",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/static/img/iconos/icono-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/iconos/icono-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/iconos/icono-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

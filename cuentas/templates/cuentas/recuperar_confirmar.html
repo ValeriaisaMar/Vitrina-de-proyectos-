@@ -4,6 +4,7 @@
 {% block titulo %}{% translate "Nueva contraseña" %}{% endblock %}
 
 {% block tarjeta %}
+{% include "cuentas/_sello.html" %}
 {% if validlink %}
   <h1 class="text-3xl font-extrabold">{% translate "Crea tu nueva contraseña" %}</h1>
   <form method="post" class="mt-8 flex flex-col gap-5" novalidate>

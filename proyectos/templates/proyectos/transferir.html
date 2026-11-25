@@ -1,0 +1,28 @@
+{% extends "cuentas/base_tarjeta.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Transferir proyecto" %}{% endblock %}
+
+{% block tarjeta %}
+<h1 class="text-3xl font-extrabold">{% blocktranslate with titulo=proyecto.titulo %}Pasar «{{ titulo }}» a un coautor{% endblocktranslate %}</h1>
+<p class="mt-4 leading-relaxed text-texto-suave">{% translate "La persona que elijas quedará como creadora: podrá cambiar los coautores, transferirlo de nuevo y eliminarlo mientras sea borrador. Tú sigues como coautor y puedes salir después si quieres." %}</p>
+<form method="post" class="mt-8 flex flex-col gap-6" novalidate>
+  {% csrf_token %}
+  <fieldset>
+    <legend class="campo-etiqueta">{{ form.nuevo_creador.label }}</legend>
+    <div class="mt-2 flex flex-col gap-2">
+      {% for opcion in form.nuevo_creador %}
+        <label class="flex cursor-pointer items-start gap-3 border-2 border-linea p-3 has-checked:bg-uteq-tinte has-checked:shadow-duro-verde dark:has-checked:bg-uteq-verde [&_input]:mt-0.5 [&_input]:h-5 [&_input]:w-5 [&_input]:shrink-0 [&_input]:accent-uteq-verde">
+          {{ opcion.tag }}
+          <span class="font-bold">{{ opcion.choice_label }}</span>
+        </label>
+      {% endfor %}
+    </div>
+    {% for error in form.nuevo_creador.errors %}<p class="campo-error">{{ error }}</p>{% endfor %}
+  </fieldset>
+  <div class="flex flex-wrap gap-4">
+    <button type="submit" class="btn btn-primario">{% translate "Transferir proyecto" %}</button>
+    <a href="{% url 'proyectos:mis_proyectos' %}" class="btn btn-secundario">{% translate "Cancelar" %}</a>
+  </div>
+</form>
+{% endblock %}

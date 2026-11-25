@@ -18,3 +18,30 @@ class EspanolPorDefectoMiddleware:
     def __call__(self, request):
         request.META.pop("HTTP_ACCEPT_LANGUAGE", None)
         return self.get_response(request)
+
+
+class RolActivoMiddleware:
+    """Fija en cada petición el rol con el que actúa la persona: request.user.rol_activo (spec 008).
+
+    El rol activo se guarda en la sesión. Antes de usarlo se comprueba que la persona todavía lo
+    tenga: si alguien manipula la sesión con un rol ajeno, o un admin le quitó el rol que tenía
+    activo, se ignora y se usa su rol por defecto (el último que usó o el de menor privilegio).
+
+    Debe ir en MIDDLEWARE después de AuthenticationMiddleware (necesita request.user).
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from cuentas.roles import CLAVE_SESION  # import local: este módulo se carga antes que las apps
+
+        usuario = request.user
+        if usuario.is_authenticated:
+            guardado = request.session.get(CLAVE_SESION)
+            if guardado and usuario.tiene_rol(guardado):
+                usuario.rol_activo = guardado
+            else:
+                usuario.rol_activo = usuario.rol_por_defecto()
+                request.session[CLAVE_SESION] = usuario.rol_activo
+        return self.get_response(request)

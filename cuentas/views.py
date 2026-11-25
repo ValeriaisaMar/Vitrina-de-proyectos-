@@ -19,10 +19,13 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_de
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
+from cuentas import correo_envio as correo_envio_servicio
 from cuentas import limite
-from cuentas.decoradores import rol_requerido
+from cuentas.cifrado import descifrar, hay_clave
 from cuentas.correos import enviar_activacion
+from cuentas.decoradores import rol_requerido
 from cuentas.forms import (
+    FormularioCorreoEnvio,
     FormularioEntrar,
     FormularioFiltroUsuarios,
     FormularioGestionUsuario,
@@ -30,7 +33,8 @@ from cuentas.forms import (
     FormularioRegistro,
     FormularioReenvio,
 )
-from cuentas.models import Rol
+from cuentas.models import ConfiguracionCorreo, Rol
+from cuentas.roles import activar_rol
 from cuentas.tokens import token_activacion
 
 Usuario = get_user_model()
@@ -165,7 +169,10 @@ def perfil(request):
         form.save()
         messages.success(request, _("Guardamos los cambios de tu perfil."))
         return redirect("cuentas:perfil")
-    return render(request, "cuentas/perfil.html", {"form": form})
+    return render(request, "cuentas/perfil.html", {
+        "form": form,
+        "mis_roles": request.user.roles_asignados.order_by("asignado_en"),
+    })
 
 
 class CambiarContrasena(PasswordChangeView):
@@ -189,36 +196,129 @@ def usuarios(request):
     """Lista de cuentas con búsqueda y filtros, solo para admins."""
     form = FormularioFiltroUsuarios(request.GET or None)
     lista = form.filtrar(
-        Usuario.objects.annotate(total_proyectos=Count("autorias")).order_by("-fecha_registro")
-    )
+        Usuario.objects.annotate(total_proyectos=Count("autorias", distinct=True))
+        .prefetch_related("roles_asignados")  # las etiquetas de rol sin una consulta por fila
+        .order_by("-fecha_registro")
+    ).distinct()
     pagina = Paginator(lista, USUARIOS_POR_PAGINA).get_page(request.GET.get("pagina"))
     return render(request, "cuentas/usuarios.html", {"form": form, "pagina": pagina})
 
 
 @rol_requerido(Rol.ADMIN)
 def usuario_editar(request, pk):
-    """El admin cambia el rol o el estado de una cuenta. Cada cambio queda en el registro de acciones."""
+    """El admin da o quita roles y activa o desactiva una cuenta. Cada cambio queda registrado."""
     usuario = get_object_or_404(Usuario, pk=pk)
     form = FormularioGestionUsuario(request.POST or None, instance=usuario, editor=request.user)
     if request.method == "POST" and form.is_valid():
         if form.has_changed():
-            form.save()
-            # LogEntry es el registro de acciones que ya trae Django: se ve en /admin/
-            LogEntry.objects.log_actions(
-                user_id=request.user.pk, queryset=[usuario], action_flag=CHANGE,
-                change_message=form.resumen_cambios(), single_object=True,
-            )
+            resumen = form.guardar()
+            if resumen:
+                # LogEntry es el registro de acciones que ya trae Django: se ve en /admin/
+                LogEntry.objects.log_actions(
+                    user_id=request.user.pk, queryset=[usuario], action_flag=CHANGE,
+                    change_message=resumen, single_object=True,
+                )
             messages.success(request, _("Guardamos los cambios de %(nombre)s.") % {"nombre": usuario.nombre_completo})
+            if form.es_uno_mismo and not usuario.tiene_rol(Rol.ADMIN):
+                # Se quitó el rol admin: la gestión de usuarios ya no es para su rol
+                return redirect("vitrina:panel")
         return redirect("cuentas:usuarios")
 
     return render(request, "cuentas/usuario_editar.html", {
         "form": form,
         "usuario_editado": usuario,
         "es_uno_mismo": usuario.pk == request.user.pk,
-        # Si un profesor deja de serlo, sus proyectos en revisión los tendrá que decidir un admin
+        # Si deja de ser profesor, sus proyectos en revisión los tendrá que decidir un admin
         "en_revision": usuario.proyectos_revisados.filter(estado="en_revision").count(),
+        "cambios_de_rol": usuario.cambios_de_rol.select_related("hecho_por")[:8],
         "acciones": LogEntry.objects.filter(
             content_type__app_label="cuentas", content_type__model="usuario", object_id=str(usuario.pk)
         ).select_related("user")[:5],
     })
 
+
+# --------------------------------------------------------------------------- Cambiar de rol (spec 008)
+
+
+@login_required
+@require_POST
+def cambiar_rol(request):
+    """Cambia el rol con el que actúa la persona y la lleva al panel de ese rol.
+
+    Solo por POST con CSRF. Si pide un rol que no tiene, no cambia nada.
+    """
+    rol = request.POST.get("rol", "")
+    if activar_rol(request, rol):
+        messages.success(request, _("Ahora entras como %(rol)s.") % {"rol": Rol(rol).label})
+    else:
+        messages.error(request, _("No tienes ese rol."))
+    return redirect("vitrina:panel")
+
+
+
+# --------------------------------------------------------------------------- Correo de envío (spec 008)
+
+
+@rol_requerido(Rol.ADMIN)
+def correo_envio(request):
+    """El admin configura desde qué cuenta salen los correos y la prueba sin guardarla.
+
+    - "Guardar": guarda los datos (la contraseña, cifrada; vacía = se conserva la anterior).
+    - "Probar configuración": con los datos del formulario, sin guardarlos, envía un correo de
+      prueba al correo del admin. Tiene límite de intentos (cuentas/limite.py).
+    """
+    configuracion = ConfiguracionCorreo.actual()
+    inicial = {}
+    proveedor = request.GET.get("proveedor")
+    if request.method == "GET" and proveedor in correo_envio_servicio.PROVEEDORES:
+        # Configuración rápida sin JavaScript: ?proveedor=gmail llena servidor, puerto y seguridad
+        servidor, puerto, seguridad = correo_envio_servicio.PROVEEDORES[proveedor]
+        inicial = FormularioCorreoEnvio(configuracion=configuracion).initial | {"servidor": servidor, "puerto": puerto, "seguridad": seguridad}
+    form = FormularioCorreoEnvio(request.POST or None, configuracion=configuracion, **({"initial": inicial} if inicial else {}))
+    accion = request.POST.get("accion")
+    sin_clave_cifrado = not hay_clave()
+
+    if request.method == "POST" and form.is_valid():
+        datos = dict(form.cleaned_data)
+        if accion == "probar":
+            clave_limite, ip = f"prueba-correo:{request.user.pk}", limite.ip_de(request)
+            if limite.esta_bloqueado(clave_limite, ip):
+                messages.error(request, _("Hiciste varias pruebas seguidas. Espera unos minutos antes de intentar de nuevo."))
+            else:
+                limite.registrar_fallo(clave_limite, ip)  # cuenta cada prueba, salga bien o mal
+                if not datos["clave"]:
+                    datos["clave"] = _clave_guardada(configuracion)
+                ok, mensaje = correo_envio_servicio.probar(datos, request.user.email)
+                correo_envio_servicio.registrar_prueba(ok, mensaje)
+                (messages.success if ok else messages.error)(request, mensaje)
+            # Se vuelve a mostrar el formulario con lo escrito (sin la contraseña) para corregir o guardar
+            return render(request, "cuentas/correo_envio.html", _contexto_correo(form, configuracion, sin_clave_cifrado))
+
+        if datos["clave"] and sin_clave_cifrado:
+            messages.error(request, _("No se puede guardar la contraseña: falta la variable CLAVE_CIFRADO en el archivo .env del servidor."))
+        else:
+            correo_envio_servicio.guardar(datos, request.user, configuracion)
+            messages.success(request, _("Guardamos la configuración de correo. Los próximos correos saldrán desde esta cuenta."))
+            return redirect("cuentas:correo_envio")
+
+    return render(request, "cuentas/correo_envio.html", _contexto_correo(form, configuracion, sin_clave_cifrado))
+
+
+def _clave_guardada(configuracion):
+    """La contraseña guardada, descifrada, para probar sin volver a escribirla. "" si no hay."""
+    if not configuracion or not configuracion.tiene_clave:
+        return ""
+    try:
+        return descifrar(configuracion.clave_cifrada)
+    except Exception:  # sin CLAVE_CIFRADO o clave cambiada: la prueba fallará con un mensaje claro
+        return ""
+
+
+def _contexto_correo(form, configuracion, sin_clave_cifrado):
+    return {
+        "form": form,
+        "configuracion": configuracion,
+        "sin_clave_cifrado": sin_clave_cifrado,
+        "proveedores": correo_envio_servicio.PROVEEDORES,
+        "remitente_env": settings.EMAIL_REMITENTE,
+    }
