@@ -28,6 +28,12 @@ class PortadaTests(TestCase):
     def test_inicio_marcado_como_pagina_actual(self):
         self.assertContains(self.respuesta, 'aria-current="page"')
 
+    def test_enlace_como_funciona_preparado_para_marcarse(self):
+        """tema.js necesita data-nav y la clase activa en ambos enlaces, en el menú de escritorio y en el móvil."""
+        self.assertContains(self.respuesta, 'data-nav="inicio"', count=2)
+        self.assertContains(self.respuesta, 'data-nav="como-funciona"', count=2)
+        self.assertContains(self.respuesta, 'data-clase-activa="text-acento"', count=2)
+
     def test_secciones_de_la_portada(self):
         self.assertContains(self.respuesta, 'id="titulo-portada"')
         self.assertContains(self.respuesta, 'id="como-funciona"')

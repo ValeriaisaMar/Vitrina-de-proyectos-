@@ -510,3 +510,21 @@ puede aparecer varias veces antes del `distinct()`. `Count("me_gustas", distinct
 personas distintas, no filas repetidas. Hay una prueba que busca por tecnología justo para
 comprobar que el conteo no se infla.
 
+---
+
+## Correcciones
+
+### Menú · "Cómo funciona" se marcaba como "Inicio"
+**Qué:** en la portada, el menú marca "Cómo funciona" mientras esa sección está a la vista.
+**Por qué:** "Cómo funciona" no es otra página sino un ancla (`/#como-funciona`). El navegador
+nunca envía la parte `#...` al servidor, así que Django solo sabe que estás en la portada y marca
+"Inicio". Lo que pasa dentro de una misma página solo lo puede saber el navegador.
+**Conceptos:**
+- **`IntersectionObserver`** avisa cuando un elemento entra o sale de la pantalla, sin escuchar
+  cada movimiento del scroll. Con `rootMargin: "-50% 0px -50% 0px"` la zona observada es solo la
+  línea central de la pantalla.
+- **Atributos `data-*`:** la plantilla deja en cada enlace su clase activa (`data-clase-activa`),
+  así el JavaScript no repite clases de Tailwind y sirve igual para el menú de escritorio y el móvil.
+- `aria-current="location"` le dice al lector de pantalla que esa es la sección actual dentro de
+  la página (`"page"` es para la página completa).
+- **Mejora progresiva:** sin JavaScript todo sigue funcionando; solo se pierde el resaltado.
