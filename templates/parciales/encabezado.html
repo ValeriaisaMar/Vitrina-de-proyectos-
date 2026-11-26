@@ -29,8 +29,19 @@ botón de menú accesible (aria-expanded, foco, Esc, clic fuera).
       </span>
     </a>
 
-    <nav aria-label="{% translate 'Principal' %}">
-      <a href="{% url 'vitrina:explorar' %}" class="flex min-h-11 items-center gap-2 border-2 px-2.5 text-sm font-bold sm:px-3 {% if actual == 'explorar' %}border-linea bg-uteq-tinte text-uteq-verde dark:bg-uteq-verde dark:text-white{% else %}border-transparent hover:border-linea{% endif %}" {% if actual == 'explorar' %}aria-current="page"{% endif %}>
+    {# Inicio: con sesión lleva al panel del rol activo; al visitante, a la portada #}
+    <nav aria-label="{% translate 'Principal' %}" class="flex items-center gap-1 sm:gap-2">
+      {% if user.is_authenticated %}{% url 'vitrina:panel' as url_inicio %}{% else %}{% url 'vitrina:inicio' as url_inicio %}{% endif %}
+      {% if user.is_authenticated and actual == 'panel' or not user.is_authenticated and actual == 'inicio' %}
+      <a href="{{ url_inicio }}" class="flex min-h-11 items-center gap-2 border-2 border-linea bg-uteq-tinte px-2.5 text-sm font-bold text-uteq-verde sm:px-3 dark:bg-uteq-verde dark:text-white" aria-current="page">
+        {% icono "home" %}<span class="max-sm:sr-only">{% translate "Inicio" %}</span>
+      </a>
+      {% else %}
+      <a href="{{ url_inicio }}" class="flex min-h-11 items-center gap-2 border-2 border-transparent px-2.5 text-sm font-bold hover:border-linea hover:bg-uteq-tinte sm:px-3 dark:hover:bg-uteq-verde/40">
+        {% icono "home" %}<span class="max-sm:sr-only">{% translate "Inicio" %}</span>
+      </a>
+      {% endif %}
+      <a href="{% url 'vitrina:explorar' %}" class="flex min-h-11 items-center gap-2 border-2 px-2.5 text-sm font-bold sm:px-3 {% if actual == 'explorar' %}border-linea bg-uteq-tinte text-uteq-verde dark:bg-uteq-verde dark:text-white{% else %}border-transparent hover:border-linea hover:bg-uteq-tinte dark:hover:bg-uteq-verde/40{% endif %}" {% if actual == 'explorar' %}aria-current="page"{% endif %}>
         {% icono "compass" %}<span class="max-sm:sr-only">{% translate "Explorar" %}</span>
       </a>
     </nav>
@@ -39,15 +50,15 @@ botón de menú accesible (aria-expanded, foco, Esc, clic fuera).
     <form action="{% url 'vitrina:explorar' %}" method="get" role="search" class="hidden min-w-0 flex-1 md:flex md:max-w-md">
       <label for="buscar-encabezado" class="sr-only">{% translate "Buscar proyectos o personas" %}</label>
       <input id="buscar-encabezado" type="search" name="q" value="{% if actual == 'explorar' %}{{ request.GET.q }}{% endif %}" placeholder="{% translate 'Buscar proyectos o personas' %}" class="campo-control min-h-11 min-w-0 flex-1 border-r-0">
-      <button type="submit" class="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-linea bg-superficie" aria-label="{% translate 'Buscar' %}">{% icono "search" %}</button>
+      <button type="submit" class="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-linea bg-superficie hover:bg-uteq-tinte dark:hover:bg-uteq-verde/40" aria-label="{% translate 'Buscar' %}">{% icono "search" %}</button>
     </form>
-    <a href="{% url 'vitrina:explorar' %}" class="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-linea bg-superficie md:hidden" aria-label="{% translate 'Buscar' %}">{% icono "search" %}</a>
+    <a href="{% url 'vitrina:explorar' %}" class="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-linea bg-superficie hover:bg-uteq-tinte md:hidden dark:hover:bg-uteq-verde/40" aria-label="{% translate 'Buscar' %}">{% icono "search" %}</a>
 
     <div class="ml-auto flex items-center gap-2">
       {% if user.is_authenticated %}
         <div class="relative" data-menu-desplegable>
           <a href="{% url 'cuentas:mi_cuenta' %}" data-menu-boton aria-haspopup="true" aria-controls="menu-cuenta"
-             class="flex min-h-11 items-center gap-2 border-2 border-linea bg-superficie py-1 pl-1 pr-2 font-bold">
+             class="flex min-h-11 items-center gap-2 border-2 border-linea bg-superficie py-1 pl-1 pr-2 font-bold hover:bg-uteq-tinte dark:hover:bg-uteq-verde/40">
             {% include "parciales/avatar.html" with perfil=user.perfil tam="h-9 w-9" texto="text-sm" %}
             <span class="hidden max-w-[10rem] truncate text-sm lg:inline">{{ user.nombres }}</span>
             <span class="insignia-rol {% if rol_activo == 'admin' %}insignia-rol-admin{% endif %} hidden sm:inline-flex"><span class="sr-only">{% translate "Rol activo:" %} </span>{{ rol_activo_etiqueta }}</span>
@@ -63,7 +74,7 @@ botón de menú accesible (aria-expanded, foco, Esc, clic fuera).
         <a href="{% url 'cuentas:entrar' %}" class="btn btn-fantasma gap-2 px-2.5 sm:px-3">{% icono "login" tam=18 %}<span class="max-sm:sr-only">{% translate "Entrar" %}</span></a>
         <a href="{% url 'cuentas:registro' %}" class="btn btn-primario hidden gap-2 sm:inline-flex">{% icono "user-plus" tam=18 %}{% translate "Registrarse" %}</a>
         <details class="relative" data-menu>
-          <summary class="flex h-11 w-11 cursor-pointer list-none items-center justify-center border-2 border-linea bg-superficie" aria-label="{% translate 'Tema e idioma' %}">{% icono "settings" %}</summary>
+          <summary class="flex h-11 w-11 cursor-pointer list-none items-center justify-center border-2 border-linea bg-superficie hover:bg-uteq-tinte dark:hover:bg-uteq-verde/40" aria-label="{% translate 'Tema e idioma' %}">{% icono "settings" %}</summary>
           <div class="absolute right-0 top-[calc(100%+0.75rem)] w-[min(18rem,calc(100vw-2rem))] border-2 border-linea bg-superficie p-3 shadow-duro-verde">
             <a href="{% url 'cuentas:registro' %}" class="btn btn-primario mb-3 w-full gap-2 sm:hidden">{% icono "user-plus" tam=18 %}{% translate "Registrarse" %}</a>
             <p class="px-2 pb-1 text-xs font-bold uppercase tracking-wider text-texto-suave">{% translate "Ajustes" %}</p>

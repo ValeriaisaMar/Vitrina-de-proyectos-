@@ -184,6 +184,22 @@
   /* Quita el triángulo del <summary> del menú móvil */
   summary::-webkit-details-marker { display: none; }
   summary { list-style: none; }
+  /* Puntero de mano en todo lo que se puede pulsar (Tailwind 4 deja los botones con la flecha) */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  input[type="submit"]:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled),
+  select:not(:disabled),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+  button:disabled { cursor: not-allowed; }
+  /* El rol activo del menú está deshabilitado a propósito: ahí basta la flecha normal */
+  button[aria-current]:disabled { cursor: default; }
 }
 
 /* 6. Componentes reutilizables */
