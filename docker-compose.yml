@@ -1,0 +1,43 @@
+# Vitrina de Proyectos con Docker: la base de datos (db) y la aplicación (web).
+# Las contraseñas y claves salen del archivo .env (nunca se escriben aquí).
+#
+#   docker compose up -d --build                                            levantar
+#   docker compose logs -f web                                              ver los logs
+#   docker compose exec web python manage.py codigo_configuracion_inicial   código para el primer admin
+#   docker compose down                                                     detener (conserva los datos)
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - datos_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: .
+    env_file: .env              # SECRET_KEY, DB_*, correo, CLAVE_CIFRADO...
+    environment:
+      DB_HOST: db               # dentro de Docker la base se llama "db", no localhost
+      DB_PORT: "5432"
+      DEBUG: "False"
+      COOKIES_SEGURAS: "False"  # solo para http://localhost; quítalo en un servidor con HTTPS
+      SERVIR_MEDIA: "True"      # sin nginx delante, Django sirve las imágenes subidas
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - media:/app/media        # las imágenes subidas sobreviven a los reinicios
+
+volumes:
+  datos_pg:
+  media:

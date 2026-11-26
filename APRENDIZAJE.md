@@ -1028,3 +1028,29 @@ administrador".
   cumple, llama a la original de Django.
 - **`has_delete_permission(request, obj)`**: con `obj` decide por objeto. Django oculta el botón y
   responde 403 si se entra a la URL a mano.
+
+## Docker: la Vitrina en contenedores
+
+**Qué se hizo:** se agregaron un `Dockerfile`, un `docker-compose.yml` y un `.dockerignore`. Con
+`docker compose up -d --build` se levantan dos contenedores: `db` (PostgreSQL 17) y `web` (Django
+con gunicorn). El desarrollo local sigue igual, con `runserver` y sin Docker.
+**Conceptos:**
+- **Imagen y contenedor**: el `Dockerfile` es la receta de la imagen (Python, dependencias, código,
+  estáticos); un contenedor es esa imagen corriendo. Se copia primero `requirements.txt` y después
+  el código: así, si solo cambia el código, Docker reutiliza la capa de las dependencias.
+- **docker-compose**: describe varios servicios juntos. Dentro de la red de Compose, la base se
+  llama `db`, por eso `DB_HOST: db`. `depends_on` con `healthcheck` hace que `web` espere a que
+  PostgreSQL acepte conexiones. Los volúmenes (`datos_pg`, `media`) guardan los datos aunque el
+  contenedor se borre.
+- **gunicorn**: `runserver` es solo para desarrollo. gunicorn es un servidor de producción con
+  varios procesos (`--workers 3`).
+- **WhiteNoise**: con `DEBUG=False`, Django no sirve los estáticos. WhiteNoise los sirve
+  comprimidos desde `staticfiles/` (lo llena `collectstatic` al construir la imagen). Su middleware
+  va justo después de `SecurityMiddleware`. No sirve `media/`: para eso está `SERVIR_MEDIA` (sin
+  nginx) o nginx en un servidor.
+- **Cookies seguras y HTTPS**: con `DEBUG=False` las cookies de sesión son `Secure` y el navegador
+  no las manda por `http://`. Para probar en `http://localhost`, `COOKIES_SEGURAS=False`. Detrás de
+  un proxy con HTTPS, `SECURE_PROXY_SSL_HEADER` le dice a Django que la petición original era
+  HTTPS, y `CSRF_TRUSTED_ORIGINS` lista los dominios desde los que se aceptan formularios.
+- **Secretos fuera de la imagen**: `.env` está en `.dockerignore`; Compose lo pasa al contenedor
+  con `env_file`. Por eso `collectstatic` en el `Dockerfile` usa valores de relleno.
