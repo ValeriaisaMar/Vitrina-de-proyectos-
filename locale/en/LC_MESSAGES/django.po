@@ -4093,3 +4093,191 @@ msgstr "video"
 
 msgid "Índigo"
 msgstr "Indigo"
+
+#: templates/parciales/portada_color.html:14
+msgid "Título del proyecto"
+msgstr "Project title"
+
+#: cuentas/forms.py
+msgid "12 caracteres, por ejemplo 7K4Q-M2XP-9WDA. Puedes escribirlo con o sin guiones."
+msgstr "12 characters, for example 7K4Q-M2XP-9WDA. You can type it with or without dashes."
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Abrir esta página ya escribió un código en la consola donde corre runserver. También puedes correr el mismo comando en otra terminal."
+msgstr "Opening this page already wrote a code to the console where runserver is running. You can also run the same command in another terminal."
+
+#: vitrina/templates/vitrina/paneles/admin.html
+msgid "Carga el plan de estudios"
+msgstr "Load the curriculum"
+
+#: vitrina/templates/vitrina/paneles/admin.html
+msgid "Configura el correo de envío"
+msgstr "Set up the sending email"
+
+#: cuentas/models.py cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Configuración inicial"
+msgstr "Initial setup"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Configurar la administración"
+msgstr "Set up administration"
+
+#: cuentas/forms.py
+msgid "Contraseña de la cuenta"
+msgstr "Account password"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Copia el código que te da el comando <code class=\"font-mono\">codigo_configuracion_inicial</code> en el servidor o búscalo en los logs de la aplicación."
+msgstr "Copy the code given by the <code class=\"font-mono\">codigo_configuracion_inicial</code> command on the server, or find it in the application logs."
+
+#: cuentas/forms.py
+msgid "Correo de la cuenta"
+msgstr "Account email"
+
+#: vitrina/templates/vitrina/paneles/admin.html
+msgid "Crea el período actual"
+msgstr "Create the current term"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Crea la cuenta que administrará la Vitrina. Solo se puede hacer mientras no haya ningún administrador."
+msgstr "Create the account that will manage the Project Showcase. This can only be done while there is no administrator."
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Crear el administrador"
+msgstr "Create the administrator"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Crear una cuenta nueva"
+msgstr "Create a new account"
+
+#: cuentas/forms.py cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Código de configuración"
+msgstr "Setup code"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Datos del admin"
+msgstr "Admin details"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Dos pasos: el código de configuración y los datos de la cuenta admin."
+msgstr "Two steps: the setup code and the admin account details."
+
+#: cuentas/views.py
+msgid "El código o los datos de la cuenta no son válidos. Revisa e inténtalo de nuevo."
+msgstr "The code or the account details are not valid. Check them and try again."
+
+#: cuentas/admin.py
+msgid "Eliminar los usuarios seleccionados"
+msgstr "Delete selected users"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "En tu equipo (desarrollo):"
+msgstr "On your computer (development):"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Instalación nueva"
+msgstr "New installation"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "La cuenta queda activa de inmediato; no se envía enlace de activación."
+msgstr "The account is active right away; no activation link is sent."
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "La cuenta recibe el rol admin y conserva los que ya tiene (por ejemplo, si un profesor se registró como estudiante)."
+msgstr "The account gets the admin role and keeps the ones it already has (for example, if a teacher signed up as a student)."
+
+#: cuentas/views.py
+msgid "Listo. Ya eres administrador de la Vitrina."
+msgstr "Done. You are now an administrator of the Project Showcase."
+
+#: cuentas/forms.py
+msgid "No puedes desactivar esta cuenta: es la única cuenta admin activa. Primero nombra a otro admin."
+msgstr "You can't deactivate this account: it is the only active admin account. Name another admin first."
+
+#: cuentas/admin.py
+msgid "No se eliminó nada: entre los seleccionados está la única cuenta admin activa."
+msgstr "Nothing was deleted: the selection includes the only active admin account."
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Respaldo: el código también queda en los logs (<code class=\"font-mono\">docker compose logs web</code> o <code class=\"font-mono\">journalctl</code>). Vence en 30 minutos y sirve una sola vez."
+msgstr "Backup: the code is also written to the logs (<code class=\"font-mono\">docker compose logs web</code> or <code class=\"font-mono\">journalctl</code>). It expires in 30 minutes and works only once."
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Servidor con Docker (por SSH):"
+msgstr "Server with Docker (over SSH):"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Servidor sin Docker (con el entorno virtual activado):"
+msgstr "Server without Docker (with the virtual environment activated):"
+
+#: vitrina/templates/vitrina/paneles/admin.html
+msgid "Siguientes pasos"
+msgstr "Next steps"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Tienes una sesión iniciada. Para crear el primer administrador, primero cierra la sesión."
+msgstr "You are logged in. To create the first administrator, log out first."
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Tipo de cuenta"
+msgstr "Account type"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Usar una cuenta que ya existe"
+msgstr "Use an existing account"
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "Volver a Entrar"
+msgstr "Back to log in"
+
+#: cuentas/views.py
+msgid "Ya hay una cuenta con este correo. Usa la pestaña «Usar una cuenta que ya existe»."
+msgstr "There is already an account with this email. Use the “Use an existing account” tab."
+
+#: cuentas/models.py
+msgid "completada en"
+msgstr "completed at"
+
+#: vitrina/templates/vitrina/paneles/admin.html
+msgid "con sus asignaturas."
+msgstr "with its courses."
+
+#: cuentas/models.py
+msgid "configuración inicial"
+msgstr "initial setup"
+
+#: cuentas/models.py
+msgid "código creado en"
+msgstr "code created at"
+
+#: cuentas/models.py
+msgid "código vence en"
+msgstr "code expires at"
+
+#: cuentas/models.py
+msgid "huella del código"
+msgstr "code hash"
+
+#: cuentas/models.py
+msgid "intentos fallidos"
+msgstr "failed attempts"
+
+#: cuentas/models.py
+msgid "motivo"
+msgstr "reason"
+
+#: vitrina/templates/vitrina/paneles/admin.html
+msgid "para que lleguen los enlaces de activación y los avisos."
+msgstr "so activation links and notifications get delivered."
+
+#: vitrina/templates/vitrina/paneles/admin.html
+msgid "para que los estudiantes puedan enviar proyectos."
+msgstr "so students can submit projects."
+
+#: cuentas/templates/cuentas/configuracion_inicial.html
+msgid "¿Dónde encuentro el código?"
+msgstr "Where do I find the code?"
+
+#: cuentas/templates/cuentas/entrar.html
+msgid "¿Instalación nueva? Configurar la administración"
+msgstr "New installation? Set up administration"

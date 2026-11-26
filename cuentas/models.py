@@ -202,6 +202,9 @@ class CambioRol(models.Model):
         related_name="+", verbose_name=_("hecho por"),
     )
     fecha = models.DateTimeField(_("fecha"), default=timezone.now)
+    # Por qué se hizo cuando no lo hizo un admin desde la gestión de usuarios (spec 010),
+    # por ejemplo "Configuración inicial" para el primer admin.
+    motivo = models.CharField(_("motivo"), max_length=120, blank=True, default="")
 
     class Meta:
         verbose_name = _("cambio de rol")
@@ -210,6 +213,39 @@ class CambioRol(models.Model):
 
     def __str__(self):
         return f"{self.usuario} · {self.get_rol_display()} {self.get_accion_display()}"
+
+
+class ConfiguracionInicial(models.Model):
+    """Estado de la configuración inicial: el código para crear el primer admin (spec 010).
+
+    Hay una sola fila (pk=1), se obtiene con ConfiguracionInicial.obtener(). Del código solo se
+    guarda su huella SHA-256: quien lea la base de datos no puede saber cuál es. La lógica vive en
+    cuentas/configuracion_inicial.py.
+    """
+
+    hash_codigo = models.CharField(_("huella del código"), max_length=64, blank=True)
+    creado_en = models.DateTimeField(_("código creado en"), null=True, blank=True)
+    vence_en = models.DateTimeField(_("código vence en"), null=True, blank=True)
+    intentos_fallidos = models.PositiveSmallIntegerField(_("intentos fallidos"), default=0)
+    completada_en = models.DateTimeField(_("completada en"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("configuración inicial")
+        verbose_name_plural = _("configuración inicial")
+
+    def __str__(self):
+        return str(_("Configuración inicial"))
+
+    @classmethod
+    def obtener(cls):
+        """Devuelve la única fila; la crea vacía si todavía no existe."""
+        configuracion, _creada = cls.objects.get_or_create(pk=1)
+        return configuracion
+
+    @property
+    def codigo_vigente(self):
+        """True si hay un código guardado que todavía no vence."""
+        return bool(self.hash_codigo) and self.vence_en is not None and self.vence_en > timezone.now()
 
 
 # --------------------------------------------------------------------------- Correo de envío (spec 008, historia 3)

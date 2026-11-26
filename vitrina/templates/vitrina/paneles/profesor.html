@@ -26,7 +26,7 @@
       {% translate "Rechacé" as t %}{% include "vitrina/paneles/_cifra.html" with valor=decisiones.rechazados etiqueta=t estado="rechazado" %}
     </div>
 
-    <div class="grid gap-8 lg:grid-cols-2">
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
       <section class="tarjeta-sobria p-6 sm:p-8" aria-labelledby="titulo-esperando">
         <h2 id="titulo-esperando" class="text-xl font-extrabold">{% translate "Esperan desde hace más tiempo" %}</h2>
         {% if esperando %}

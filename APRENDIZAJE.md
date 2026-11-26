@@ -901,3 +901,130 @@ detalle, "Ver proyecto desplegado" y "Ver video" aparecen junto al repositorio s
   archivo anterior se borra a mano (borrar o reemplazar el valor del campo no borra el archivo).
 - **Migración de datos con archivos**: `RunPython` abre la imagen con Pillow desde el almacenamiento
   de Django y guarda la nueva; si un archivo falta, ese proyecto se salta en vez de fallar.
+
+## Correcciones del 26 de noviembre
+
+### El menú "roto", el modo oscuro que borraba textos y las fotos estiradas
+**Qué pasaba:** el código estaba bien; el navegador seguía usando un `app.css` viejo guardado en su
+caché. A ese CSS le faltaban justo las clases nuevas de la spec 009 (`sm:absolute`, `dark:inline`,
+`w-12`…), así que el menú caía dentro del encabezado, "Modo claro" quedaba oculto y las fotos
+tomaban su ancho real (400 px).
+**Arreglo:** la etiqueta `{% estatico 'css/app.css' %}` (en `vitrina/templatetags/iconos.py`) agrega
+`?v=<huella del archivo>` a la dirección. Si el archivo cambia, cambia la dirección y el navegador lo
+descarga de nuevo. Se usa para el CSS y todos los JS.
+**Concepto:** *cache busting*. En producción Django ofrece `ManifestStaticFilesStorage`, que hace lo
+mismo al correr `collectstatic`.
+
+### Portada de color con el título
+Sin imagen, la portada es HTML (`templates/parciales/portada_color.html`): el color elegido, un
+marco blanco, el título completo, una barra amarilla y "Vitrina de Proyectos · UTEQ". Por ser texto
+y no una imagen generada, las tildes, la ñ, la diéresis y «» ¿? se ven siempre. Las medidas usan
+`cqw` (porcentaje del ancho del contenedor, con `@container` de Tailwind), así se ve igual en una
+tarjeta, en el detalle y en la vista previa del formulario.
+
+### Logo en los correos
+El `<img>` apuntaba a `http://127.0.0.1:8000/static/...`; Gmail descarga las imágenes desde sus
+servidores y no puede entrar a tu computador. Ahora el logo va **dentro** del correo
+(`multipart/related` con `Content-ID: <logo-uteq>`, ver `config/correo.py → CorreoConLogo`) y la
+plantilla lo pide con `src="cid:logo-uteq"`. Se ve en local y en producción.
+
+### Otros arreglos
+- "Mis roles" ya no repite la fecha de "Miembro desde": solo el rol y si está activo.
+- Tablas con desplazamiento horizontal (usuarios, períodos, plan, mis proyectos): el contenedor con
+  `overflow-x-auto` ahora es `relative`. Sin eso, los textos `sr-only` (que son `position:absolute`)
+  se salían del contenedor y la página entera se movía de lado en el celular.
+- Rejillas de tarjetas: `grid-cols-1` en celular. Una rejilla sin columnas definidas mide su única
+  columna por el contenido más largo (un texto con `truncate`) y las tarjetas se salían de la pantalla.
+- Pie de página: con sesión iniciada muestra Panel, Mi perfil y Datos de la cuenta en vez de
+  "Iniciar sesión" y "Crear cuenta".
+- Perfil en modo edición: el ícono de "Editar descripción" y "Editar GitHub…" ya no queda en una
+  línea aparte.
+
+## Spec 010 · Configuración inicial: crear el primer admin desde la app
+
+### Historia 1 · Código de un solo uso y logs por consola
+**Qué se hizo:** en un servidor nuevo (base vacía) ya no hace falta `createsuperuser`. El comando
+`python manage.py codigo_configuracion_inicial` imprime un código de 12 caracteres que sirve 30
+minutos y una sola vez para crear el primer admin en `/configuracion-inicial/`. Si alguien abre esa
+página sin un código vigente, el servidor genera uno y lo escribe en el log (respaldo). Todo vive en
+`cuentas/configuracion_inicial.py`, y el estado en el modelo `ConfiguracionInicial` (una sola fila).
+**Por qué un código:** si la app queda publicada sin admin, cualquiera que vea la página podría
+adueñarse de ella. Con el código, solo quien tiene acceso al servidor (terminal o logs) puede. Es el
+mismo patrón de Jenkins o Grafana.
+**Conceptos:**
+- **`secrets`**: genera azar apto para seguridad (`random` es predecible). El alfabeto no tiene
+  0/O ni 1/I/L para que el código se copie a mano sin errores.
+- **Hashing**: solo se guarda la huella SHA-256 del código. Quien lea la base no puede saber cuál
+  es. Para comparar se usa `hmac.compare_digest`, que tarda lo mismo acierte o no (así no se puede
+  adivinar el código midiendo tiempos).
+- **Comandos de gestión**: un archivo en `cuentas/management/commands/` con una clase `Command`. Se
+  escribe con `self.stdout.write` y se falla con `CommandError` (código de salida 1).
+- **Logging**: con `DEBUG=False`, Django no saca sus mensajes por consola, y Docker o systemd solo
+  guardan lo que sale por stdout/stderr. Por eso `config/settings.py` define `LOGGING` con un handler
+  `consola` (`StreamHandler`) sin el filtro `require_debug_true`. El nivel de Django se cambia con
+  `NIVEL_LOG_DJANGO`. En las pruebas se callan los avisos 403/404 de `django.request`
+  (`config/pruebas.py`), que ahora llenaban la salida.
+- Se revisó que ningún log escriba contraseñas ni códigos: los avisos de correo solo llevan el id.
+
+### Historia 2 · Enlace discreto en "Entrar"
+**Qué se hizo:** mientras no hay un admin activo, Entrar muestra al final, tras una línea fina, el
+enlace pequeño "¿Instalación nueva? Configurar la administración". No aparece en ninguna otra
+página. La vista `entrar` le pasa a la plantilla `mostrar_configuracion_inicial`; la plantilla no
+hace consultas.
+**Conceptos:**
+- **Caché**: para no preguntar a la base "¿hay admin?" en cada visita a Entrar, el resultado se
+  guarda con `cache.get_or_set(clave, función, 60)`. Si la clave no existe, llama a la función y
+  guarda el resultado 60 segundos.
+- **Señales `post_save` y `post_delete`** (`cuentas/signals.py`): al guardar o borrar un usuario
+  (activar o desactivar es guardar) o un `RolAsignado`, se borra ese valor. Así el enlace desaparece
+  en cuanto se crea el admin.
+- **Por qué además vence en 60 s:** la caché en memoria (`LocMemCache`) es de cada proceso. Con
+  varios procesos de gunicorn, borrarla en uno no la borra en los otros, y `QuerySet.update()` no
+  dispara señales. Por eso el valor dura poco y nunca decide el acceso: la página y la creación del
+  admin consultan siempre la base, así que un enlace que se vea unos segundos de más lleva a un 404.
+
+### Historia 3 · Asistente para crear el primer admin
+**Qué se hizo:** `/configuracion-inicial/` tiene dos pasos: el código, con una ayuda plegable
+(`<details>`) que explica dónde encontrarlo, y los datos del admin. Para el segundo paso hay dos
+pestañas: crear una cuenta nueva o promover una que ya existe, que conserva sus roles. Al terminar,
+la persona entra con el rol admin y el panel le muestra "Listo…" y tres siguientes pasos (correo de
+envío, período actual, plan de estudios). Los pasos se muestran una sola vez: la vista guarda una
+marca en la sesión y el panel la saca con `pop`. La lógica está en
+`crear_primer_admin` (`cuentas/configuracion_inicial.py`), no en la vista. `createsuperuser` sigue
+sirviendo y también deja "Configuración inicial" en el nuevo campo `CambioRol.motivo`.
+**Conceptos:**
+- **Transacción (`transaction.atomic`)**: todo o nada. Si algo falla a la mitad, no queda una
+  cuenta sin rol.
+- **`select_for_update()`**: bloquea la fila de `ConfiguracionInicial` hasta que termina la
+  transacción. Si dos personas envían el formulario a la vez, la segunda espera. Cuando entra, vuelve
+  a preguntar "¿hay admin?" **dentro** del bloqueo, ve que sí y recibe un 404. Así nunca se crean
+  dos admins (condición de carrera).
+- **Un error dentro de `atomic` deshace todo**, también el conteo de intentos fallidos. Por eso el
+  servicio anota el fallo, deja que la transacción termine y lanza la excepción después.
+- **Mensajes genéricos**: un código malo, una contraseña mala o un correo que no existe dan el mismo
+  mensaje. Si el correo no existe, se calcula igual un hash de contraseña para que la respuesta tarde
+  lo mismo. Además, el formulario de cuenta nueva quita la validación de correo único de Django
+  (`validate_unique`), que le diría "ese correo ya existe" a alguien sin código.
+- **Límite por IP**: se reutiliza `cuentas/limite.py` (5 fallos, 15 minutos de bloqueo).
+- **Pestañas sin JavaScript**: son enlaces `?opcion=nueva` / `?opcion=existente` con
+  `aria-current`, así funcionan con el teclado y sin JS.
+- **`{% translate variable %}`**: el motivo se guarda en español (es un dato del historial) y se
+  traduce al mostrarlo.
+
+### Historia 4 · Qué pasa si se quedan sin admin
+**Qué se hizo:** la regla de la 008 ("no se le quita el rol admin al último admin activo") ahora
+cubre también desactivar y eliminar, en la app y en el panel de Django: el formulario de gestión y
+el del admin de Django rechazan desactivarlo, `has_delete_permission` devuelve False para esa cuenta
+(su página de eliminar da 403), la acción masiva "Eliminar seleccionados" se reemplaza por una que se
+niega si no quedaría ningún admin, y la tabla de roles del admin no deja borrar ni cambiar la fila
+admin. Si aun así no queda ningún admin (un cambio directo en la base), el enlace de Entrar y la
+página vuelven, siempre con un código nuevo. El README lo explica en "Recuperar el acceso de
+administrador".
+**Conceptos:**
+- **`BaseInlineFormSet.clean()`**: valida todas las filas de una tabla en línea juntas (por
+  ejemplo, "¿queda alguna fila admin sin marcar para borrar?").
+- **Acciones del admin**: `get_actions` devuelve un diccionario `{nombre: (función, nombre,
+  descripción)}`. Se reemplaza `delete_selected` por una función que revisa la regla y, si se
+  cumple, llama a la original de Django.
+- **`has_delete_permission(request, obj)`**: con `obj` decide por objeto. Django oculta el botón y
+  responde 403 si se entra a la URL a mano.

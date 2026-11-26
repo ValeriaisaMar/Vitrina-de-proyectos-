@@ -5,7 +5,7 @@
 
 {% block contenido %}
 <section class="bg-seccion py-12 sm:py-16">
-  <div class="contenedor grid gap-8 lg:grid-cols-[1fr_1.4fr]">
+  <div class="contenedor grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.4fr]">
 
     <div class="tarjeta-sobria h-fit p-6 sm:p-8">
       {% include "parciales/avatar.html" with perfil=user.perfil tam="h-16 w-16" texto="text-xl" %}
@@ -33,7 +33,6 @@
           {% for asignado in mis_roles %}
             <li class="flex flex-wrap items-center gap-2">
               <span class="insignia-rol {% if asignado.rol == 'admin' %}insignia-rol-admin{% endif %}">{{ asignado.get_rol_display }}</span>
-              <span class="text-texto-suave">{% blocktranslate with fecha=asignado.asignado_en|date:"DATE_FORMAT" %}desde el {{ fecha }}{% endblocktranslate %}</span>
               {% if asignado.rol == user.rol_activo %}<span class="text-xs font-bold text-acento">· {% translate "activo" %}</span>{% endif %}
             </li>
           {% endfor %}
@@ -47,7 +46,7 @@
       <h2 class="text-xl font-extrabold">{% translate "Tus datos" %}</h2>
       <form method="post" class="mt-6 flex flex-col gap-5" novalidate>
         {% csrf_token %}
-        <div class="grid gap-5 sm:grid-cols-2">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {% include "componentes/campo.html" with campo=form.nombres %}
           {% include "componentes/campo.html" with campo=form.apellidos %}
         </div>

@@ -37,7 +37,7 @@
     {% if semestres %}
       <div class="mt-8 flex flex-col gap-6">
         {% for semestre, asignaturas in semestres %}
-          <section class="tarjeta-sobria overflow-x-auto" aria-labelledby="semestre-{{ semestre }}">
+          <section class="tarjeta-sobria relative overflow-x-auto" aria-labelledby="semestre-{{ semestre }}">
             <h2 id="semestre-{{ semestre }}" class="border-b-2 border-linea bg-uteq-tinte px-5 py-3 text-sm font-bold uppercase tracking-wider text-uteq-verde dark:bg-uteq-verde dark:text-white">{% blocktranslate with n=semestre %}Semestre {{ n }}{% endblocktranslate %}</h2>
             <table class="w-full min-w-[36rem] border-collapse text-sm">
               <caption class="sr-only">{% blocktranslate with n=semestre %}Asignaturas del semestre {{ n }}{% endblocktranslate %}</caption>

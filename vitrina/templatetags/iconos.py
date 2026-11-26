@@ -11,13 +11,16 @@ línea para que tomen el color del texto (currentColor) y cambien solos con el m
 mark_safe solo se usa sobre archivos del repositorio, nunca sobre contenido de usuarios.
 """
 
+import hashlib
 import logging
+import os
 import re
 import unicodedata
 from functools import lru_cache
 
 from django import template
 from django.contrib.staticfiles import finders
+from django.templatetags.static import static
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
@@ -38,6 +41,32 @@ def _svg(nombre):
         return ""
     with open(ruta, encoding="utf-8") as archivo:
         return archivo.read().strip()
+
+
+@lru_cache(maxsize=64)
+def _huella(ruta, modificado):
+    """Primeros 10 caracteres del hash del archivo. Se recalcula solo si cambia la fecha del archivo."""
+    with open(ruta, "rb") as archivo:
+        return hashlib.sha256(archivo.read()).hexdigest()[:10]
+
+
+@register.simple_tag
+def estatico(ruta):
+    """Como {% static %}, pero con ?v=<huella del archivo> al final.
+
+    Sin esto, el navegador sigue usando un app.css o un menu.js viejos guardados en su caché después
+    de actualizar el código: aparecen clases que "no existen" (el menú sin posición, el modo oscuro
+    que esconde textos, fotos estiradas). Con la huella, cada versión nueva tiene otra dirección y
+    el navegador la descarga sola. Uso: <link rel="stylesheet" href="{% estatico 'css/app.css' %}">
+    """
+    url = static(ruta)
+    archivo = finders.find(ruta)
+    if not archivo:
+        return url
+    try:
+        return f"{url}?v={_huella(archivo, os.path.getmtime(archivo))}"
+    except OSError:
+        return url
 
 
 @register.simple_tag
@@ -81,3 +110,12 @@ def inicial(texto):
                 fin += 1
             return unicodedata.normalize("NFC", texto[i:fin]).upper()
     return texto[:fin].upper()
+
+
+@register.filter(name="nfc")
+def nfc_filtro(texto):
+    """El texto en forma compuesta (NFC): «ñ» como un solo carácter y no como n + tilde.
+
+    Las fuentes web dibujan mejor la forma compuesta; la usa la portada de color con el título.
+    """
+    return unicodedata.normalize("NFC", str(texto)) if texto is not None else ""

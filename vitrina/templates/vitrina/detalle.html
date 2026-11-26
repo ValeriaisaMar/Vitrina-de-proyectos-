@@ -80,9 +80,7 @@
       {% if proyecto.imagen_portada %}
         <img src="{{ proyecto.imagen_portada.url }}" alt="{% blocktranslate with titulo=proyecto.titulo %}Portada de {{ titulo }}{% endblocktranslate %}" width="1200" height="675" class="h-full w-full object-cover">
       {% else %}
-        <div class="flex h-full w-full items-center justify-center" style="background-color: {{ proyecto.color_hex }}" aria-hidden="true">
-          <span class="font-titulo text-8xl font-extrabold text-white">{{ proyecto.titulo|inicial }}</span>
-        </div>
+        {% include "parciales/portada_color.html" with titulo=proyecto.titulo color=proyecto.color_hex %}
       {% endif %}
     </div>
 
@@ -108,7 +106,7 @@
 </section>
 
 <section class="bg-seccion py-12">
-  <div class="contenedor grid gap-8 lg:grid-cols-[1fr_20rem]">
+  <div class="contenedor grid grid-cols-1 gap-8 lg:grid-cols-[1fr_20rem]">
     <div class="flex min-w-0 flex-col gap-8">
       <article class="tarjeta-sobria p-6 sm:p-8">
         <h2 class="text-xl font-extrabold">{% translate "Descripción" %}</h2>
@@ -128,7 +126,7 @@
 
       <section class="tarjeta-sobria p-6 sm:p-8" aria-labelledby="titulo-enlaces">
         <h2 id="titulo-enlaces" class="text-xl font-extrabold">{% translate "Enlaces y documentos" %}</h2>
-        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+        <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {% with clase="flex min-h-14 items-center gap-3 border-2 border-linea p-3 font-bold hover:bg-uteq-tinte dark:hover:bg-uteq-verde" caja="flex h-9 w-9 shrink-0 items-center justify-center text-white" %}
           <a href="{{ proyecto.repositorio }}" target="_blank" rel="noopener noreferrer" class="{{ clase }}">
             <span class="{{ caja }} bg-tinta dark:bg-uteq-claro dark:text-tinta">{% if "github.com" in proyecto.repositorio %}{% icono "marca-github" %}{% else %}{% icono "link" %}{% endif %}</span>

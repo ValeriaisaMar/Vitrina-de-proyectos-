@@ -12,6 +12,7 @@ from django.contrib.admin.models import CHANGE, LogEntry
 from django.contrib.auth.views import PasswordChangeView
 from django.core.paginator import Paginator
 from django.db.models import Count
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.urls import reverse_lazy
 from django.utils.encoding import force_str
@@ -19,6 +20,7 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_de
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
+from cuentas import configuracion_inicial as configuracion_inicial_servicio
 from cuentas import correo_envio as correo_envio_servicio
 from cuentas import limite
 from cuentas.cifrado import descifrar, hay_clave
@@ -30,6 +32,8 @@ from cuentas.forms import (
     FormularioFiltroUsuarios,
     FormularioGestionUsuario,
     FormularioPerfil,
+    FormularioPrimerAdminExistente,
+    FormularioPrimerAdminNuevo,
     FormularioRegistro,
     FormularioReenvio,
 )
@@ -148,6 +152,8 @@ def entrar(request):
         "next": siguiente,
         "bloqueado": bloqueado,
         "minutos": limite.BLOQUEO_SEGUNDOS // 60,
+        # Enlace discreto a la configuración inicial, solo mientras no hay admin (spec 010)
+        "mostrar_configuracion_inicial": not configuracion_inicial_servicio.hay_admin_activo_en_cache(),
     })
 
 
@@ -371,3 +377,62 @@ def disponibilidad(request):
 def mi_cuenta(request):
     """Las opciones del menú del avatar en una página (para navegadores sin JavaScript)."""
     return render(request, "cuentas/mi_cuenta.html")
+
+
+# --------------------------------------------------------------------------- Configuración inicial (spec 010)
+
+
+def configuracion_inicial(request):
+    """Asistente para crear el primer admin. Solo existe mientras no hay un admin activo.
+
+    Si ya hay uno responde 404 (no 403), para no revelar que la página existe. Al abrirla sin un
+    código vigente, el servidor genera uno y lo escribe en el log (respaldo del comando
+    codigo_configuracion_inicial). La página nunca muestra el código.
+    """
+    servicio = configuracion_inicial_servicio
+    if servicio.hay_admin_activo():
+        raise Http404
+    if request.user.is_authenticated:
+        # Quien ya tiene sesión es otra cuenta: primero debe salir (la configuración es para visitantes)
+        return render(request, "cuentas/configuracion_inicial.html", {"con_sesion": True})
+
+    datos = request.POST if request.method == "POST" else request.GET
+    opcion = "existente" if datos.get("opcion") == "existente" else "nueva"
+    Formulario = FormularioPrimerAdminExistente if opcion == "existente" else FormularioPrimerAdminNuevo
+    clave_limite, ip = "configuracion-inicial", limite.ip_de(request)
+    bloqueado = False
+    error = ""
+
+    if request.method == "POST":
+        form = Formulario(request.POST)
+        if limite.esta_bloqueado(clave_limite, ip):
+            bloqueado = True
+        elif form.is_valid():
+            try:
+                usuario = servicio.crear_primer_admin(form.cleaned_data["codigo"], opcion, form.cleaned_data)
+            except servicio.ConfiguracionNoDisponible:
+                raise Http404  # otro envío llegó primero
+            except servicio.CorreoYaRegistrado:
+                form.add_error("email", _("Ya hay una cuenta con este correo. Usa la pestaña «Usar una cuenta que ya existe»."))
+            except servicio.DatosInvalidos:
+                # El mismo mensaje para un código malo y para una cuenta incorrecta
+                limite.registrar_fallo(clave_limite, ip)
+                error = _("El código o los datos de la cuenta no son válidos. Revisa e inténtalo de nuevo.")
+            else:
+                limite.limpiar(clave_limite, ip)
+                login(request, usuario, backend=BACKEND)
+                activar_rol(request, Rol.ADMIN)
+                request.session[servicio.CLAVE_PRIMEROS_PASOS] = True
+                messages.success(request, _("Listo. Ya eres administrador de la Vitrina."))
+                return redirect("vitrina:panel")
+    else:
+        form = Formulario()
+        servicio.asegurar_codigo(servicio.url_configuracion(request))
+
+    return render(request, "cuentas/configuracion_inicial.html", {
+        "form": form,
+        "opcion": opcion,
+        "error": error,
+        "bloqueado": bloqueado,
+        "minutos": limite.BLOQUEO_SEGUNDOS // 60,
+    })

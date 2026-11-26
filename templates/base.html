@@ -20,7 +20,7 @@
 
   <link rel="preload" href="{% static 'fonts/unbounded-variable.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{% static 'fonts/archivo-400.woff2' %}" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% estatico 'css/app.css' %}">
   {% block cabeza_extra %}{% endblock %}
 </head>
 <body class="min-h-screen flex flex-col bg-fondo text-texto">
@@ -35,9 +35,9 @@
 
   {% include "parciales/pie.html" %}
 
-  <script src="{% static 'js/tema.js' %}" defer></script>
-  <script src="{% static 'js/selector.js' %}" defer></script>
-  <script src="{% static 'js/menu.js' %}" defer></script>
+  <script src="{% estatico 'js/tema.js' %}" defer></script>
+  <script src="{% estatico 'js/selector.js' %}" defer></script>
+  <script src="{% estatico 'js/menu.js' %}" defer></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

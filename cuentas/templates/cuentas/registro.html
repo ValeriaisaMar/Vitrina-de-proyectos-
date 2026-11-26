@@ -19,7 +19,7 @@
 
   <form method="post" action="{% url 'cuentas:registro' %}" class="mt-6 flex flex-col gap-5" novalidate>
     {% csrf_token %}
-    <div class="grid gap-5 sm:grid-cols-2">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
       {% include "componentes/campo.html" with campo=form.nombres %}
       {% include "componentes/campo.html" with campo=form.apellidos %}
     </div>

@@ -17,7 +17,7 @@
       <div class="mt-6">{% translate "Revisa los campos marcados en rojo." as texto_errores %}{% include "componentes/aviso.html" with tipo="error" texto=texto_errores %}</div>
     {% endif %}
 
-    <form method="post" enctype="multipart/form-data" class="mt-8 grid gap-6 lg:grid-cols-[1fr_20rem]" novalidate>
+    <form method="post" enctype="multipart/form-data" class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_20rem]" novalidate>
       {% csrf_token %}
       <div class="flex min-w-0 flex-col gap-6">
 
@@ -69,10 +69,8 @@
           <div class="flex flex-col gap-4 border-b-2 border-linea-suave pb-6" data-portada>
             <h3 class="font-extrabold">{% translate "Portada" %}</h3>
             <div class="relative aspect-[16/9] w-full max-w-md overflow-hidden border-2 border-linea" aria-hidden="true" data-vista-portada>
-              <img src="{% if proyecto.imagen_portada %}{{ proyecto.imagen_portada.url }}{% endif %}" alt="" class="h-full w-full object-cover {% if not proyecto.imagen_portada %}hidden{% endif %}" data-vista-imagen>
-              <div class="flex h-full w-full items-center justify-center {% if proyecto.imagen_portada %}hidden{% endif %}" style="background-color: {{ form.instance.color_hex }}" data-vista-color>
-                <span class="font-titulo text-6xl font-extrabold text-white" data-vista-inicial>{{ form.instance.titulo|default:"V"|inicial }}</span>
-              </div>
+              <img {% if proyecto.imagen_portada %}src="{{ proyecto.imagen_portada.url }}"{% endif %} alt="" class="h-full w-full object-cover {% if not proyecto.imagen_portada %}hidden{% endif %}" data-vista-imagen>
+              {% include "parciales/portada_color.html" with titulo=form.titulo.value color=form.instance.color_hex oculta=proyecto.imagen_portada %}
             </div>
             {% include "componentes/campo.html" with campo=form.portada %}
             {% if form.quitar_portada %}
@@ -133,4 +131,4 @@
 </section>
 {% endblock %}
 
-{% block scripts %}<script src="{% static 'js/portada.js' %}" defer></script>{% endblock %}
+{% block scripts %}<script src="{% estatico 'js/portada.js' %}" defer></script>{% endblock %}

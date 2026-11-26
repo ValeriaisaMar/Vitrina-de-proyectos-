@@ -54,3 +54,17 @@ class PerfilTests(TestCase):
         })
         self.usuario.refresh_from_db()
         self.assertTrue(self.usuario.check_password(CLAVE))
+
+
+class MisRolesSinFechaTests(TestCase):
+    """La fecha ya sale en "Miembro desde"; en "Mis roles" solo van el rol y si está activo."""
+
+    def test_mis_roles_no_repite_la_fecha(self):
+        from cuentas.tests.utilidades import crear_usuario as nuevo
+
+        self.client.force_login(nuevo(email="roles@correo.com"))
+        html = self.client.get(reverse("cuentas:perfil")).content.decode()
+        roles = html[html.index('id="titulo-mis-roles"'):]
+        roles = roles[:roles.index("</section>")]
+        self.assertNotIn("desde el", roles)
+        self.assertIn("activo", roles)

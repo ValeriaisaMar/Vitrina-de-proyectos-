@@ -2,7 +2,7 @@
 
 from django.contrib.staticfiles import finders
 from django.template.loader import render_to_string
-from django.test import RequestFactory, TestCase
+from django.test import TestCase
 from django.urls import reverse
 
 from cuentas.tests.utilidades import crear_usuario
@@ -96,19 +96,65 @@ class ErroresYCorreosTests(TestCase):
         self.assertIn("/static/img/logo-uteq.png", html)
         self.assertIn('alt="UTEQ"', html)
 
-    def test_los_correos_html_llevan_el_logo_con_direccion_absoluta(self):
+    def _logo_incrustado(self, correo):
+        """Comprueba que el HTML pide cid:logo-uteq y que el PNG viaja dentro del correo."""
+        mime = correo.message()
+        html = next(p for p in mime.walk() if p.get_content_type() == "text/html").get_content()
+        self.assertIn('src="cid:logo-uteq"', html)
+        self.assertNotIn("127.0.0.1", html)
+        imagenes = [p for p in mime.walk() if p.get_content_type() == "image/png"]
+        self.assertEqual(len(imagenes), 1)
+        self.assertEqual(imagenes[0]["Content-ID"], "<logo-uteq>")
+        self.assertTrue(imagenes[0].get_content().startswith(b"\x89PNG"))
+        self.assertIn("multipart/related", [p.get_content_type() for p in mime.walk()])
+
+    def test_el_correo_de_activacion_lleva_el_logo_incrustado(self):
         from django.core import mail
 
         self.client.post(reverse("cuentas:registro"), {
             "nombres": "Ana", "apellidos": "Pérez", "email": "ana@correo.com",
             "password1": "una-clave-segura-123", "password2": "una-clave-segura-123",
         })
-        html = mail.outbox[0].alternatives[0][0]
-        self.assertIn('src="http://testserver/static/img/marca/uteq-correo.png"', html)
+        self._logo_incrustado(mail.outbox[0])
 
-    def test_la_recuperacion_usa_protocolo_y_dominio(self):
-        html = render_to_string("cuentas/correos/recuperacion.html", {
-            "protocol": "https", "domain": "vitrina.uteq.edu.ec", "uid": "x", "token": "y",
-            "user": crear_usuario(), "request": RequestFactory().get("/"),
-        })
-        self.assertIn("https://vitrina.uteq.edu.ec/static/img/marca/uteq-correo.png", html)
+    def test_el_correo_de_recuperacion_lleva_el_logo_incrustado(self):
+        from django.core import mail
+
+        crear_usuario(email="ana@correo.com")
+        self.client.post(reverse("cuentas:recuperar"), {"email": "ana@correo.com"})
+        self.assertEqual(len(mail.outbox), 1)
+        self._logo_incrustado(mail.outbox[0])
+
+
+class EstaticosConVersionTests(TestCase):
+    """El CSS y el JS llevan ?v=<huella>: si cambian, el navegador no puede seguir usando la copia vieja."""
+
+    def test_base_pide_css_y_js_con_version(self):
+        import re
+
+        html = self.client.get(reverse("vitrina:inicio")).content.decode()
+        self.assertRegex(html, r'href="/static/css/app\.css\?v=[0-9a-f]{10}"')
+        for js in ("tema", "selector", "menu"):
+            self.assertRegex(html, rf'src="/static/js/{js}\.js\?v=[0-9a-f]{{10}}"')
+        self.assertIsNone(re.search(r'href="/static/css/app\.css"', html))
+
+    def test_la_huella_cambia_si_cambia_el_archivo(self):
+        import tempfile
+        from pathlib import Path
+
+        from vitrina.templatetags.iconos import _huella
+
+        with tempfile.TemporaryDirectory() as carpeta:
+            archivo = Path(carpeta) / "a.css"
+            archivo.write_text("a{}")
+            uno = _huella(str(archivo), 1)
+            archivo.write_text("b{}")
+            self.assertNotEqual(uno, _huella(str(archivo), 2))
+
+    def test_el_pie_con_sesion_no_ofrece_iniciar_sesion(self):
+        usuario = crear_usuario()
+        self.client.force_login(usuario)
+        html = self.client.get(reverse("vitrina:explorar")).content.decode()
+        pie = html[html.index("<footer"):]
+        self.assertNotIn(reverse("cuentas:registro"), pie)
+        self.assertIn(reverse("cuentas:perfil"), pie)

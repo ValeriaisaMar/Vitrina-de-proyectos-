@@ -18,8 +18,20 @@
       {% translate "Cuentas sin activar" as t %}{% include "vitrina/paneles/_cifra.html" with valor=usuarios.sin_activar etiqueta=t url=url_usuarios|add:"?estado=sin_activar" %}
     </div>
 
+    {% if primeros_pasos %}
+      {# Spec 010: justo después de crear el primer admin #}
+      <section class="tarjeta-sobria border-l-4 border-l-uteq-verde p-5 sm:p-6" aria-labelledby="primeros-pasos">
+        <h2 id="primeros-pasos" class="flex items-center gap-2 text-lg font-extrabold">{% icono "sparkles" tam=20 %}{% translate "Siguientes pasos" %}</h2>
+        <ol class="mt-3 flex list-decimal flex-col gap-2 pl-6">
+          <li><a class="enlace" href="{% url 'cuentas:correo_envio' %}">{% translate "Configura el correo de envío" %}</a> <span class="text-texto-suave">{% translate "para que lleguen los enlaces de activación y los avisos." %}</span></li>
+          <li><a class="enlace" href="{% url 'proyectos:periodos' %}">{% translate "Crea el período actual" %}</a> <span class="text-texto-suave">{% translate "para que los estudiantes puedan enviar proyectos." %}</span></li>
+          <li><a class="enlace" href="{% url 'proyectos:planes' %}">{% translate "Carga el plan de estudios" %}</a> <span class="text-texto-suave">{% translate "con sus asignaturas." %}</span></li>
+        </ol>
+      </section>
+    {% endif %}
+
     {# Configuración de la plataforma (spec 008) #}
-    <nav class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="{% translate 'Configuración' %}">
+    <nav class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="{% translate 'Configuración' %}">
       <a href="{% url 'proyectos:periodos' %}" class="tarjeta-sobria flex items-center justify-between gap-4 p-5 hover:shadow-duro-verde">
         <span>
           <span class="flex items-center gap-2 font-extrabold">{% icono "calendar" tam=20 %}{% translate "Periodos académicos" %}</span>
@@ -55,7 +67,7 @@
       </div>
     {% endif %}
 
-    <div class="grid gap-8 lg:grid-cols-3">
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
       {% translate "Proyectos por estado" as titulo %}{% translate "Todavía no hay proyectos." as vacio %}
       {% include "vitrina/paneles/_barras.html" with filas=estados %}
       {% translate "Aprobados por periodo" as titulo %}{% translate "Todavía no hay proyectos aprobados." as vacio %}
@@ -64,7 +76,7 @@
       {% include "vitrina/paneles/_barras.html" with filas=tecnologias %}
     </div>
 
-    <div class="grid gap-8 lg:grid-cols-[1fr_20rem]">
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_20rem]">
       <section class="tarjeta-sobria min-w-0 p-6 sm:p-8" aria-labelledby="titulo-actividad">
         <h2 id="titulo-actividad" class="text-xl font-extrabold">{% translate "Actividad reciente" %}</h2>
         {% if actividad %}

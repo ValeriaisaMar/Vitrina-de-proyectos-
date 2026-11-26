@@ -188,12 +188,14 @@ Vitrina-de-proyectos-/
    cp .env.example .env        # macOS o Linux
    ```
 
-6. Crea las tablas y un administrador:
+6. Crea las tablas:
 
    ```bash
    python manage.py migrate
-   python manage.py createsuperuser
    ```
+
+   El primer administrador se crea desde el navegador (ver [Primer arranque](#primer-arranque)) o,
+   si prefieres la consola, con `python manage.py createsuperuser`.
 
 7. Inicia el servidor:
 
@@ -208,8 +210,8 @@ Vitrina-de-proyectos-/
 
    Las asignaturas de la malla y las tecnologías se cargan solas con `migrate`. Las imágenes y
    los PDF que suban los estudiantes se guardan en la carpeta `media/`, que no se sube a Git.
-   El superusuario que creaste con `createsuperuser` es admin. Para nombrar profesores: entra
-   con él → **Mi panel** → **Gestionar usuarios** → elige la cuenta → marca el rol **Profesor**.
+   El primer admin (creado en la configuración inicial o con `createsuperuser`) nombra a los
+   profesores: entra con él → **Mi panel** → **Gestionar usuarios** → elige la cuenta → marca el rol **Profesor**.
    Al iniciar sesión, cada persona llega al panel de su rol activo (estudiante, profesor o admin).
    La migración crea el periodo académico del semestre actual y lo deja como **período actual**;
    los demás se crean en **Mi panel** → **Periodos académicos** (ahí se marca cuál es el actual).
@@ -275,6 +277,8 @@ EMAIL_HOST_PASSWORD=contraseña_de_aplicación_de_gmail
 SITIO_URL=
 
 CLAVE_CIFRADO=clave_fernet_de_44_caracteres
+
+NIVEL_LOG_DJANGO=INFO
 ```
 
 - `EMAIL_HOST_PASSWORD` es una **contraseña de aplicación** de Google, no la contraseña normal
@@ -290,7 +294,12 @@ CLAVE_CIFRADO=clave_fernet_de_44_caracteres
   la que entras. Para que un celular abra el QR durante la demo, conecta ambos a la misma red,
   pon la IP del portátil (`SITIO_URL=http://192.168.1.20:8000`), agrégala a `ALLOWED_HOSTS` y
   arranca con `python manage.py runserver 0.0.0.0:8000`. Un QR que apunta a `127.0.0.1` solo
-  abre en el mismo portátil.
+  abre en el mismo portátil. También se usa en el bloque del código de la
+  [configuración inicial](#primer-arranque).
+- `NIVEL_LOG_DJANGO` es opcional (por defecto `INFO`): cuánto detalle escribe Django en la consola
+  (`DEBUG`, `INFO`, `WARNING`, `ERROR` o `CRITICAL`). Los logs salen por la consola también con
+  `DEBUG=False`, así que se ven con `docker compose logs web`, `journalctl` o en la terminal de
+  `runserver`. Nunca se escriben contraseñas ni códigos introducidos.
 
 Para generar una `SECRET_KEY`:
 
@@ -382,6 +391,62 @@ La hoja de ruta con los módulos y las fechas está en
 - Integración mediante Pull Request, con las pruebas en verde.
 - Prefijos de commit: `feat:`, `fix:`, `docs:`, `test:`, `style:`, `refactor:`.
   Ejemplo: `feat: agrega activación de cuenta por correo`.
+
+## Primer arranque
+
+Con la base de datos vacía no hay ningún administrador. La Vitrina permite crear el primero desde
+el navegador, protegido con un **código de configuración** de un solo uso que solo ve quien tiene
+acceso al servidor (así, si la app queda publicada sin admin, un desconocido no puede adueñarse de
+ella). El código vence en 30 minutos y se invalida tras 5 intentos fallidos.
+
+**En el servidor (camino principal):**
+
+1. Despliega y corre `python manage.py migrate`.
+2. Entra por SSH y genera el código:
+
+   ```bash
+   docker compose exec web python manage.py codigo_configuracion_inicial   # con Docker
+   python manage.py codigo_configuracion_inicial                           # sin Docker (con el entorno activado)
+   ```
+
+   Imprime un bloque como este (cada vez que lo corres, el código anterior deja de servir):
+
+   ```text
+   ==== VITRINA: CÓDIGO DE CONFIGURACIÓN INICIAL ====
+   Código: 7K4Q-M2XP-9WDA   (vence en 30 minutos)
+   Ábrelo en: https://tu-sitio/configuracion-inicial/
+   ===================================================
+   ```
+
+3. Abre el sitio → **Entrar** → **¿Instalación nueva? Configurar la administración** → pega el
+   código → crea una cuenta nueva o usa una que ya existe (conserva sus otros roles). La cuenta queda
+   activa sin enlace de activación y entras directo al panel del admin.
+
+Ese enlace solo aparece mientras no hay un admin activo. Después, `/configuracion-inicial/`
+responde 404.
+
+**Respaldo: el código en los logs.** Si abres `/configuracion-inicial/` sin un código vigente, el
+servidor genera uno y escribe el mismo bloque en el log (nivel WARNING). Los logs salen por la
+consola también con `DEBUG=False`:
+
+- Docker: `docker compose logs web`
+- systemd: `journalctl -u <servicio>`
+- Desarrollo: la terminal donde corre `python manage.py runserver`
+
+**Por consola:** `python manage.py createsuperuser` sigue funcionando. También deja
+"Configuración inicial" en el historial de roles e invalida el código pendiente.
+
+El detalle de los logs de Django se ajusta con `NIVEL_LOG_DJANGO` (ver
+[Variables de entorno](#variables-de-entorno)).
+
+### Recuperar el acceso de administrador
+
+La app no deja quitar el rol admin, desactivar ni eliminar a la **última** cuenta admin activa, ni
+en la gestión de usuarios ni en el panel de Django (`/admin/`). Si aun así no queda ningún admin
+activo (por ejemplo, alguien lo cambió directo en la base de datos), la configuración inicial vuelve
+a estar disponible: corre otra vez `codigo_configuracion_inicial` (o búscalo en los logs) y sigue
+los pasos de arriba. El enlace de Entrar puede tardar hasta un minuto en reaparecer. Los códigos ya
+usados nunca vuelven a servir: siempre hace falta uno nuevo.
 
 ## Despliegue
 

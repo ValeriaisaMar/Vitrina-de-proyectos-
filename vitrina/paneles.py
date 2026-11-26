@@ -13,6 +13,7 @@ from django.db.models import Count, Max, Prefetch, Q
 from django.shortcuts import render
 from django.utils import timezone
 
+from cuentas.configuracion_inicial import CLAVE_PRIMEROS_PASOS
 from cuentas.models import ConfiguracionCorreo, Rol
 from proyectos.models import (
     ESTADOS_DE_DECISION,
@@ -169,4 +170,6 @@ def _panel_admin(request):
         "correo_envio": _correo_envio(),
         "tecnologias": tecnologias,
         "actividad": EventoEstado.objects.select_related("proyecto", "actor").order_by("-creado_en")[:8],
+        # Recién terminada la configuración inicial (spec 010): se muestran los siguientes pasos una vez
+        "primeros_pasos": request.session.pop(CLAVE_PRIMEROS_PASOS, False),
     })

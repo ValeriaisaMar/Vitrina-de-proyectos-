@@ -12,7 +12,7 @@
     <h1 class="mt-3 text-3xl font-extrabold sm:text-4xl">{% translate "Usuarios y roles" %}</h1>
     <p class="mt-2 max-w-2xl text-texto-suave">{% translate "Toda cuenta nace como estudiante. Aquí das o quitas roles (una persona puede tener varios) y desactivas cuentas." %}</p>
 
-    <form method="get" class="tarjeta-sobria mt-8 grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_auto] lg:items-end">
+    <form method="get" class="tarjeta-sobria mt-8 grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_auto] lg:items-end">
       <div class="flex flex-col gap-1.5">
         <label for="{{ form.q.id_for_label }}" class="campo-etiqueta">{{ form.q.label }}</label>
         <input type="search" name="q" id="{{ form.q.id_for_label }}" value="{{ form.q.value|default:'' }}" placeholder="{% translate 'Nombre o correo' %}" class="campo-control">
@@ -29,7 +29,7 @@
     </form>
 
     {% if pagina.object_list %}
-      <div class="tarjeta-sobria mt-6 overflow-x-auto">
+      <div class="tarjeta-sobria relative mt-6 overflow-x-auto">
         <table class="w-full min-w-[46rem] border-collapse text-sm">
           <caption class="sr-only">{% translate "Usuarios" %}</caption>
           <thead>

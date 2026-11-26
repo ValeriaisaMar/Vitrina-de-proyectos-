@@ -229,7 +229,7 @@ class DecidirTests(BaseRevision):
     def test_si_el_correo_falla_la_decision_se_guarda(self):
         self.en_revision()
         self.entrar(self.profe)
-        with mock.patch("proyectos.correos.EmailMultiAlternatives.send", side_effect=OSError("sin red")):
+        with mock.patch("proyectos.correos.CorreoConLogo.send", side_effect=OSError("sin red")):
             respuesta = self.client.post(self.url(), {"decision": "aprobado"}, follow=True)
         self.assertEqual(self.estado(), Estado.APROBADO)
         self.assertContains(respuesta, "no pudimos avisar a los autores")

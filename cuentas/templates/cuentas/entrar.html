@@ -44,4 +44,13 @@
   {% translate "¿No te llegó el correo de activación?" %}
   <a class="enlace" href="{% url 'cuentas:reenviar' %}">{% translate "Pedir uno nuevo" %}</a>
 </p>
+
+{% if mostrar_configuracion_inicial %}
+  {# Spec 010: solo mientras no hay ningún admin activo. Discreto a propósito: sin botón ni color de acento. #}
+  <p class="mt-6 border-t border-linea-suave pt-4 text-xs">
+    <a class="inline-flex min-h-11 items-center gap-1.5 text-texto-suave underline-offset-4 hover:underline" href="{% url 'configuracion_inicial' %}">
+      {% icono "settings" tam=14 %}{% translate "¿Instalación nueva? Configurar la administración" %}
+    </a>
+  </p>
+{% endif %}
 {% endblock %}

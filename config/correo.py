@@ -17,7 +17,9 @@ import logging
 from email.utils import formataddr
 
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.core.cache import cache
+from django.core.mail import EmailMultiAlternatives
 from django.core.mail.backends.base import BaseEmailBackend
 from django.core.mail.backends.smtp import EmailBackend as SmtpBackend
 from django.utils.module_loading import import_string
@@ -107,18 +109,32 @@ class CorreoConfigurableBackend(BaseEmailBackend):
 # --------------------------------------------------------------------------- Marca en los correos
 
 LOGO_CORREO = "img/marca/uteq-correo.png"
+CID_LOGO = "logo-uteq"
 
 
-def url_logo_correo(request=None):
-    """Dirección absoluta del logo para los correos HTML (los programas de correo no entienden rutas relativas).
+def incrustar_logo(mensaje_mime):
+    """Mete el logo UTEQ DENTRO del correo, junto a la parte HTML (multipart/related).
 
-    Usa SITIO_URL si está en el .env; si no, la dirección de la petición. Sin ninguna de las dos, None.
+    Antes el <img> apuntaba a una dirección como http://127.0.0.1:8000/static/...: Gmail y Outlook
+    descargan las imágenes desde sus servidores, que no pueden entrar a tu computador, así que el
+    logo salía roto. Incrustado viaja con el correo y se ve siempre, en local y en producción.
+    La plantilla lo pide con src="cid:logo-uteq" (cuentas/templates/cuentas/correos/base_correo.html).
     """
-    from django.templatetags.static import static
+    ruta = finders.find(LOGO_CORREO)
+    if not ruta:
+        logger.warning("No se encontró %s; el correo sale sin logo.", LOGO_CORREO)
+        return mensaje_mime
+    for parte in mensaje_mime.walk():
+        if parte.get_content_type() == "text/html" and f"cid:{CID_LOGO}" in parte.get_content():
+            with open(ruta, "rb") as archivo:
+                parte.add_related(archivo.read(), "image", "png", cid=f"<{CID_LOGO}>",
+                                  disposition="inline", filename="uteq.png")
+            break
+    return mensaje_mime
 
-    ruta = static(LOGO_CORREO)
-    if settings.SITIO_URL:
-        return settings.SITIO_URL + ruta
-    if request is not None:
-        return request.build_absolute_uri(ruta)
-    return None
+
+class CorreoConLogo(EmailMultiAlternatives):
+    """EmailMultiAlternatives que incrusta el logo UTEQ en la versión HTML. Úsenlo para todo correo HTML."""
+
+    def message(self, **kwargs):
+        return incrustar_logo(super().message(**kwargs))

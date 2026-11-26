@@ -1,0 +1,106 @@
+{% extends "cuentas/base_acceso.html" %}
+{% load i18n %}
+{% comment %}
+Configuración inicial (spec 010): asistente para crear el primer admin. Solo existe mientras no hay
+ningún admin activo. Nunca muestra el código; solo dice dónde encontrarlo (comando en el servidor o
+logs de la aplicación). Las pestañas son enlaces (?opcion=nueva / ?opcion=existente): funcionan sin
+JavaScript y con el teclado.
+{% endcomment %}
+
+{% block titulo %}{% translate "Configuración inicial" %}{% endblock %}
+{% block panel_titulo %}{% translate "Instalación nueva" %}{% endblock %}
+{% block panel_texto %}{% translate "Crea la cuenta que administrará la Vitrina. Solo se puede hacer mientras no haya ningún administrador." %}{% endblock %}
+
+{% block formulario %}
+{% include "cuentas/_sello.html" %}
+
+{% if con_sesion %}
+  <div class="tarjeta-sobria p-6 sm:p-8">
+    <h2 class="text-2xl font-extrabold">{% translate "Configurar la administración" %}</h2>
+    <p class="mt-3 text-texto-suave">{% translate "Tienes una sesión iniciada. Para crear el primer administrador, primero cierra la sesión." %}</p>
+    <form method="post" action="{% url 'cuentas:salir' %}" class="mt-6">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primario gap-2">{% icono "logout" tam=18 %}{% translate "Cerrar sesión" %}</button>
+    </form>
+  </div>
+{% else %}
+<div class="tarjeta-sobria p-6 sm:p-8">
+  <h2 class="text-2xl font-extrabold">{% translate "Configurar la administración" %}</h2>
+  <p class="mt-2 text-texto-suave">{% translate "Dos pasos: el código de configuración y los datos de la cuenta admin." %}</p>
+
+  {% if bloqueado %}
+    <div class="mt-6">{% blocktranslate asvar texto_bloqueo with minutos=minutos %}Demasiados intentos fallidos. Espera {{ minutos }} minutos antes de intentar de nuevo.{% endblocktranslate %}{% include "componentes/aviso.html" with tipo="error" texto=texto_bloqueo %}</div>
+  {% elif error %}
+    <div class="mt-6">{% include "componentes/aviso.html" with tipo="error" texto=error %}</div>
+  {% elif form.non_field_errors %}
+    <div class="mt-6">{% include "componentes/aviso.html" with tipo="error" texto=form.non_field_errors.0 %}</div>
+  {% endif %}
+
+  <form method="post" action="{% url 'configuracion_inicial' %}" class="mt-6 flex flex-col gap-8" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="opcion" value="{{ opcion }}">
+
+    {# Paso 1: el código #}
+    <fieldset class="flex flex-col gap-4">
+      <legend class="mb-3 flex items-center gap-2 text-lg font-extrabold">
+        <span class="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-linea bg-uteq-verde text-sm text-white" aria-hidden="true">1</span>
+        {% translate "Código de configuración" %}
+      </legend>
+      <p class="text-sm text-texto-suave">{% blocktranslate %}Copia el código que te da el comando <code class="font-mono">codigo_configuracion_inicial</code> en el servidor o búscalo en los logs de la aplicación.{% endblocktranslate %}</p>
+      {% include "componentes/campo.html" with campo=form.codigo %}
+      <details class="border-2 border-linea-suave p-4 text-sm">
+        <summary class="flex min-h-11 cursor-pointer items-center gap-2 font-bold">{% icono "info-circle" tam=18 %}{% translate "¿Dónde encuentro el código?" %}</summary>
+        <div class="mt-3 flex flex-col gap-4 text-texto-suave">
+          <div>
+            <p class="font-semibold text-texto">{% translate "Servidor con Docker (por SSH):" %}</p>
+            <pre class="mt-1 overflow-x-auto border-2 border-linea-suave bg-seccion p-3 font-mono text-xs text-texto"><code>docker compose exec web python manage.py codigo_configuracion_inicial</code></pre>
+          </div>
+          <div>
+            <p class="font-semibold text-texto">{% translate "Servidor sin Docker (con el entorno virtual activado):" %}</p>
+            <pre class="mt-1 overflow-x-auto border-2 border-linea-suave bg-seccion p-3 font-mono text-xs text-texto"><code>python manage.py codigo_configuracion_inicial</code></pre>
+          </div>
+          <div>
+            <p class="font-semibold text-texto">{% translate "En tu equipo (desarrollo):" %}</p>
+            <p>{% translate "Abrir esta página ya escribió un código en la consola donde corre runserver. También puedes correr el mismo comando en otra terminal." %}</p>
+          </div>
+          <p>{% blocktranslate %}Respaldo: el código también queda en los logs (<code class="font-mono">docker compose logs web</code> o <code class="font-mono">journalctl</code>). Vence en 30 minutos y sirve una sola vez.{% endblocktranslate %}</p>
+        </div>
+      </details>
+    </fieldset>
+
+    {# Paso 2: los datos del admin #}
+    <fieldset class="flex flex-col gap-4">
+      <legend class="mb-3 flex items-center gap-2 text-lg font-extrabold">
+        <span class="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-linea bg-uteq-verde text-sm text-white" aria-hidden="true">2</span>
+        {% translate "Datos del admin" %}
+      </legend>
+      <nav class="grid grid-cols-1 border-2 border-linea bg-superficie sm:grid-cols-2" aria-label="{% translate 'Tipo de cuenta' %}">
+        <a href="?opcion=nueva" class="flex min-h-12 items-center justify-center gap-2 px-3 text-center text-sm font-bold {% if opcion == 'nueva' %}bg-uteq-verde text-white{% else %}text-texto hover:bg-seccion{% endif %}" {% if opcion == 'nueva' %}aria-current="page"{% endif %}>{% icono "user-plus" tam=18 %}{% translate "Crear una cuenta nueva" %}</a>
+        <a href="?opcion=existente" class="flex min-h-12 items-center justify-center gap-2 border-t-2 border-linea px-3 text-center text-sm font-bold sm:border-l-2 sm:border-t-0 {% if opcion == 'existente' %}bg-uteq-verde text-white{% else %}text-texto hover:bg-seccion{% endif %}" {% if opcion == 'existente' %}aria-current="page"{% endif %}>{% icono "user-check" tam=18 %}{% translate "Usar una cuenta que ya existe" %}</a>
+      </nav>
+
+      {% if opcion == "existente" %}
+        <p class="text-sm text-texto-suave">{% translate "La cuenta recibe el rol admin y conserva los que ya tiene (por ejemplo, si un profesor se registró como estudiante)." %}</p>
+        {% include "componentes/campo.html" with campo=form.email %}
+        {% include "componentes/campo.html" with campo=form.password %}
+      {% else %}
+        <p class="text-sm text-texto-suave">{% translate "La cuenta queda activa de inmediato; no se envía enlace de activación." %}</p>
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          {% include "componentes/campo.html" with campo=form.nombres %}
+          {% include "componentes/campo.html" with campo=form.apellidos %}
+        </div>
+        {% include "componentes/campo.html" with campo=form.email %}
+        {% include "componentes/campo.html" with campo=form.password1 %}
+        {% include "componentes/campo.html" with campo=form.password2 %}
+      {% endif %}
+    </fieldset>
+
+    <button type="submit" class="btn btn-primario w-full gap-2">{% icono "settings" tam=18 %}{% translate "Crear el administrador" %}</button>
+  </form>
+</div>
+{% endif %}
+
+<p class="mt-5 text-sm">
+  <a class="enlace inline-flex min-h-11 items-center gap-1.5" href="{% url 'cuentas:entrar' %}">{% icono "arrow-left" tam=16 %}{% translate "Volver a Entrar" %}</a>
+</p>
+{% endblock %}

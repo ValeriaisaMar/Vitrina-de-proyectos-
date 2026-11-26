@@ -17,7 +17,7 @@ from cuentas.models import Rol
 from cuentas.tests.utilidades import crear_usuario
 from config.texto import nfc, para_pdf
 from proyectos.models import Estado, Proyecto
-from proyectos.tests.utilidades import MediaTemporal, crear_proyecto
+from proyectos.tests.utilidades import MediaTemporal, crear_proyecto, imagen_png
 
 TITULO = "Diseño de ñandúes: Árbol, pingüino y «más» ¿sí?"
 EXTRA = "¡Hola! “comillas” ‘simples’ ÜÑÁÉÍÓÚ"
@@ -65,11 +65,25 @@ class NormalizacionTests(TestCase):
 
 
 class PortadaYCertificadoTests(MediaTemporal, TestCase):
-    def test_la_portada_de_color_muestra_la_inicial_completa(self):
+    def test_la_portada_de_color_muestra_el_titulo_completo_con_tildes(self):
         ana = crear_usuario("ana@correo.com")
-        crear_proyecto(ana, titulo=unicodedata.normalize("NFD", "Ñandú"), estado=Estado.APROBADO)
+        titulo = "Diseño de ñandúes: árbol, pingüino y «más» ¿sí?"
+        crear_proyecto(ana, titulo=unicodedata.normalize("NFD", titulo), estado=Estado.APROBADO, color_portada="terracota")
         html = self.client.get(reverse("vitrina:explorar")).content.decode()
-        self.assertIn(">Ñ</span>", html)
+        # El título va escrito en HTML (no en una imagen), en NFC, dentro de la portada de color
+        self.assertIn("data-vista-titulo", html)
+        self.assertIn("Diseño de ñandúes: árbol, pingüino y «más» ¿sí?</p>", html)
+        self.assertIn("Vitrina de Proyectos · UTEQ", html)
+        self.assertIn("background-color: #9a3412", html)
+
+    def test_con_imagen_de_portada_no_sale_la_portada_de_color(self):
+        ana = crear_usuario("ana@correo.com")
+        proyecto = crear_proyecto(ana, titulo="Con imagen", estado=Estado.APROBADO)
+        proyecto.imagen_portada.save("p.png", imagen_png(), save=True)
+        for url in (reverse("vitrina:explorar"), proyecto.get_absolute_url()):
+            html = self.client.get(url).content.decode()
+            self.assertIn(proyecto.imagen_portada.url, html)
+            self.assertNotIn("data-vista-titulo", html)
 
     def test_el_certificado_se_genera_con_el_titulo_de_ejemplo(self):
         ana = crear_usuario("ana@correo.com")

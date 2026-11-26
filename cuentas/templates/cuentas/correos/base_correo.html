@@ -1,4 +1,4 @@
-{% load i18n static %}{% get_current_language as IDIOMA %}<!DOCTYPE html>
+{% load i18n %}{% get_current_language as IDIOMA %}<!DOCTYPE html>
 {% comment %}
 Base de los correos en HTML. Los programas de correo ignoran casi todo el CSS externo,
 por eso los estilos van en línea y la estructura es una tabla.
@@ -10,12 +10,11 @@ Bloques: titulo, contenido, boton_url, boton_texto, pie.
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7f5;padding:24px 12px;">
     <tr><td align="center">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:2px solid #0f1f17;">
-        {# Logo UTEQ sobre blanco (spec 008). La URL debe ser absoluta: logo_correo_url o, en la recuperación de contraseña, protocol + domain de Django. #}
-        {% if logo_correo_url or domain %}
+        {# Logo UTEQ sobre blanco. Va incrustado en el correo (cid:logo-uteq, ver config/correo.py → CorreoConLogo): #}
+        {# una dirección http://… no sirve porque Gmail no puede descargar imágenes de 127.0.0.1 ni de una red local. #}
         <tr><td style="background:#ffffff;padding:18px 28px 14px;border-bottom:2px solid #0f1f17;">
-          <img src="{% if logo_correo_url %}{{ logo_correo_url }}{% else %}{{ protocol }}://{{ domain }}{% static 'img/marca/uteq-correo.png' %}{% endif %}" alt="UTEQ" width="116" height="48" style="display:block;border:0;height:48px;width:auto;">
+          <img src="cid:logo-uteq" alt="UTEQ" width="116" height="48" style="display:block;border:0;height:48px;width:116px;">
         </td></tr>
-        {% endif %}
         <tr><td style="background:#025a27;padding:20px 28px;border-bottom:2px solid #0f1f17;">
           <span style="font-size:18px;font-weight:bold;color:#ffffff;">{% translate "Vitrina de Proyectos" %}</span>
           <span style="display:block;font-size:12px;color:#cfe3d6;margin-top:4px;">UTEQ · {% translate "Ingeniería de Software" %}</span>

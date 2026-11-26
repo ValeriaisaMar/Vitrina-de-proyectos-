@@ -1,0 +1,19 @@
+{% load i18n %}{% comment %}
+Portada de un proyecto que no tiene imagen: el color que eligió, un marco blanco, el título completo
+arriba, una barra amarilla y "Vitrina de Proyectos · UTEQ" abajo. Es HTML (no una imagen generada),
+así que las tildes, la ñ, la diéresis y los signos «» ¿? se ven bien siempre.
+
+Uso: {% include "parciales/portada_color.html" with titulo=p.titulo color=p.color_hex %}
+con_insignia=True deja más espacio arriba para la insignia "Verificado" de las tarjetas.
+Llena el contenedor (que debe tener la proporción 16:9). Todas las medidas van en cqw (% del ancho
+del contenedor): la misma portada se ve igual en una tarjeta pequeña, en el detalle y en el formulario.
+Es decorativa (aria-hidden): el título del proyecto siempre está escrito al lado.
+data-vista-color y data-vista-titulo los usa static/js/portada.js para la vista previa del formulario.
+{% endcomment %}
+<div class="@container relative h-full w-full overflow-hidden text-white {% if oculta %}hidden{% endif %}" style="background-color: {{ color }}" aria-hidden="true" data-vista-color>
+  <div class="absolute inset-[3.5cqw] flex flex-col border-[max(1.5px,0.35cqw)] border-white px-[4cqw] pb-[2.2cqw] {% if con_insignia %}pt-[max(9cqw,2.25rem)]{% else %}pt-[6cqw]{% endif %}">
+    <p class="line-clamp-4 text-pretty break-words font-texto text-[5.6cqw] font-medium leading-[1.15]" data-vista-titulo data-por-defecto="{% translate 'Título del proyecto' %}">{{ titulo|default:_("Título del proyecto")|nfc }}</p>
+    <span class="mt-auto -ml-[4cqw] block h-[1.1cqw] min-h-[3px] w-[25cqw] bg-uteq-amarillo"></span>
+    <span class="mt-[1.6cqw] block truncate text-[max(2.3cqw,0.5rem)] font-semibold leading-none tracking-wide text-white/90">{% translate "Vitrina de Proyectos" %} · UTEQ</span>
+  </div>
+</div>
