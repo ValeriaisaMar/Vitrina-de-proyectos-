@@ -63,18 +63,15 @@
         <h2 id="titulo-decision" class="text-lg font-extrabold">{% translate "Revisión" %}</h2>
 
         {% if es_su_proyecto and proyecto.estado == "enviado" or es_su_proyecto and proyecto.estado == "en_revision" %}
-          <div class="mt-4">{% translate "Eres autor de este proyecto: no puedes revisarlo, aprobarlo ni rechazarlo. Lo decidirá otro docente." as t %}{% include "componentes/aviso.html" with tipo="warning" texto=t %}</div>
+          <div class="mt-4">{% translate "Eres autor de este proyecto: no puedes revisarlo, aprobarlo ni rechazarlo. Lo decidirá otro profesor." as t %}{% include "componentes/aviso.html" with tipo="warning" texto=t %}</div>
         {% elif puede_tomar %}
-          <p class="mt-3 text-sm leading-relaxed text-texto-suave">{% translate "Este proyecto está esperando a un docente. Al tomarlo queda en revisión a tu nombre." %}</p>
+          <p class="mt-3 text-sm leading-relaxed text-texto-suave">{% translate "Te asignaron este proyecto. Cuando empieces, quedará en revisión a tu nombre." %}</p>
           <form method="post" action="{% url 'proyectos:tomar' proyecto.slug %}" class="mt-5">
             {% csrf_token %}
-            <button type="submit" class="btn btn-primario w-full">{% translate "Tomar este proyecto" %}</button>
+            <button type="submit" class="btn btn-primario w-full gap-2">{% icono "clipboard-check" tam=18 %}{% translate "Empezar revisión" %}</button>
           </form>
 
         {% elif puede_decidir %}
-          {% if proyecto.revisor and proyecto.revisor != user %}
-            <p class="mt-3 text-sm text-texto-suave">{% blocktranslate with docente=proyecto.revisor.nombre_completo %}Lo tomó {{ docente }}. Como admin puedes decidir por él.{% endblocktranslate %}</p>
-          {% endif %}
           <form method="post" class="mt-5 flex flex-col gap-5" novalidate>
             {% csrf_token %}
             <fieldset>
@@ -95,11 +92,14 @@
               {% for error in form.decision.errors %}<p class="campo-error">{{ error }}</p>{% endfor %}
             </fieldset>
             {% include "componentes/campo.html" with campo=form.comentario %}
-            <button type="submit" class="btn btn-primario w-full">{% translate "Guardar decisión" %}</button>
+            <button type="submit" class="btn btn-primario w-full gap-2">{% icono "check" tam=18 %}{% translate "Guardar decisión" %}</button>
           </form>
 
         {% elif proyecto.estado == "en_revision" %}
           <p class="mt-3 text-sm leading-relaxed text-texto-suave">{% blocktranslate with docente=proyecto.revisor.nombre_completo %}Lo está revisando {{ docente }}.{% endblocktranslate %}</p>
+
+        {% elif proyecto.estado == "enviado" %}
+          <p class="mt-3 text-sm leading-relaxed text-texto-suave">{{ proyecto.get_subestado_display }}{% if proyecto.revisor %} · {{ proyecto.revisor.nombre_completo }}{% endif %}</p>
 
         {% elif proyecto.estado == "aprobado" %}
           <p class="mt-3 text-sm leading-relaxed">{% translate "Aprobado y publicado." %}</p>
@@ -112,6 +112,9 @@
           <p class="mt-3 text-sm leading-relaxed text-texto-suave">{% translate "Este proyecto fue rechazado. Es una decisión final." %}</p>
         {% endif %}
 
+        {% if puede_reasignar %}
+          <a href="{% url 'proyectos:reasignar' proyecto.slug %}" class="btn btn-secundario mt-5 w-full gap-2">{% icono "refresh" tam=18 %}{% translate "Reasignar revisor" %}</a>
+        {% endif %}
         <a href="{{ proyecto.get_absolute_url }}" class="enlace mt-6 inline-block text-sm">{% translate "Ver la ficha del proyecto" %} →</a>
       </div>
     </aside>

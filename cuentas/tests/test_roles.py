@@ -8,9 +8,9 @@ from django.urls import reverse
 from cuentas.models import CambioRol, Rol, RolAsignado
 from cuentas.roles import CLAVE_SESION, asignar_roles
 from cuentas.tests.utilidades import CLAVE, crear_usuario
-from proyectos.models import Estado
+from proyectos.models import Estado, Proyecto
 from proyectos.servicios import cambiar_estado, puede_cambiar
-from proyectos.tests.utilidades import crear_proyecto
+from proyectos.tests.utilidades import crear_proyecto, tomar
 
 PANEL = reverse("vitrina:panel")
 CAMBIAR = reverse("cuentas:cambiar_rol")
@@ -59,15 +59,15 @@ class SelectorDeRolTests(TestCase):
 
     def test_el_encabezado_muestra_el_rol_activo_y_el_selector(self):
         respuesta = self.client.get(PANEL)
-        self.assertContains(respuesta, "Entrar como")
-        self.assertContains(respuesta, f'action="{CAMBIAR}"', count=2)  # menú de escritorio y móvil
+        self.assertContains(respuesta, "Cambiar de rol")
+        self.assertContains(respuesta, f'action="{CAMBIAR}"', count=1)  # un solo menú, el del avatar (spec 009)
         self.assertContains(respuesta, 'name="rol" value="admin"')
         self.assertTemplateUsed(respuesta, "vitrina/paneles/estudiante.html")  # entra con el de menor privilegio
 
     def test_con_un_solo_rol_no_hay_selector(self):
         self.client.force_login(crear_usuario("luis@correo.com"))
         respuesta = self.client.get(PANEL)
-        self.assertNotContains(respuesta, "Entrar como")
+        self.assertNotContains(respuesta, "Cambiar de rol")
         self.assertContains(respuesta, "insignia-rol")
 
     def test_cambiar_de_rol_lleva_al_panel_de_ese_rol_y_se_recuerda(self):
@@ -192,6 +192,7 @@ class ConflictoDeInteresTests(TestCase):
         self.client.force_login(self.profe)
         self.client.post(CAMBIAR, {"rol": "profesor"})
         self.assertNotContains(self.client.get(reverse("proyectos:bandeja")), "Proyecto del profe")
+        Proyecto.objects.filter(pk=self.proyecto.pk).update(revisor=self.otro)  # se lo asignan a otro (spec 009)
         self.client.force_login(self.otro)
         self.assertContains(self.client.get(reverse("proyectos:bandeja")), "Proyecto del profe")
 
@@ -208,7 +209,7 @@ class ConflictoDeInteresTests(TestCase):
         jefa = crear_usuario("jefa@correo.com", roles=["estudiante", "admin"])
         proyecto = crear_proyecto(jefa, titulo="De la jefa")
         cambiar_estado(proyecto, Estado.ENVIADO, jefa)
-        cambiar_estado(proyecto, Estado.EN_REVISION, self.otro)
+        tomar(proyecto, self.otro)
         jefa.rol_activo = Rol.ADMIN
         self.assertFalse(puede_cambiar(jefa, proyecto, Estado.APROBADO))
 

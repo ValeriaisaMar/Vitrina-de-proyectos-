@@ -28,7 +28,7 @@
   <li class="flex gap-2"><span aria-hidden="true">→</span>{% translate "Si no lo ves, revisa la carpeta de spam o correo no deseado." %}</li>
 </ul>
 <div class="mt-8 flex flex-wrap gap-4">
-  <a href="{% url 'cuentas:reenviar' %}" class="btn btn-secundario">{% translate "Reenviar enlace" %}</a>
-  <a href="{% url 'vitrina:inicio' %}" class="btn btn-fantasma">{% translate "Volver al inicio" %}</a>
+  <a href="{% url 'cuentas:reenviar' %}" class="btn btn-secundario gap-2">{% icono "mail" tam=18 %}{% translate "Reenviar enlace" %}</a>
+  <a href="{% url 'vitrina:inicio' %}" class="btn btn-fantasma gap-2">{% icono "arrow-left" tam=18 %}{% translate "Volver al inicio" %}</a>
 </div>
 {% endblock %}

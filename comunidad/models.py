@@ -1,6 +1,6 @@
-"""Modelos de la app comunidad (módulo 007): me gusta, favoritos y comentarios.
+"""Modelos de la app comunidad (módulo 007): me gusta, guardados y comentarios.
 
-Solo existen sobre proyectos aprobados. Me gusta y favorito son únicos por persona y proyecto:
+Solo existen sobre proyectos aprobados. Me gusta y guardado son únicos por persona y proyecto:
 lo garantiza la base de datos con UniqueConstraint, no solo el código.
 """
 
@@ -24,14 +24,20 @@ class MeGusta(models.Model):
         constraints = [models.UniqueConstraint(fields=["usuario", "proyecto"], name="un_me_gusta_por_persona")]
 
 
-class Favorito(models.Model):
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="favoritos")
-    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, related_name="favoritos")
+class Guardado(models.Model):
+    """Un proyecto que una persona guardó para verlo después (antes se llamaba Favorito, spec 009).
+
+    Hay una sola lista: "Guardados". RenameModel renombró la tabla sin tocar las filas; la
+    restricción única conserva su nombre de antes.
+    """
+
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="guardados")
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, related_name="guardados")
     creado_en = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = _("favorito")
-        verbose_name_plural = _("favoritos")
+        verbose_name = _("guardado")
+        verbose_name_plural = _("guardados")
         ordering = ["-creado_en"]
         constraints = [models.UniqueConstraint(fields=["usuario", "proyecto"], name="un_favorito_por_persona")]
 

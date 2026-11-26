@@ -1,0 +1,22 @@
+{% extends "cuentas/base_tarjeta.html" %}
+{% load i18n %}
+
+{% block titulo %}{% if plan %}{% translate "Editar plan" %}{% else %}{% translate "Nuevo plan" %}{% endif %}{% endblock %}
+
+{% block tarjeta %}
+<nav aria-label="{% translate 'Ruta' %}" class="text-sm text-texto-suave">
+  <a class="enlace" href="{% url 'proyectos:planes' %}">{% translate "Plan de estudios" %}</a><span aria-hidden="true"> / </span>{% if plan %}{{ plan.nombre }}{% else %}{% translate "Nuevo" %}{% endif %}
+</nav>
+<h1 class="mt-4 text-3xl font-extrabold">{% if plan %}{% translate "Editar plan" %}{% else %}{% translate "Nuevo plan" %}{% endif %}</h1>
+
+<form method="post" class="mt-8 flex flex-col gap-5" novalidate>
+  {% csrf_token %}
+  {% include "componentes/campo.html" with campo=form.nombre %}
+  {% include "componentes/campo.html" with campo=form.anio %}
+  {% include "componentes/campo.html" with campo=form.activo %}
+  <div class="flex flex-wrap gap-4">
+    <button type="submit" class="btn btn-primario gap-2">{% icono "check" tam=18 %}{% translate "Guardar" %}</button>
+    <a href="{% if plan %}{% url 'proyectos:plan' plan.pk %}{% else %}{% url 'proyectos:planes' %}{% endif %}" class="btn btn-secundario gap-2">{% icono "arrow-left" tam=18 %}{% translate "Cancelar" %}</a>
+  </div>
+</form>
+{% endblock %}

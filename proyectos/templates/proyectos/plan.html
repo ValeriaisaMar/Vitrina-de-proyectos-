@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titulo %}{{ plan.nombre }}{% endblock %}
+
+{% block contenido %}
+<section class="bg-seccion py-10 sm:py-14">
+  <div class="contenedor">
+    <nav aria-label="{% translate 'Ruta' %}" class="text-sm text-texto-suave">
+      <a class="enlace" href="{% url 'vitrina:panel' %}">{% translate "Mi panel" %}</a><span aria-hidden="true"> / </span>
+      <a class="enlace" href="{% url 'proyectos:planes' %}">{% translate "Plan de estudios" %}</a><span aria-hidden="true"> / </span>{{ plan.nombre }}
+    </nav>
+    <div class="mt-3 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-extrabold sm:text-4xl">{{ plan.nombre }}</h1>
+        <p class="mt-2 flex flex-wrap items-center gap-2 text-texto-suave">
+          {% blocktranslate with anio=plan.anio %}Año {{ anio }}{% endblocktranslate %}
+          {% if plan.activo %}<span class="insignia insignia-aprobado">{% translate "Activo" %}</span>{% else %}<span class="insignia insignia-borrador">{% translate "Inactivo" %}</span>{% endif %}
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href="{% url 'proyectos:asignatura_nueva' plan.pk %}" class="btn btn-primario gap-2">{% icono "plus" tam=18 %}{% translate "Nueva asignatura" %}</a>
+        <a href="{% url 'proyectos:plan_editar' plan.pk %}" class="btn btn-secundario gap-2">{% icono "pencil" tam=18 %}{% translate "Editar plan" %}</a>
+        <form method="post" action="{% url 'proyectos:plan_activar' plan.pk %}">
+          {% csrf_token %}<input type="hidden" name="volver" value="plan">
+          <button type="submit" class="btn btn-secundario gap-2">{% if plan.activo %}{% icono "eye-off" tam=18 %}{% translate "Desactivar plan" %}{% else %}{% icono "eye" tam=18 %}{% translate "Activar plan" %}{% endif %}</button>
+        </form>
+        {% if not semestres %}
+          <form method="post" action="{% url 'proyectos:plan_eliminar' plan.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-peligro gap-2">{% icono "trash" tam=18 %}{% translate "Borrar plan" %}</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if semestres %}
+      <div class="mt-8 flex flex-col gap-6">
+        {% for semestre, asignaturas in semestres %}
+          <section class="tarjeta-sobria overflow-x-auto" aria-labelledby="semestre-{{ semestre }}">
+            <h2 id="semestre-{{ semestre }}" class="border-b-2 border-linea bg-uteq-tinte px-5 py-3 text-sm font-bold uppercase tracking-wider text-uteq-verde dark:bg-uteq-verde dark:text-white">{% blocktranslate with n=semestre %}Semestre {{ n }}{% endblocktranslate %}</h2>
+            <table class="w-full min-w-[36rem] border-collapse text-sm">
+              <caption class="sr-only">{% blocktranslate with n=semestre %}Asignaturas del semestre {{ n }}{% endblocktranslate %}</caption>
+              <thead class="sr-only"><tr><th scope="col">{% translate "Asignatura" %}</th><th scope="col">{% translate "Estado" %}</th><th scope="col">{% translate "Proyectos" %}</th><th scope="col">{% translate "Acciones" %}</th></tr></thead>
+              <tbody>
+                {% for a in asignaturas %}
+                  <tr class="border-b border-linea-suave last:border-b-0 {% if not a.activa %}text-texto-suave{% endif %}">
+                    <td class="px-5 py-3"><span class="font-bold">{{ a.nombre }}</span>{% if a.codigo %} <span class="text-texto-suave">· {{ a.codigo }}</span>{% endif %}</td>
+                    <td class="px-3 py-3">{% if not a.activa %}<span class="insignia insignia-borrador">{% translate "Inactiva" %}</span>{% endif %}</td>
+                    <td class="px-3 py-3 text-right tabular-nums">{% blocktranslate count n=a.total_proyectos %}{{ n }} proyecto{% plural %}{{ n }} proyectos{% endblocktranslate %}</td>
+                    <td class="px-5 py-3">
+                      <div class="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 font-semibold">
+                        <a class="enlace inline-flex items-center gap-1" href="{% url 'proyectos:asignatura_editar' a.pk %}">{% icono "pencil" tam=16 %}{% translate "Editar" %}<span class="sr-only"> {{ a.nombre }}</span></a>
+                        <form method="post" action="{% url 'proyectos:asignatura_activar' a.pk %}">
+                          {% csrf_token %}
+                          <button type="submit" class="inline-flex items-center gap-1 underline underline-offset-4">{% if a.activa %}{% icono "eye-off" tam=16 %}{% translate "Desactivar" %}{% else %}{% icono "eye" tam=16 %}{% translate "Activar" %}{% endif %}<span class="sr-only"> {{ a.nombre }}</span></button>
+                        </form>
+                        {% if not a.total_proyectos %}
+                          <form method="post" action="{% url 'proyectos:asignatura_eliminar' a.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="inline-flex items-center gap-1 text-rechazado-texto underline underline-offset-4 dark:text-[#f4a19a]">{% icono "trash" tam=16 %}{% translate "Borrar" %}<span class="sr-only"> {{ a.nombre }}</span></button>
+                          </form>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </section>
+        {% endfor %}
+      </div>
+      <p class="mt-4 text-sm text-texto-suave">{% translate "Una asignatura en uso no se puede borrar: desactívala para que no se ofrezca. Quien ya la tiene la conserva." %}</p>
+    {% else %}
+      <div class="tarjeta-sobria mt-8 p-8">
+        <p class="font-bold">{% translate "Este plan todavía no tiene asignaturas." %}</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

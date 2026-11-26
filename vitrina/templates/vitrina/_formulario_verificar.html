@@ -6,7 +6,7 @@
            placeholder="VP-2026-0001" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24"
            class="min-h-14 w-full min-w-0 flex-1 border-2 border-tinta bg-white px-4 font-titulo text-lg font-bold uppercase tracking-wider text-tinta placeholder:font-normal placeholder:text-[#7a8a81]"
            {% if form.codigo.errors %}aria-invalid="true" aria-describedby="error-codigo"{% endif %}>
-    <button type="submit" class="btn btn-primario min-h-14 px-8">{% translate "Verificar" %}</button>
+    <button type="submit" class="btn btn-primario min-h-14 px-8 gap-2">{% icono "rosette-discount-check" tam=18 %}{% translate "Verificar" %}</button>
   </div>
   {% for error in form.codigo.errors %}<p id="error-codigo" class="campo-error">{{ error }}</p>{% endfor %}
 </form>

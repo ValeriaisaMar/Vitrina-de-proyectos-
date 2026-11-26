@@ -9,6 +9,18 @@
 
 <section class="bg-seccion py-10">
   <div class="contenedor flex flex-col gap-8">
+    {% include "vitrina/paneles/_bienvenida.html" %}
+    {% if elegir_revisor %}
+      <div class="aviso aviso-warning" role="status">
+        {% icono "user-check" tam=20 clase="mt-0.5 shrink-0" %}
+        <div>
+          <p class="font-bold">{% translate "Elige quién revisará estos proyectos:" %}</p>
+          <ul class="mt-1 flex flex-col gap-1 text-sm">
+            {% for p in elegir_revisor %}<li><a class="underline underline-offset-2" href="{% url 'proyectos:elegir_revisor' p.slug %}">{{ p.titulo }}</a></li>{% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endif %}
     {% if cifras.total %}
       {% url 'proyectos:mis_proyectos' as url_mis %}
       <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -31,7 +43,7 @@
                         <p class="font-bold">{{ p.titulo }}</p>
                         <p class="mt-0.5 text-xs font-bold uppercase tracking-wider">{% blocktranslate with docente=obs.actor.nombre_completo %}{{ docente }} pidió cambios{% endblocktranslate %}</p>
                       </div>
-                      <a href="{% url 'proyectos:editar' p.slug %}" class="btn btn-secundario">{% translate "Corregir" %}</a>
+                      <a href="{% url 'proyectos:editar' p.slug %}" class="btn btn-secundario gap-2">{% icono "pencil" tam=18 %}{% translate "Corregir" %}</a>
                     </div>
                     <p class="mt-2 line-clamp-3 whitespace-pre-line text-sm">{{ obs.comentario }}</p>
                   </li>
@@ -43,8 +55,8 @@
                       <p class="text-sm text-texto-suave">{% translate "Borrador sin enviar" %} · {{ p.asignatura.nombre }}</p>
                     </div>
                     <div class="flex gap-3">
-                      <a href="{% url 'proyectos:editar' p.slug %}" class="btn btn-secundario">{% translate "Editar" %}</a>
-                      <a href="{% url 'proyectos:enviar' p.slug %}" class="btn btn-primario">{% translate "Enviar" %}</a>
+                      <a href="{% url 'proyectos:editar' p.slug %}" class="btn btn-secundario gap-2">{% icono "pencil" tam=18 %}{% translate "Editar" %}</a>
+                      <a href="{% url 'proyectos:enviar' p.slug %}" class="btn btn-primario gap-2">{% icono "send" tam=18 %}{% translate "Enviar" %}</a>
                     </div>
                   </li>
                 {% endfor %}
@@ -82,7 +94,7 @@
       <div class="tarjeta flex flex-col items-start gap-4 p-8 sm:p-10">
         <h2 class="text-2xl font-extrabold">{% translate "Sube tu primer proyecto" %}</h2>
         <p class="max-w-xl text-texto-suave">{% translate "Cuéntanos qué hiciste, en qué asignatura y con qué tecnologías. Un docente lo revisará y quedará en la vitrina con su sello." %}</p>
-        <a href="{% url 'proyectos:crear' %}" class="btn btn-primario">{% translate "Crear proyecto" %}</a>
+        <a href="{% url 'proyectos:crear' %}" class="btn btn-primario gap-2">{% icono "plus" tam=18 %}{% translate "Crear proyecto" %}</a>
       </div>
     {% endif %}
   </div>

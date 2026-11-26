@@ -1,0 +1,8 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with profesor=profesor.nombre_completo titulo=proyecto.titulo %}{{ profesor }} aceptó revisar tu proyecto «{{ titulo }}». Ya está en revisión.{% endblocktranslate %}
+
+{% translate "Te avisaremos por correo cuando decida." %}
+
+{% translate "Ver el proyecto:" %} {{ enlace }}
+
+{% translate "Vitrina de Proyectos · UTEQ" %}
+{% endautoescape %}

@@ -8,7 +8,7 @@ from django.urls import reverse
 from cuentas.tests.utilidades import crear_usuario
 from proyectos.models import Estado, Imagen
 from proyectos.servicios import cambiar_estado
-from proyectos.tests.utilidades import MediaTemporal, crear_proyecto, imagen_png
+from proyectos.tests.utilidades import MediaTemporal, crear_proyecto, imagen_png, tomar
 from vitrina.verificacion import _logo, _sellos, certificado_pdf
 
 
@@ -59,7 +59,7 @@ class VistaPreviaDeProyectoTests(MediaTemporal, TestCase):
 
     def aprobar(self):
         cambiar_estado(self.proyecto, Estado.ENVIADO, self.ana)
-        cambiar_estado(self.proyecto, Estado.EN_REVISION, self.profe)
+        tomar(self.proyecto, self.profe)
         cambiar_estado(self.proyecto, Estado.APROBADO, self.profe)
 
     def test_proyecto_aprobado_comparte_titulo_resumen_y_portada(self):

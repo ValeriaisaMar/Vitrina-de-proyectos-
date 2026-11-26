@@ -76,7 +76,11 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "config.contexto.marca",
                 "config.contexto.roles",
+                "config.contexto.periodo_actual",
+                "config.contexto.menu_cuenta",
             ],
+            # Etiquetas disponibles en todas las plantillas sin {% load %}: {% icono %} y |inicial (spec 009)
+            "builtins": ["vitrina.templatetags.iconos"],
         },
     },
 ]
@@ -129,6 +133,9 @@ LOGOUT_REDIRECT_URL = "vitrina:inicio"
 CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "LOCATION": "vitrina"},
 }
+
+# Las pruebas vacían la caché antes de cada caso (config/pruebas.py), así ninguna hereda datos de otra.
+TEST_RUNNER = "config.pruebas.Ejecutor"
 
 
 # ---------------------------------------------------------------------------

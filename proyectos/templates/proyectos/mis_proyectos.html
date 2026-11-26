@@ -11,7 +11,7 @@
         <h1 class="text-3xl font-extrabold sm:text-4xl">{% translate "Mis proyectos" %}</h1>
         <p class="mt-2 text-texto-suave">{% translate "Los proyectos en los que eres autor o coautor." %}</p>
       </div>
-      <a href="{% url 'proyectos:crear' %}" class="btn btn-primario">+ {% translate "Nuevo proyecto" %}</a>
+      <a href="{% url 'proyectos:crear' %}" class="btn btn-primario gap-2">{% icono "plus" tam=18 %}{% translate "Nuevo proyecto" %}</a>
     </div>
 
     {% if filas %}
@@ -33,7 +33,7 @@
                 <td class="px-5 py-4 font-bold"><a class="hover:underline" href="{{ p.get_absolute_url }}">{{ p.titulo }}</a></td>
                 <td class="px-3 py-4">{% include "componentes/insignia_estado.html" with estado=p.estado texto=p.get_estado_display %}</td>
                 <td class="px-3 py-4 text-texto-suave">{{ p.asignatura }}</td>
-                <td class="px-3 py-4 text-texto-suave">{{ p.periodo }}</td>
+                <td class="px-3 py-4 text-texto-suave">{{ p.periodo|default:"—" }}</td>
                 <td class="px-3 py-4 text-texto-suave">{{ p.actualizado_en|date:"SHORT_DATE_FORMAT" }}</td>
                 <td class="px-5 py-4">
                   <div class="flex justify-end gap-4 font-semibold">
@@ -55,7 +55,7 @@
       <div class="tarjeta mt-8 flex flex-col items-start gap-4 p-8 sm:p-10">
         <h2 class="text-2xl font-extrabold">{% translate "Sube tu primer proyecto" %}</h2>
         <p class="max-w-xl text-texto-suave">{% translate "Cuéntanos qué hiciste, en qué asignatura y con qué tecnologías. Un docente lo revisará y quedará en la vitrina con su sello." %}</p>
-        <a href="{% url 'proyectos:crear' %}" class="btn btn-primario">{% translate "Crear proyecto" %}</a>
+        <a href="{% url 'proyectos:crear' %}" class="btn btn-primario gap-2">{% icono "plus" tam=18 %}{% translate "Crear proyecto" %}</a>
       </div>
     {% endif %}
   </div>

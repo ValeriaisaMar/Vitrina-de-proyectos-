@@ -6,8 +6,8 @@ fondo con tinte verde y la etiqueta amarilla "Autor" (con texto, para no depende
 <article id="comentario-{{ com.pk }}"
          class="scroll-mt-24 border-2 p-4 {% if com.oculto %}border-dashed border-linea-suave opacity-75{% elif com.es_de_autor %}border-linea border-l-8 border-l-uteq-verde bg-uteq-tinte/70 dark:border-l-uteq-claro dark:bg-uteq-verde/25{% else %}border-linea{% endif %}">
   <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-    <span class="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-linea bg-uteq-tinte text-xs font-extrabold text-uteq-verde dark:bg-uteq-verde dark:text-white" aria-hidden="true">{{ com.autor.nombres|slice:":1" }}{{ com.autor.apellidos|slice:":1" }}</span>
-    <span class="font-bold">{{ com.autor.nombre_completo }}</span>
+    {% include "parciales/avatar.html" with perfil=com.autor.perfil tam="h-8 w-8" texto="text-xs" %}
+    {% include "parciales/nombre_persona.html" with persona=com.autor clase="font-bold" %}
     {% if com.es_de_autor %}<span class="insignia-autor">{% translate "Autor" %}</span>{% endif %}
     {% if c.revisor_id and com.autor_id == c.revisor_id %}<span class="insignia-rol">{% translate "Docente revisor" %}</span>{% endif %}
     {% if es_respuesta %}<span class="text-xs font-semibold text-texto-suave">{% translate "respondió" %}</span>{% endif %}

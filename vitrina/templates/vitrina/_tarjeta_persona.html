@@ -1,0 +1,8 @@
+{% load i18n %}{# Tarjeta de una persona. Recibe "perfil" y, opcional, "en_comun" (proyectos en común). #}
+<a href="{{ perfil.get_absolute_url }}" class="tarjeta-sobria flex items-center gap-3 p-3 hover:shadow-duro-verde">
+  {% include "parciales/avatar.html" with perfil=perfil tam="h-12 w-12" %}
+  <span class="min-w-0">
+    <span class="block truncate font-bold">{{ perfil.usuario.nombre_completo }}</span>
+    <span class="block text-xs text-texto-suave">{{ perfil.usuario.rol_publico }}{% if en_comun %} · {% blocktranslate count n=en_comun %}{{ n }} proyecto en común{% plural %}{{ n }} proyectos en común{% endblocktranslate %}{% endif %}</span>
+  </span>
+</a>

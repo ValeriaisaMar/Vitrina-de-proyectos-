@@ -52,10 +52,17 @@
           <dt class="text-xs font-bold uppercase tracking-wider text-texto-suave">{% translate "Fecha de aprobación" %}</dt>
           <dd class="mt-1 font-bold">{{ proyecto.aprobado_en|date:"DATE_FORMAT" }}</dd>
         </div>
+        {# El período en que se aprobó (spec 009); los aprobados antes de la 009 usan su período #}
+        {% with periodo=proyecto.periodo_aprobacion|default:proyecto.periodo %}{% if periodo %}
+        <div>
+          <dt class="text-xs font-bold uppercase tracking-wider text-texto-suave">{% translate "Período académico de aprobación" %}</dt>
+          <dd class="mt-1 font-bold">{{ periodo.nombre }}</dd>
+        </div>
+        {% endif %}{% endwith %}
       </dl>
       <div class="mt-10 flex flex-wrap gap-3">
-        <a href="{{ proyecto.get_absolute_url }}" class="btn btn-primario">{% translate "Ver el proyecto" %}</a>
-        <a href="{% url 'vitrina:verificar' %}" class="btn btn-secundario">{% translate "Verificar otro código" %}</a>
+        <a href="{{ proyecto.get_absolute_url }}" class="btn btn-primario gap-2">{% icono "eye" tam=18 %}{% translate "Ver el proyecto" %}</a>
+        <a href="{% url 'vitrina:verificar' %}" class="btn btn-secundario gap-2">{% icono "rosette-discount-check" tam=18 %}{% translate "Verificar otro código" %}</a>
       </div>
     </div>
   </div>

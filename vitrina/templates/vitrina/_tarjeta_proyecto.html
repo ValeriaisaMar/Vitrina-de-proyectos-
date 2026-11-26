@@ -1,15 +1,14 @@
 {% load i18n %}{# Tarjeta de un proyecto publicado. Recibe "p" (Proyecto con relaciones precargadas). #}
 <article class="tarjeta group relative flex flex-col transition-transform duration-150 hover:-translate-x-1 hover:-translate-y-1">
   <div class="relative aspect-[16/9] overflow-hidden border-b-2 border-linea bg-uteq-tinte">
-    {% with portada=p.portada %}
-      {% if portada %}
-        <img src="{{ portada.archivo.url }}" alt="" loading="lazy" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]">
-      {% else %}
-        <div class="flex h-full w-full items-center justify-center" aria-hidden="true">
-          <span class="font-titulo text-6xl font-extrabold text-uteq-verde/25 dark:text-uteq-verde">{{ p.titulo|slice:":1"|upper }}</span>
-        </div>
-      {% endif %}
-    {% endwith %}
+    {# La cara del proyecto (spec 009): su imagen de portada o, si no tiene, el color que eligió #}
+    {% if p.imagen_portada %}
+      <img src="{{ p.imagen_portada.url }}" alt="" width="1200" height="675" loading="lazy" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]">
+    {% else %}
+      <div class="flex h-full w-full items-center justify-center" style="background-color: {{ p.color_hex }}" aria-hidden="true">
+        <span class="font-titulo text-6xl font-extrabold text-white">{{ p.titulo|inicial }}</span>
+      </div>
+    {% endif %}
     <span class="insignia insignia-aprobado absolute left-3 top-3">✓ {% translate "Verificado" %}</span>
   </div>
   <div class="flex flex-1 flex-col gap-3 p-5">

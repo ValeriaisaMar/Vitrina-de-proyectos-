@@ -43,8 +43,9 @@
     </nav>
   </div>
   <div class="border-t border-uteq-verde">
-    <p class="contenedor py-5 text-xs">
-      © 2026 UTEQ · {% translate "Hecho por estudiantes embajadores de la Universidad de Córdoba (Colombia)" %}
-    </p>
+    <div class="contenedor flex flex-col gap-2 py-5 text-xs sm:flex-row sm:items-center sm:justify-between">
+      <p>© 2026 UTEQ · {% translate "Hecho por estudiantes embajadores de la Universidad de Córdoba (Colombia)" %}</p>
+      {% if periodo_actual %}<p class="flex items-center gap-1.5 font-semibold text-white">{% icono "calendar" tam=16 %}{% blocktranslate with nombre=periodo_actual.nombre %}Período académico actual: {{ nombre }}{% endblocktranslate %}</p>{% endif %}
+    </div>
   </div>
 </footer>

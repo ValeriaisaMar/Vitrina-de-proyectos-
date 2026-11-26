@@ -186,3 +186,39 @@ class BackendConfigurableTests(TestCase):
         from django.contrib import admin
 
         self.assertNotIn(ConfiguracionCorreo, admin.site._registry)
+
+
+@override_settings(CLAVE_CIFRADO=CLAVE_PRUEBA)
+class AyudaPorProveedorTests(TestCase):
+    """Spec 009, historia 2a: las instrucciones cambian según el proveedor."""
+
+    def setUp(self):
+        self.client.force_login(crear_usuario("admin@correo.com", rol=Rol.ADMIN))
+
+    def test_se_dibujan_los_tres_bloques_con_su_titulo(self):
+        pagina = self.client.get(URL)
+        for proveedor in ("gmail", "outlook", "personalizado"):
+            self.assertContains(pagina, f'data-ayuda="{proveedor}"')
+        self.assertContains(pagina, "Outlook / Microsoft 365")
+
+    def test_enlaces_externos_en_pestana_nueva(self):
+        pagina = self.client.get(URL).content.decode()
+        for enlace in ("https://myaccount.google.com/apppasswords", "https://mysignins.microsoft.com/security-info"):
+            self.assertIn(f'href="{enlace}" target="_blank" rel="noopener noreferrer"', pagina)
+        self.assertIn("Abrir contraseñas de aplicación de Google", pagina)
+        self.assertIn("Abrir información de seguridad de Microsoft", pagina)
+
+    def test_aviso_de_cuentas_personales_en_outlook(self):
+        self.assertContains(self.client.get(URL), "Las cuentas personales @outlook.com y @hotmail.com ya no permiten")
+
+    def test_el_bloque_inicial_sigue_al_proveedor(self):
+        self.assertContains(self.client.get(URL + "?proveedor=outlook"), 'data-inicial="outlook"')
+        self.assertContains(self.client.get(URL + "?proveedor=personalizado"), 'data-inicial="personalizado"')
+        self.assertContains(self.client.get(URL), 'data-inicial="gmail"')
+
+    def test_microsoft_sin_smtp_auth_tiene_mensaje_propio(self):
+        for codigo in (b"5.7.139 Authentication unsuccessful, basic authentication is disabled", b"5.7.30 Basic authentication is not supported"):
+            mensaje = mensaje_de_error(smtplib.SMTPAuthenticationError(535, codigo))
+            self.assertIn("Microsoft bloqueó el inicio de sesión con contraseña", mensaje)
+        otro = mensaje_de_error(smtplib.SMTPAuthenticationError(535, b"5.7.8 Username and Password not accepted"))
+        self.assertNotIn("Microsoft", otro)

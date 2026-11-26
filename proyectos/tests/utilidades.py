@@ -25,15 +25,26 @@ def pdf(nombre="informe.pdf", contenido=PDF_MINIMO):
     return SimpleUploadedFile(nombre, contenido, content_type="application/pdf")
 
 
-def periodo(nombre="2026-2", abierto=True, **extra):
-    """Devuelve el Periodo con ese nombre; si no existe, lo crea (fecha de inicio según -1/-2)."""
+def periodo(nombre="2026-2", actual=None, **extra):
+    """Devuelve el Periodo con ese nombre; si no existe, lo crea (fecha de inicio según -1/-2).
+
+    actual=None (por defecto): el primero que se crea queda como período actual, así las pruebas
+    pueden enviar proyectos sin preparar nada más (spec 009). actual=True lo marca; False no.
+    """
+    extra.pop("abierto", None)  # de la spec 008; ya no existe
     try:
         anio, semestre = nombre.split("-")
         inicio = datetime.date(int(anio), 7 if semestre == "2" else 1, 1)
     except ValueError:
         inicio = datetime.date(2026, 11, 1)
-    datos = {"fecha_inicio": inicio, "abierto": abierto, **extra}
-    return Periodo.objects.get_or_create(nombre=nombre, defaults=datos)[0]
+    objeto, creado = Periodo.objects.get_or_create(nombre=nombre, defaults={"fecha_inicio": inicio, **extra})
+    if actual is None:
+        actual = creado and not Periodo.objects.filter(es_actual=True).exists()
+    if actual and not objeto.es_actual:
+        Periodo.objects.filter(es_actual=True).update(es_actual=False)
+        objeto.es_actual = True
+        objeto.save(update_fields=["es_actual"])
+    return objeto
 
 
 def crear_proyecto(creador, titulo="Gestor de tutorías", estado=Estado.BORRADOR, coautores=(), tecnologias=("Django",), **extra):
@@ -50,12 +61,27 @@ def crear_proyecto(creador, titulo="Gestor de tutorías", estado=Estado.BORRADOR
     datos.update(extra)
     if isinstance(datos["periodo"], str):
         datos["periodo"] = periodo(datos["periodo"])
+    if estado == Estado.APROBADO:
+        datos.setdefault("periodo_aprobacion", datos["periodo"])
     proyecto = Proyecto.objects.create(**datos)
     Autoria.objects.create(proyecto=proyecto, usuario=creador, es_creador=True)
     for usuario in coautores:
         Autoria.objects.create(proyecto=proyecto, usuario=usuario)
     proyecto.tecnologias.set(Tecnologia.objects.filter(nombre__in=tecnologias))
     return proyecto
+
+
+def tomar(proyecto, profesor):
+    """Asigna el profesor como revisor y pasa el proyecto a En revisión (spec 009).
+
+    Equivale a que el profesor acepte la solicitud del creador. Las pruebas que no tratan sobre
+    la elección del revisor la usan para llegar rápido a En revisión.
+    """
+    from proyectos.servicios import cambiar_estado
+
+    Proyecto.objects.filter(pk=proyecto.pk).update(revisor=profesor)
+    proyecto.revisor = profesor
+    return cambiar_estado(proyecto, Estado.EN_REVISION, profesor)
 
 
 class MediaTemporal:

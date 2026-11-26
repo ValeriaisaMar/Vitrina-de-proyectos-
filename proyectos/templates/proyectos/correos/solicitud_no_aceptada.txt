@@ -1,0 +1,11 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with profesor=solicitud.profesor.nombre_completo titulo=proyecto.titulo %}{{ profesor }} no aceptó revisar el proyecto «{{ titulo }}».{% endblocktranslate %}
+{% if solicitud.mensaje %}
+{% translate "Su mensaje:" %}
+{{ solicitud.mensaje }}
+{% endif %}{% if solicitud.profesor_recomendado %}
+{% blocktranslate with recomendado=solicitud.profesor_recomendado.nombre_completo %}Te recomienda pedírselo a {{ recomendado }}.{% endblocktranslate %}
+{% endif %}
+{% translate "Quien creó el proyecto debe elegir otro revisor:" %} {{ enlace }}
+
+{% translate "Vitrina de Proyectos · UTEQ" %}
+{% endautoescape %}

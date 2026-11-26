@@ -18,21 +18,20 @@ class PortadaTests(TestCase):
         self.assertTemplateUsed(self.respuesta, "vitrina/inicio.html")
 
     def test_encabezado_completo(self):
-        for texto in ("Vitrina de Proyectos", "Explorar", "Verificar QR", "Iniciar sesión", "Crear cuenta"):
+        """Spec 009: barra mínima; tema e idioma dentro del engranaje del visitante."""
+        for texto in ("Vitrina de Proyectos", "Explorar", "Entrar", "Registrarse", "Tema e idioma"):
             self.assertContains(self.respuesta, texto)
         self.assertContains(self.respuesta, reverse("vitrina:explorar"))
-        self.assertContains(self.respuesta, reverse("vitrina:verificar"))
+        self.assertContains(self.respuesta, 'role="search"')
+        self.assertContains(self.respuesta, reverse("vitrina:verificar"))  # en el pie
         self.assertContains(self.respuesta, 'action="/i18n/setlang/"')
         self.assertContains(self.respuesta, "data-boton-tema")
 
-    def test_inicio_marcado_como_pagina_actual(self):
-        self.assertContains(self.respuesta, 'aria-current="page"')
+    def test_explorar_marcado_como_pagina_actual(self):
+        self.assertContains(self.client.get(reverse("vitrina:explorar")), 'aria-current="page"')
 
-    def test_enlace_como_funciona_preparado_para_marcarse(self):
-        """tema.js necesita data-nav y la clase activa en ambos enlaces, en el menú de escritorio y en el móvil."""
-        self.assertContains(self.respuesta, 'data-nav="inicio"', count=2)
-        self.assertContains(self.respuesta, 'data-nav="como-funciona"', count=2)
-        self.assertContains(self.respuesta, 'data-clase-activa="text-acento"', count=2)
+    def test_como_funciona_sigue_en_el_pie(self):
+        self.assertContains(self.respuesta, reverse("vitrina:inicio") + "#como-funciona")
 
     def test_secciones_de_la_portada(self):
         self.assertContains(self.respuesta, 'id="titulo-portada"')

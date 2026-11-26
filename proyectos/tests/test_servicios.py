@@ -9,7 +9,7 @@ from cuentas.models import Rol
 from cuentas.tests.utilidades import crear_usuario
 from proyectos.models import Estado, EventoEstado, HistorialInmutable
 from proyectos.servicios import TRANSICIONES, TransicionNoPermitida, cambiar_estado, puede_cambiar
-from proyectos.tests.utilidades import crear_proyecto
+from proyectos.tests.utilidades import crear_proyecto, tomar
 
 
 class BaseServicio(TestCase):
@@ -27,7 +27,10 @@ class BaseServicio(TestCase):
             Estado.EN_REVISION: [(Estado.ENVIADO, self.ana), (Estado.EN_REVISION, self.profe)],
         }
         for nuevo, actor in camino[estado]:
-            cambiar_estado(self.proyecto, nuevo, actor)
+            if nuevo == Estado.EN_REVISION:
+                tomar(self.proyecto, actor)  # el profesor asignado empieza la revisión (spec 009)
+            else:
+                cambiar_estado(self.proyecto, nuevo, actor)
 
 
 class TransicionesTests(BaseServicio):
@@ -65,7 +68,7 @@ class TransicionesTests(BaseServicio):
         cambiar_estado(self.proyecto, Estado.RECHAZADO, self.profe, "No cumple el alcance")
         for hacia in Estado.values:
             with self.assertRaises(TransicionNoPermitida, msg=hacia):
-                cambiar_estado(self.proyecto, hacia, self.admin, "x")
+                cambiar_estado(self.proyecto, hacia, self.profe, "x")
 
     def test_la_tabla_es_la_de_la_constitucion(self):
         self.assertEqual(len(TRANSICIONES), 6)
@@ -89,17 +92,21 @@ class PermisosTests(BaseServicio):
         with self.assertRaises(PermissionDenied):
             cambiar_estado(self.proyecto, Estado.EN_REVISION, self.ana)
 
-    def test_el_admin_puede_tomar(self):
+    def test_sin_revisor_asignado_nadie_empieza_la_revision(self):
+        """Spec 009: ya no hay bandeja común; ni un profesor cualquiera ni el admin toman proyectos."""
         self.llevar_a(Estado.ENVIADO)
-        cambiar_estado(self.proyecto, Estado.EN_REVISION, self.admin)
-        self.assertEqual(self.proyecto.revisor_id, self.admin.pk)
+        for actor in (self.profe, self.admin):
+            with self.assertRaises(PermissionDenied):
+                cambiar_estado(self.proyecto, Estado.EN_REVISION, actor)
 
-    def test_solo_decide_quien_lo_tomo_o_un_admin(self):
+    def test_solo_decide_el_profesor_asignado(self):
+        """Spec 009: ni otro profesor ni el admin deciden; el admin solo reasigna."""
         self.llevar_a(Estado.EN_REVISION)
-        with self.assertRaises(PermissionDenied):
-            cambiar_estado(self.proyecto, Estado.APROBADO, self.otro_profe)
-        self.assertFalse(puede_cambiar(self.otro_profe, self.proyecto, Estado.APROBADO))
-        cambiar_estado(self.proyecto, Estado.APROBADO, self.admin)
+        for actor in (self.otro_profe, self.admin):
+            with self.assertRaises(PermissionDenied):
+                cambiar_estado(self.proyecto, Estado.APROBADO, actor)
+            self.assertFalse(puede_cambiar(actor, self.proyecto, Estado.APROBADO))
+        cambiar_estado(self.proyecto, Estado.APROBADO, self.profe)
         self.assertEqual(self.proyecto.estado, Estado.APROBADO)
 
     def test_un_segundo_profesor_no_puede_tomar_lo_ya_tomado(self):
@@ -112,7 +119,7 @@ class PermisosTests(BaseServicio):
     def test_lee_el_estado_real_aunque_el_objeto_este_viejo(self):
         self.llevar_a(Estado.ENVIADO)
         copia_vieja = type(self.proyecto).objects.get(pk=self.proyecto.pk)
-        cambiar_estado(self.proyecto, Estado.EN_REVISION, self.profe)
+        tomar(self.proyecto, self.profe)
         with self.assertRaises(TransicionNoPermitida):
             cambiar_estado(copia_vieja, Estado.EN_REVISION, self.otro_profe)
 
@@ -154,7 +161,7 @@ class HistorialTests(BaseServicio):
 class CodigoTests(BaseServicio):
     def aprobar(self, proyecto):
         cambiar_estado(proyecto, Estado.ENVIADO, self.ana)
-        cambiar_estado(proyecto, Estado.EN_REVISION, self.profe)
+        tomar(proyecto, self.profe)
         cambiar_estado(proyecto, Estado.APROBADO, self.profe)
         return proyecto
 

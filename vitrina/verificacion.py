@@ -22,6 +22,8 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
+from config.texto import nfc, para_pdf
+
 VERDE = HexColor("#025a27")
 VERDE_PROFUNDO = HexColor("#01401b")
 AMARILLO = HexColor("#ecb932")
@@ -110,10 +112,21 @@ def _sellos():
     return [s for s in (_imagen("img/marca/sello-facultad-pdf.png"), _imagen("img/marca/sello-carrera-pdf.png")) if s]
 
 
+def _seguro(texto, fuente):
+    """El texto listo para dibujar con esa fuente: NFC y sin caracteres que la fuente no trae.
+
+    reportlab no busca otra fuente cuando falta un carácter (el navegador sí): dibuja una caja
+    con una x. config.texto.para_pdf cambia esos caracteres por uno parecido (spec 009).
+    """
+    glifos = pdfmetrics.getFont(fuente).face.charToGlyph
+    return para_pdf(texto, lambda caracter: ord(caracter) in glifos)
+
+
 def _parrafo(c, texto, fuente, tamano, x, y, ancho, interlineado=1.25, color=TINTA):
     """Escribe un texto partido en líneas dentro de un ancho. Devuelve la y de la última línea."""
     c.setFont(fuente, tamano)
     c.setFillColor(color)
+    texto = _seguro(texto, fuente)
     for linea in simpleSplit(texto, fuente, tamano, ancho):
         c.drawString(x, y, linea)
         y -= tamano * interlineado
@@ -132,7 +145,7 @@ def certificado_pdf(proyecto, url):
     c = canvas.Canvas(salida, pagesize=(ancho, alto))
     c.setTitle(_("Certificado %(codigo)s") % {"codigo": proyecto.codigo})
     c.setAuthor("Vitrina de Proyectos · UTEQ")
-    c.setSubject(proyecto.titulo)
+    c.setSubject(nfc(proyecto.titulo))
 
     margen = 30
     # Sombra dura verde y marco con borde de tinta: el mismo neo-brutalismo de la web
@@ -219,7 +232,7 @@ def certificado_pdf(proyecto, url):
     y -= 30
     fecha = formats.date_format(timezone.localtime(proyecto.aprobado_en), "DATE_FORMAT")
     docente = proyecto.revisor.nombre_completo if proyecto.revisor else _("un docente de la carrera")
-    frase = _("en la asignatura %(asignatura)s, periodo %(periodo)s, fue revisado y aprobado por %(docente)s el %(fecha)s, y forma parte de la Vitrina de Proyectos de la carrera.") % {"asignatura": proyecto.asignatura.nombre, "periodo": proyecto.periodo.nombre, "docente": docente, "fecha": fecha}
+    frase = _("en la asignatura %(asignatura)s, periodo %(periodo)s, fue revisado y aprobado por %(docente)s el %(fecha)s, y forma parte de la Vitrina de Proyectos de la carrera.") % {"asignatura": proyecto.asignatura.nombre, "periodo": (proyecto.periodo_aprobacion or proyecto.periodo).nombre, "docente": docente, "fecha": fecha}
     _parrafo(c, frase, texto, 12, x, y, ancho_texto, interlineado=1.45)
 
     # Pie: cómo comprobarlo

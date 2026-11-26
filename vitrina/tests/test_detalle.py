@@ -5,7 +5,7 @@ from django.test import TestCase
 from cuentas.models import Rol
 from cuentas.tests.utilidades import CLAVE, crear_usuario
 from proyectos.models import Estado
-from proyectos.tests.utilidades import crear_proyecto
+from proyectos.tests.utilidades import crear_proyecto, tomar
 
 
 class DetalleTests(TestCase):
@@ -60,7 +60,7 @@ class DetalleRevisionTests(TestCase):
         self.profe = crear_usuario("profe@correo.com", rol=Rol.PROFESOR, nombres="Carla", apellidos="Vera")
         self.proyecto = crear_proyecto(self.ana)
         self.cambiar(self.proyecto, Estado.ENVIADO, self.ana)
-        self.cambiar(self.proyecto, Estado.EN_REVISION, self.profe)
+        tomar(self.proyecto, self.profe)  # el profesor asignado empieza la revisión (spec 009)
 
     def test_el_autor_ve_la_observacion_y_puede_reenviar(self):
         self.cambiar(self.proyecto, Estado.CON_OBSERVACIONES, self.profe, "Agrega capturas")

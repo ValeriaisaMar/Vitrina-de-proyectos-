@@ -19,7 +19,7 @@
         <input type="search" name="q" id="{{ form.q.id_for_label }}" value="{{ form.q.value|default:'' }}"
                placeholder="{% translate 'Nombre, tecnología o autor' %}"
                class="min-h-12 flex-1 border-2 border-tinta bg-white px-4 text-tinta placeholder:text-[#5b6b62]">
-        <button type="submit" class="btn btn-claro">{% translate "Buscar" %}</button>
+        <button type="submit" class="btn btn-claro gap-2">{% icono "search" tam=18 %}{% translate "Buscar" %}</button>
       </div>
     </div>
   </section>
@@ -74,7 +74,7 @@
           </select>
         </div>
 
-        <button type="submit" class="btn btn-primario mt-6 w-full">{% translate "Aplicar filtros" %}</button>
+        <button type="submit" class="btn btn-primario mt-6 w-full gap-2">{% icono "filter" tam=18 %}{% translate "Aplicar filtros" %}</button>
       </div>
       </details>
 
@@ -89,6 +89,15 @@
           </div>
         {% endif %}
 
+        {% if personas %}
+          <section class="mb-8" aria-labelledby="titulo-personas">
+            <h2 id="titulo-personas" class="flex items-center gap-2 text-lg font-extrabold">{% icono "users" tam=20 %}{% translate "Personas" %}</h2>
+            <ul class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {% for perfil in personas %}<li>{% include "vitrina/_tarjeta_persona.html" with perfil=perfil %}</li>{% endfor %}
+            </ul>
+          </section>
+        {% endif %}
+
         {% if pagina.object_list %}
           <div class="grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
             {% for p in pagina.object_list %}{% include "vitrina/_tarjeta_proyecto.html" %}{% endfor %}
@@ -96,7 +105,7 @@
 
           {% if pagina.has_other_pages %}
           <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="{% translate 'Paginación' %}">
-            {% if pagina.has_previous %}<a class="btn btn-secundario min-w-12 px-3" href="{% querystring pagina=pagina.previous_page_number %}" aria-label="{% translate 'Página anterior' %}">‹</a>{% endif %}
+            {% if pagina.has_previous %}<a class="btn btn-secundario min-w-12 px-3" href="{% querystring pagina=pagina.previous_page_number %}" aria-label="{% translate 'Página anterior' %}">{% icono "arrow-left" tam=18 %}</a>{% endif %}
             {% for n in pagina.paginator.page_range %}
               {% if n == pagina.number %}
                 <span class="btn btn-primario min-w-12 px-3" aria-current="page">{{ n }}</span>
@@ -104,14 +113,14 @@
                 <a class="btn btn-secundario min-w-12 px-3" href="{% querystring pagina=n %}">{{ n }}</a>
               {% endif %}
             {% endfor %}
-            {% if pagina.has_next %}<a class="btn btn-secundario min-w-12 px-3" href="{% querystring pagina=pagina.next_page_number %}" aria-label="{% translate 'Página siguiente' %}">›</a>{% endif %}
+            {% if pagina.has_next %}<a class="btn btn-secundario min-w-12 px-3" href="{% querystring pagina=pagina.next_page_number %}" aria-label="{% translate 'Página siguiente' %}">{% icono "arrow-right" tam=18 %}</a>{% endif %}
           </nav>
           {% endif %}
         {% else %}
           <div class="tarjeta flex flex-col items-start gap-3 p-8 sm:p-10">
             <h2 class="text-2xl font-extrabold">{% translate "No encontramos proyectos con esos filtros" %}</h2>
             <p class="text-texto-suave">{% translate "Prueba con otra palabra o quita algún filtro." %}</p>
-            <a href="{% url 'vitrina:explorar' %}" class="btn btn-secundario mt-2">{% translate "Ver todos los proyectos" %}</a>
+            <a href="{% url 'vitrina:explorar' %}" class="btn btn-secundario mt-2 gap-2">{% icono "compass" tam=18 %}{% translate "Ver todos los proyectos" %}</a>
           </div>
         {% endif %}
       </div>

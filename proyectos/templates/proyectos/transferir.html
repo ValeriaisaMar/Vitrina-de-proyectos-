@@ -21,8 +21,8 @@
     {% for error in form.nuevo_creador.errors %}<p class="campo-error">{{ error }}</p>{% endfor %}
   </fieldset>
   <div class="flex flex-wrap gap-4">
-    <button type="submit" class="btn btn-primario">{% translate "Transferir proyecto" %}</button>
-    <a href="{% url 'proyectos:mis_proyectos' %}" class="btn btn-secundario">{% translate "Cancelar" %}</a>
+    <button type="submit" class="btn btn-primario gap-2">{% icono "arrow-right" tam=18 %}{% translate "Transferir proyecto" %}</button>
+    <a href="{% url 'proyectos:mis_proyectos' %}" class="btn btn-secundario gap-2">{% icono "arrow-left" tam=18 %}{% translate "Cancelar" %}</a>
   </div>
 </form>
 {% endblock %}

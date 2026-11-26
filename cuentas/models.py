@@ -15,6 +15,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.core.cache import cache
 from django.db import models
+from django.db.models.functions import Lower
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -142,6 +143,28 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         """Actúa como profesor o como admin: los dos pueden revisar proyectos."""
         return self.rol_activo in (Rol.PROFESOR, Rol.ADMIN)
 
+    # ------------------------------------------------------------------ Perfil público (spec 009)
+
+    @property
+    def tiene_perfil_publico(self):
+        """Cuenta activa con rol estudiante o profesor. Quien solo es admin no tiene perfil visible."""
+        return self.is_active and (self.tiene_rol(Rol.ESTUDIANTE) or self.tiene_rol(Rol.PROFESOR))
+
+    @property
+    def rol_publico(self):
+        """Lo que dice el perfil: "Profesor" si tiene ese rol (aunque también sea estudiante)."""
+        return Rol.PROFESOR.label if self.tiene_rol(Rol.PROFESOR) else Rol.ESTUDIANTE.label
+
+    @property
+    def url_perfil(self):
+        """Dirección de su perfil público, o "" si no tiene (para enlazar su nombre solo cuando existe).
+
+        Para no hacer consultas por persona, la lista debe traer select_related("perfil") y
+        prefetch_related("roles_asignados").
+        """
+        perfil = getattr(self, "perfil", None)
+        return perfil.get_absolute_url() if perfil and self.tiene_perfil_publico else ""
+
 
 class RolAsignado(models.Model):
     """Un rol que tiene una persona. Una fila por rol; nunca dos veces el mismo."""
@@ -255,3 +278,120 @@ class ConfiguracionCorreo(models.Model):
     @property
     def remitente(self):
         return self.correo_remitente or self.usuario
+
+
+# --------------------------------------------------------------------------- Perfil público (spec 009, historia 4)
+
+# Colores del fondo de las iniciales cuando no hay foto: todos con contraste ≥ 4.5:1 con texto blanco
+COLORES_AVATAR = ("#025a27", "#1e40af", "#7c2d12", "#6b21a8", "#0f5f59", "#9d174d", "#374151", "#7a4a00")
+
+
+def ruta_foto(instancia, nombre):
+    """La foto ya llega convertida a webp con un nombre aleatorio (config/imagenes.py)."""
+    return f"perfiles/fotos/{nombre}"
+
+
+class Aptitud(models.Model):
+    """Una habilidad que una persona muestra en su perfil ("Django", "Diseño UX"…).
+
+    Se escribe libre, pero se reutiliza la que ya existe sin distinguir mayúsculas: "django" y
+    "Django" son la misma aptitud (lo garantiza la base de datos con Lower()).
+    """
+
+    nombre = models.CharField(_("nombre"), max_length=50)
+
+    class Meta:
+        verbose_name = _("aptitud")
+        verbose_name_plural = _("aptitudes")
+        ordering = ["nombre"]
+        constraints = [models.UniqueConstraint(Lower("nombre"), name="aptitud_unica_sin_mayusculas")]
+
+    def __str__(self):
+        return self.nombre
+
+
+class Perfil(models.Model):
+    """Perfil público de una persona: uno por usuario (spec 009).
+
+    Lo ven todos, incluidos los visitantes, si la persona tiene rol estudiante o profesor y su
+    cuenta está activa. Un usuario que solo es admin no tiene perfil visible. El correo nunca se
+    muestra. El slug se genera una vez y no cambia aunque cambie el nombre: así los enlaces
+    compartidos siguen funcionando.
+    """
+
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="perfil", verbose_name=_("usuario"))
+    slug = models.SlugField(_("dirección"), max_length=90, unique=True)
+    foto = models.ImageField(_("foto"), upload_to=ruta_foto, blank=True)
+    descripcion = models.TextField(_("descripción"), max_length=600, blank=True)
+    aptitudes = models.ManyToManyField(Aptitud, verbose_name=_("aptitudes"), related_name="perfiles", blank=True)
+    github = models.URLField(_("GitHub"), blank=True)
+    linkedin = models.URLField(_("LinkedIn"), blank=True)
+    orcid = models.CharField(_("ORCID"), max_length=19, blank=True)
+    asignaturas_imparte = models.ManyToManyField(
+        "proyectos.Asignatura", verbose_name=_("asignaturas que imparte"), related_name="profesores", blank=True,
+    )
+    recibiendo_proyectos = models.BooleanField(_("está recibiendo proyectos"), default=True)
+    bienvenida_vista = models.BooleanField(_("ya vio la bienvenida"), default=False)
+
+    class Meta:
+        verbose_name = _("perfil")
+        verbose_name_plural = _("perfiles")
+
+    def __str__(self):
+        return str(self.usuario)
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+
+        return reverse("vitrina:persona", args=[self.slug])
+
+    @property
+    def iniciales(self):
+        partes = [self.usuario.nombres[:1], self.usuario.apellidos[:1]]
+        return "".join(partes).upper() or "?"
+
+    @property
+    def color(self):
+        """Color fijo para las iniciales de esta persona (se elige por su número de usuario)."""
+        return COLORES_AVATAR[(self.usuario_id or 0) % len(COLORES_AVATAR)]
+
+    @property
+    def orcid_url(self):
+        return f"https://orcid.org/{self.orcid}" if self.orcid else ""
+
+
+class ExperienciaLaboral(models.Model):
+    """Un trabajo en el perfil. Sin fecha de fin significa "Actualmente"."""
+
+    perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name="experiencias")
+    cargo = models.CharField(_("cargo"), max_length=100)
+    organizacion = models.CharField(_("organización"), max_length=120)
+    inicio = models.DateField(_("inicio"))
+    fin = models.DateField(_("fin"), null=True, blank=True)
+    descripcion = models.CharField(_("descripción corta"), max_length=300, blank=True)
+
+    class Meta:
+        verbose_name = _("experiencia laboral")
+        verbose_name_plural = _("experiencias laborales")
+        ordering = [models.F("fin").desc(nulls_first=True), "-inicio"]
+
+    def __str__(self):
+        return f"{self.cargo} · {self.organizacion}"
+
+
+class Estudio(models.Model):
+    """Un estudio en el perfil. Sin fecha de fin significa "En curso"."""
+
+    perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name="estudios")
+    institucion = models.CharField(_("institución"), max_length=120)
+    titulo = models.CharField(_("título o programa"), max_length=120)
+    inicio = models.DateField(_("inicio"))
+    fin = models.DateField(_("fin"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("estudio")
+        verbose_name_plural = _("estudios")
+        ordering = [models.F("fin").desc(nulls_first=True), "-inicio"]
+
+    def __str__(self):
+        return f"{self.titulo} · {self.institucion}"

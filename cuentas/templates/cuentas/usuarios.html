@@ -25,7 +25,7 @@
           </select>
         </div>
       {% endif %}{% endfor %}
-      <button type="submit" class="btn btn-primario">{% translate "Filtrar" %}</button>
+      <button type="submit" class="btn btn-primario gap-2">{% icono "filter" tam=18 %}{% translate "Filtrar" %}</button>
     </form>
 
     {% if pagina.object_list %}
@@ -66,9 +66,9 @@
 
       {% if pagina.has_other_pages %}
         <nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="{% translate 'Paginación' %}">
-          {% if pagina.has_previous %}<a class="btn btn-secundario min-w-12 px-3" href="{% querystring pagina=pagina.previous_page_number %}" aria-label="{% translate 'Página anterior' %}">‹</a>{% endif %}
+          {% if pagina.has_previous %}<a class="btn btn-secundario min-w-12 px-3" href="{% querystring pagina=pagina.previous_page_number %}" aria-label="{% translate 'Página anterior' %}">{% icono "arrow-left" tam=18 %}</a>{% endif %}
           <span class="px-3 text-sm font-semibold">{{ pagina.number }} / {{ pagina.paginator.num_pages }}</span>
-          {% if pagina.has_next %}<a class="btn btn-secundario min-w-12 px-3" href="{% querystring pagina=pagina.next_page_number %}" aria-label="{% translate 'Página siguiente' %}">›</a>{% endif %}
+          {% if pagina.has_next %}<a class="btn btn-secundario min-w-12 px-3" href="{% querystring pagina=pagina.next_page_number %}" aria-label="{% translate 'Página siguiente' %}">{% icono "arrow-right" tam=18 %}</a>{% endif %}
         </nav>
       {% endif %}
     {% else %}

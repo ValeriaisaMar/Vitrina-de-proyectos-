@@ -11,12 +11,12 @@
     {% csrf_token %}
     {% include "componentes/campo.html" with campo=form.new_password1 %}
     {% include "componentes/campo.html" with campo=form.new_password2 %}
-    <button type="submit" class="btn btn-primario">{% translate "Guardar contraseña" %}</button>
+    <button type="submit" class="btn btn-primario gap-2">{% icono "check" tam=18 %}{% translate "Guardar contraseña" %}</button>
   </form>
 {% else %}
   <span class="insignia insignia-rechazado">{% translate "Enlace no válido" %}</span>
   <h1 class="mt-5 text-3xl font-extrabold">{% translate "Este enlace ya no sirve" %}</h1>
   <p class="mt-4 leading-relaxed text-texto-suave">{% translate "Puede que ya lo hayas usado o que hayan pasado más de 24 horas. Pide uno nuevo." %}</p>
-  <a href="{% url 'cuentas:recuperar' %}" class="btn btn-primario mt-8">{% translate "Pedir otro enlace" %}</a>
+  <a href="{% url 'cuentas:recuperar' %}" class="btn btn-primario mt-8 gap-2">{% icono "mail" tam=18 %}{% translate "Pedir otro enlace" %}</a>
 {% endif %}
 {% endblock %}

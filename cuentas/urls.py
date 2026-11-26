@@ -20,6 +20,9 @@ urlpatterns = [
     # Perfil
     path("perfil/", views.perfil, name="perfil"),
     path("perfil/contrasena/", views.CambiarContrasena.as_view(), name="cambiar_contrasena"),
+    path("perfil/bienvenida/", views.bienvenida, name="bienvenida"),
+    path("disponibilidad/", views.disponibilidad, name="disponibilidad"),
+    path("mi-cuenta/", views.mi_cuenta, name="mi_cuenta"),
     # Recuperar contraseña: vistas de Django con nuestras plantillas y correos
     path("contrasena/recuperar/", auth.PasswordResetView.as_view(
         template_name="cuentas/recuperar.html",

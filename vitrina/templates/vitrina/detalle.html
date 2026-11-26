@@ -23,7 +23,7 @@
       <div class="max-w-3xl">
         <div class="flex flex-wrap gap-2">
           {% if proyecto.publicado %}<span class="insignia insignia-aprobado">✓ {% translate "Verificado" %}</span>{% endif %}
-          <span class="insignia bg-superficie text-texto">{% translate "Periodo" %} {{ proyecto.periodo }}</span>
+          {% if proyecto.periodo %}<span class="insignia bg-superficie text-texto">{% translate "Periodo" %} {{ proyecto.periodo }}</span>{% endif %}
           <span class="insignia bg-superficie text-texto">{{ proyecto.asignatura.nombre }}</span>
         </div>
         <h1 class="mt-4 text-4xl font-extrabold leading-tight sm:text-5xl">{{ proyecto.titulo }}</h1>
@@ -31,12 +31,39 @@
       </div>
       {% if puede_editar or puede_enviar or es_docente and proyecto.estado != "borrador" %}
         <div class="flex flex-wrap gap-3 self-start lg:self-auto">
-          {% if puede_editar %}<a href="{% url 'proyectos:editar' proyecto.slug %}" class="btn btn-secundario">{% translate "Editar proyecto" %}</a>{% endif %}
-          {% if puede_enviar %}<a href="{% url 'proyectos:enviar' proyecto.slug %}" class="btn btn-primario">{% if proyecto.estado == "con_observaciones" %}{% translate "Reenviar a revisión" %}{% else %}{% translate "Enviar a revisión" %}{% endif %}</a>{% endif %}
-          {% if es_docente and proyecto.estado != "borrador" %}<a href="{% url 'proyectos:revisar' proyecto.slug %}" class="btn btn-primario">{% translate "Ir a la revisión" %}</a>{% endif %}
+          {% if puede_editar %}<a href="{% url 'proyectos:editar' proyecto.slug %}" class="btn btn-secundario gap-2">{% icono "pencil" tam=18 %}{% translate "Editar proyecto" %}</a>{% endif %}
+          {% if puede_enviar %}<a href="{% url 'proyectos:enviar' proyecto.slug %}" class="btn btn-primario gap-2">{% icono "send" tam=18 %}{% if proyecto.estado == "con_observaciones" %}{% translate "Reenviar a revisión" %}{% else %}{% translate "Enviar a revisión" %}{% endif %}</a>{% endif %}
+          {% if es_docente and proyecto.estado != "borrador" %}<a href="{% url 'proyectos:revisar' proyecto.slug %}" class="btn btn-primario gap-2">{% icono "clipboard-check" tam=18 %}{% translate "Ir a la revisión" %}</a>{% endif %}
         </div>
       {% endif %}
     </div>
+
+    {% if revision %}
+      {# Spec 009: en qué va la elección del revisor (solo lo ven los autores) #}
+      <div class="mt-8 max-w-3xl border-2 border-linea bg-superficie p-5" role="status">
+        <p class="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wider">{% icono "user-check" tam=16 %}{% translate "Revisor" %} · {{ proyecto.get_subestado_display }}</p>
+        {% if revision.pendiente %}
+          <p class="mt-2 leading-relaxed">{% blocktranslate with profesor=revision.pendiente.profesor.nombre_completo tiempo=revision.pendiente.creada_en|timesince %}Le pediste la revisión a {{ profesor }} hace {{ tiempo }}. Te avisaremos por correo cuando responda.{% endblocktranslate %}</p>
+          {% if revision.puede_retirar %}
+            <form method="post" action="{% url 'proyectos:retirar_solicitud' proyecto.slug %}" class="mt-3">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-secundario gap-2">{% icono "arrow-back-up" tam=18 %}{% translate "Retirar la solicitud y elegir a otro" %}</button>
+            </form>
+          {% else %}
+            <p class="mt-2 text-sm text-texto-suave">{% blocktranslate with fecha=revision.pendiente.se_puede_retirar_desde|date:"DATE_FORMAT" %}Si no responde, podrás retirarla a partir del {{ fecha }}.{% endblocktranslate %}</p>
+          {% endif %}
+        {% elif revision.subestado == "por_revisar" %}
+          <p class="mt-2 leading-relaxed">{% blocktranslate with profesor=proyecto.revisor.nombre_completo %}Lo revisará {{ profesor }}.{% endblocktranslate %}</p>
+        {% else %}
+          <p class="mt-2 leading-relaxed">{% translate "Todavía no tiene revisor." %}{% if revision.recomendacion %} {% blocktranslate with por=revision.recomendacion.por.nombre_completo profesor=revision.recomendacion.profesor.nombre_completo %}{{ por }} recomendó a {{ profesor }}.{% endblocktranslate %}{% endif %}</p>
+          {% if revision.puede_elegir %}
+            <a href="{% url 'proyectos:elegir_revisor' proyecto.slug %}" class="btn btn-primario mt-3 gap-2">{% icono "users" tam=18 %}{% translate "Elegir revisor" %}</a>
+          {% else %}
+            <p class="mt-2 text-sm text-texto-suave">{% translate "Quien creó el proyecto debe elegirlo." %}</p>
+          {% endif %}
+        {% endif %}
+      </div>
+    {% endif %}
 
     {% if observacion %}
       <div class="mt-8 max-w-3xl border-2 border-linea p-5 {% if proyecto.estado == 'rechazado' %}bg-rechazado text-rechazado-texto{% else %}bg-observaciones text-observaciones-texto{% endif %}" role="note">
@@ -47,6 +74,17 @@
         <p class="mt-2 whitespace-pre-line leading-relaxed">{{ observacion.comentario }}</p>
       </div>
     {% endif %}
+
+    {# Portada (spec 009) #}
+    <div class="mt-10 aspect-[16/9] max-w-4xl overflow-hidden border-2 border-linea shadow-duro-verde">
+      {% if proyecto.imagen_portada %}
+        <img src="{{ proyecto.imagen_portada.url }}" alt="{% blocktranslate with titulo=proyecto.titulo %}Portada de {{ titulo }}{% endblocktranslate %}" width="1200" height="675" class="h-full w-full object-cover">
+      {% else %}
+        <div class="flex h-full w-full items-center justify-center" style="background-color: {{ proyecto.color_hex }}" aria-hidden="true">
+          <span class="font-titulo text-8xl font-extrabold text-white">{{ proyecto.titulo|inicial }}</span>
+        </div>
+      {% endif %}
+    </div>
 
     {% with imagenes=proyecto.imagenes.all %}
       {% if imagenes %}
@@ -90,20 +128,32 @@
 
       <section class="tarjeta-sobria p-6 sm:p-8" aria-labelledby="titulo-enlaces">
         <h2 id="titulo-enlaces" class="text-xl font-extrabold">{% translate "Enlaces y documentos" %}</h2>
-        <div class="mt-4 grid gap-3 sm:grid-cols-3">
-          <a href="{{ proyecto.repositorio }}" target="_blank" rel="noopener noreferrer" class="flex min-h-14 items-center gap-3 border-2 border-linea p-3 font-bold hover:bg-uteq-tinte dark:hover:bg-uteq-verde">
-            <span class="flex h-9 w-9 items-center justify-center bg-tinta text-xs text-white dark:bg-uteq-claro dark:text-tinta" aria-hidden="true">GIT</span>{% translate "Repositorio" %}
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          {% with clase="flex min-h-14 items-center gap-3 border-2 border-linea p-3 font-bold hover:bg-uteq-tinte dark:hover:bg-uteq-verde" caja="flex h-9 w-9 shrink-0 items-center justify-center text-white" %}
+          <a href="{{ proyecto.repositorio }}" target="_blank" rel="noopener noreferrer" class="{{ clase }}">
+            <span class="{{ caja }} bg-tinta dark:bg-uteq-claro dark:text-tinta">{% if "github.com" in proyecto.repositorio %}{% icono "marca-github" %}{% else %}{% icono "link" %}{% endif %}</span>
+            <span class="flex-1">{% translate "Repositorio" %}</span>{% icono "external-link" tam=16 %}<span class="sr-only"> ({% translate "se abre en una pestaña nueva" %})</span>
           </a>
+          {# Spec 009: proyecto desplegado y video, al lado del repositorio; solo si están llenos #}
           {% if proyecto.demo %}
-            <a href="{{ proyecto.demo }}" target="_blank" rel="noopener noreferrer" class="flex min-h-14 items-center gap-3 border-2 border-linea p-3 font-bold hover:bg-uteq-tinte dark:hover:bg-uteq-verde">
-              <span class="flex h-9 w-9 items-center justify-center bg-uteq-verde text-xs text-white" aria-hidden="true">WEB</span>{% translate "Demo en línea" %}
+            <a href="{{ proyecto.demo }}" target="_blank" rel="noopener noreferrer" class="{{ clase }}">
+              <span class="{{ caja }} bg-uteq-verde">{% icono "world" %}</span>
+              <span class="flex-1">{% translate "Ver proyecto desplegado" %}</span>{% icono "external-link" tam=16 %}<span class="sr-only"> ({% translate "se abre en una pestaña nueva" %})</span>
+            </a>
+          {% endif %}
+          {% if proyecto.video %}
+            <a href="{{ proyecto.video }}" target="_blank" rel="noopener noreferrer" class="{{ clase }}">
+              <span class="{{ caja }} bg-[#9d174d]">{% icono "player-play" %}</span>
+              <span class="flex-1">{% translate "Ver video" %}</span>{% icono "external-link" tam=16 %}<span class="sr-only"> ({% translate "se abre en una pestaña nueva" %})</span>
             </a>
           {% endif %}
           {% if proyecto.documento_pdf %}
-            <a href="{{ proyecto.documento_pdf.url }}" target="_blank" rel="noopener" class="flex min-h-14 items-center gap-3 border-2 border-linea p-3 font-bold hover:bg-uteq-tinte dark:hover:bg-uteq-verde">
-              <span class="flex h-9 w-9 items-center justify-center bg-rechazado-texto text-xs text-white" aria-hidden="true">PDF</span>{% translate "Documento" %}
+            <a href="{{ proyecto.documento_pdf.url }}" target="_blank" rel="noopener" class="{{ clase }}">
+              <span class="{{ caja }} bg-rechazado-texto">{% icono "download" %}</span>
+              <span class="flex-1">{% translate "Documento" %}</span>
             </a>
           {% endif %}
+          {% endwith %}
         </div>
       </section>
 
@@ -116,9 +166,9 @@
         <ul class="mt-4 flex flex-col gap-3">
           {% for autoria in autorias %}
             <li class="flex items-center gap-3">
-              <span class="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-linea bg-uteq-tinte text-sm font-extrabold text-uteq-verde dark:bg-uteq-verde dark:text-white" aria-hidden="true">{{ autoria.usuario.nombres|slice:":1" }}{{ autoria.usuario.apellidos|slice:":1" }}</span>
+              {% include "parciales/avatar.html" with perfil=autoria.usuario.perfil tam="h-10 w-10" texto="text-sm" %}
               <span class="flex flex-col">
-                <span class="font-bold">{{ autoria.usuario.nombre_completo }}</span>
+                {% include "parciales/nombre_persona.html" with persona=autoria.usuario clase="font-bold" %}
                 <span class="text-xs text-texto-suave">{% if autoria.es_creador %}{% translate "Creador" %}{% else %}{% translate "Coautor" %}{% endif %}</span>
               </span>
             </li>
@@ -138,8 +188,8 @@
           </div>
         </div>
         <div class="mt-5 flex flex-col gap-3">
-          <a href="{% url 'vitrina:certificado' proyecto.codigo %}" class="btn btn-primario w-full">{% translate "Descargar certificado (PDF)" %}</a>
-          <a href="{% url 'vitrina:qr' proyecto.codigo %}?descargar" class="btn btn-secundario w-full">{% translate "Descargar QR (PNG)" %}</a>
+          <a href="{% url 'vitrina:certificado' proyecto.codigo %}" class="btn btn-primario w-full gap-2">{% icono "certificate" tam=18 %}{% translate "Descargar certificado (PDF)" %}</a>
+          <a href="{% url 'vitrina:qr' proyecto.codigo %}?descargar" class="btn btn-secundario w-full gap-2">{% icono "qrcode" tam=18 %}{% translate "Descargar QR (PNG)" %}</a>
         </div>
       </section>
       {% endif %}
@@ -149,9 +199,10 @@
         <dl class="mt-4 flex flex-col gap-3 text-sm">
           <div><dt class="font-bold text-texto-suave">{% translate "Carrera" %}</dt><dd class="mt-0.5">{% translate "Ingeniería de Software" %}</dd></div>
           <div><dt class="font-bold text-texto-suave">{% translate "Asignatura" %}</dt><dd class="mt-0.5">{{ proyecto.asignatura.nombre }}</dd></div>
-          <div><dt class="font-bold text-texto-suave">{% translate "Periodo" %}</dt><dd class="mt-0.5">{{ proyecto.periodo }}</dd></div>
+          {% if proyecto.periodo %}<div><dt class="font-bold text-texto-suave">{% translate "Periodo" %}</dt><dd class="mt-0.5">{{ proyecto.periodo }}</dd></div>{% endif %}
+          {% if proyecto.periodo_aprobacion and proyecto.periodo_aprobacion_id != proyecto.periodo_id %}<div><dt class="font-bold text-texto-suave">{% translate "Período de aprobación" %}</dt><dd class="mt-0.5">{{ proyecto.periodo_aprobacion }}</dd></div>{% endif %}
           {% if proyecto.aprobado_en %}<div><dt class="font-bold text-texto-suave">{% translate "Aprobado" %}</dt><dd class="mt-0.5">{{ proyecto.aprobado_en|date:"DATE_FORMAT" }}</dd></div>{% endif %}
-          {% if proyecto.publicado and proyecto.revisor %}<div><dt class="font-bold text-texto-suave">{% translate "Revisado por" %}</dt><dd class="mt-0.5">{{ proyecto.revisor.nombre_completo }}</dd></div>{% endif %}
+          {% if proyecto.publicado and proyecto.revisor %}<div><dt class="font-bold text-texto-suave">{% translate "Revisado por" %}</dt><dd class="mt-0.5">{% include "parciales/nombre_persona.html" with persona=proyecto.revisor %}</dd></div>{% endif %}
         </dl>
       </section>
     </aside>

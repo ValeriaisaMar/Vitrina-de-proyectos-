@@ -4,7 +4,9 @@ Todas las consultas públicas parten de Proyecto.objects.publicados(), que solo 
 proyectos aprobados (constitución, principio VI).
 """
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponse
@@ -12,8 +14,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 
 from comunidad.consultas import datos_comunidad
+from cuentas.models import Aptitud, Perfil, Rol
+from cuentas.perfiles import buscar_personas, editar_seccion, formularios_de_edicion, personas_relacionadas
 from proyectos.models import Estado, Proyecto, Tecnologia
 from proyectos.permisos import puede_editar, puede_ver, puede_ver_historial
+from proyectos import solicitudes
 from proyectos.servicios import puede_cambiar
 from vitrina.forms import FormularioFiltros, FormularioVerificar
 from vitrina.verificacion import certificado_pdf, normalizar_codigo, qr_png, url_verificacion
@@ -37,7 +42,7 @@ def inicio(request):
         {"numero": "01", "titulo": _("Sube tu proyecto"),
          "texto": _("Descripción, coautores, tecnologías, repositorio y documento PDF.")},
         {"numero": "02", "titulo": _("Un docente lo revisa"),
-         "texto": _("Lo aprueba, pide cambios o lo rechaza. Cada paso queda en el historial.")},
+         "texto": _("Eliges al docente que lo revisa. Lo aprueba, pide cambios o lo rechaza, y cada paso queda en el historial.")},
         {"numero": "03", "titulo": _("Queda verificado"),
          "texto": _("Se publica en la vitrina con el sello de la carrera y un código único.")},
         {"numero": "04", "titulo": _("Compártelo con QR"),
@@ -58,7 +63,10 @@ def explorar(request):
         .filter(total__gt=0)
         .order_by("-total", "nombre")
     )
+    # Bloque "Personas": perfiles cuyo nombre coincide con la búsqueda (spec 009)
+    texto = form.cleaned_data.get("q", "") if form.is_bound and form.is_valid() else ""
     return render(request, "vitrina/explorar.html", {
+        "personas": buscar_personas(texto) if texto and not request.GET.get("pagina") else [],
         "form": form,
         "pagina": pagina,
         "total": pagina.paginator.count,
@@ -101,17 +109,19 @@ def detalle(request, slug):
         raise Http404  # para los demás, el proyecto "no existe"
     ver_historial = puede_ver_historial(request.user, proyecto)
     return render(request, "vitrina/detalle.html", {
+        "revision": _estado_revision(request.user, proyecto),
         # Vista previa al compartir el enlace (WhatsApp, LinkedIn…), solo si está publicado (spec 008)
         **(_vista_previa(request, proyecto) if proyecto.publicado else {}),
-        # Me gusta, favoritos y comentarios: solo en proyectos publicados (módulo 007)
+        # Me gusta, guardados y comentarios: solo en proyectos publicados (módulo 007)
         "comunidad": datos_comunidad(request.user, proyecto) if proyecto.publicado else None,
         "proyecto": proyecto,
-        "autorias": proyecto.autorias.select_related("usuario"),
+        # perfil y roles precargados: el enlace a cada perfil no cuesta consultas extra (spec 009)
+        "autorias": proyecto.autorias.select_related("usuario__perfil").prefetch_related("usuario__roles_asignados"),
         "puede_editar": puede_editar(request.user, proyecto),
         "puede_enviar": puede_cambiar(request.user, proyecto, Estado.ENVIADO),
         "es_docente": request.user.is_authenticated and request.user.es_docente,
         # El historial y las observaciones son internos: no se muestran al público
-        "eventos": proyecto.eventos.select_related("actor") if ver_historial else None,
+        "eventos": proyecto.eventos.select_related("actor", "profesor") if ver_historial else None,
         "observacion": (
             proyecto.ultima_decision
             if ver_historial and proyecto.estado in (Estado.CON_OBSERVACIONES, Estado.RECHAZADO) else None
@@ -119,13 +129,27 @@ def detalle(request, slug):
     })
 
 
+def _estado_revision(usuario, proyecto):
+    """Para los autores de un proyecto Enviado: a quién se le pidió, si puede retirar o elegir (spec 009)."""
+    if proyecto.estado != Estado.ENVIADO or not proyecto.es_autor(usuario):
+        return None
+    pendiente = proyecto.solicitud_pendiente
+    return {
+        "subestado": proyecto.subestado,
+        "pendiente": pendiente,
+        "puede_retirar": bool(pendiente) and solicitudes.puede_retirar(usuario, pendiente),
+        "puede_elegir": solicitudes.puede_elegir_revisor(usuario, proyecto),
+        "recomendacion": solicitudes.recomendacion_vigente(proyecto) if not pendiente else None,
+    }
+
+
 def _vista_previa(request, proyecto):
     """Datos Open Graph del proyecto: título, resumen y portada con dirección absoluta."""
-    portada = proyecto.portada
+    imagen = proyecto.url_imagen_compartir  # la portada; si no hay, la primera captura (spec 009)
     return {
         "og_titulo": proyecto.titulo,
         "og_descripcion": proyecto.resumen,
-        "og_imagen": request.build_absolute_uri(portada.archivo.url) if portada else None,
+        "og_imagen": request.build_absolute_uri(imagen) if imagen else None,
     }
 
 
@@ -152,7 +176,7 @@ def verificar_codigo(request, codigo):
         return redirect("vitrina:verificar_codigo", codigo=canonico, permanent=True)
     proyecto = (
         Proyecto.objects.publicados().filter(codigo=canonico)
-        .select_related("revisor", "periodo").prefetch_related("autores").first()
+        .select_related("revisor", "periodo", "periodo_aprobacion").prefetch_related("autores").first()
         if canonico else None
     )
     contexto = {"proyecto": proyecto, "codigo": codigo, "form": FormularioVerificar()}
@@ -161,7 +185,7 @@ def verificar_codigo(request, codigo):
 
 
 def _proyecto_por_codigo(codigo):
-    return get_object_or_404(Proyecto.objects.publicados().select_related("asignatura", "revisor", "periodo"), codigo=codigo)
+    return get_object_or_404(Proyecto.objects.publicados().select_related("asignatura", "revisor", "periodo", "periodo_aprobacion"), codigo=codigo)
 
 
 def descargar_qr(request, codigo):
@@ -180,3 +204,61 @@ def descargar_certificado(request, codigo):
     respuesta = HttpResponse(pdf, content_type="application/pdf")
     respuesta["Content-Disposition"] = f'attachment; filename="{proyecto.codigo}-certificado.pdf"'
     return respuesta
+
+
+# --------------------------------------------------------------------------- Perfil público (spec 009, historia 4)
+
+
+def persona(request, slug):
+    """Perfil público de una persona. El dueño lo edita aquí mismo, sección por sección.
+
+    - Lo ve cualquiera (también sin sesión) si la persona tiene rol estudiante o profesor.
+    - Quien solo es admin no tiene perfil visible: 404.
+    - POST: solo el dueño. Cada formulario manda "seccion" (descripcion, aptitudes, foto…). Si hay
+      errores se vuelve a mostrar la página con lo que escribió; si no, se redirige (PRG).
+    """
+    perfil = get_object_or_404(
+        Perfil.objects.select_related("usuario").prefetch_related("usuario__roles_asignados"), slug=slug,
+    )
+    usuario = perfil.usuario
+    if not usuario.tiene_perfil_publico:
+        raise Http404
+    es_dueno = request.user.is_authenticated and request.user.pk == usuario.pk
+    ligado = None
+
+    if request.method == "POST":
+        if not es_dueno:
+            raise PermissionDenied
+        seccion = request.POST.get("seccion", "")
+        ok, resultado = editar_seccion(perfil, seccion, request.POST, request.FILES)
+        if ok:
+            messages.success(request, resultado)
+            return redirect(f"{perfil.get_absolute_url()}?editar=1#{seccion.replace('quitar_', '')}")
+        if resultado is None:
+            raise PermissionDenied
+        ligado = resultado
+
+    editando = es_dueno and (ligado is not None or "editar" in request.GET)
+    proyectos = (
+        Proyecto.objects.publicados().filter(autorias__usuario=usuario).con_relaciones()
+        .annotate(total_me_gusta=Count("me_gustas", distinct=True)).order_by("-aprobado_en")
+    )
+    es_profesor = usuario.tiene_rol(Rol.PROFESOR)
+    return render(request, "vitrina/persona.html", {
+        "perfil": perfil,
+        "persona": usuario,
+        "es_dueno": es_dueno,
+        "editando": editando,
+        "es_profesor": es_profesor,
+        "aptitudes": list(perfil.aptitudes.all()),
+        "experiencias": list(perfil.experiencias.all()),
+        "estudios": list(perfil.estudios.all()),
+        "asignaturas": list(perfil.asignaturas_imparte.select_related("plan").order_by("semestre", "nombre")) if es_profesor else [],
+        "proyectos": proyectos,
+        "relacionados": personas_relacionadas(usuario),
+        "formularios": formularios_de_edicion(perfil, ligado) if editando else None,
+        "aptitudes_existentes": Aptitud.objects.values_list("nombre", flat=True)[:300] if editando else [],
+        "og_titulo": usuario.nombre_completo,
+        "og_descripcion": perfil.descripcion[:200] or usuario.rol_publico,
+        "og_imagen": request.build_absolute_uri(perfil.foto.url) if perfil.foto else None,
+    })

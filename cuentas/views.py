@@ -34,6 +34,7 @@ from cuentas.forms import (
     FormularioReenvio,
 )
 from cuentas.models import ConfiguracionCorreo, Rol
+from cuentas.perfiles import crear_perfil
 from cuentas.roles import activar_rol
 from cuentas.tokens import token_activacion
 
@@ -228,7 +229,7 @@ def usuario_editar(request, pk):
         "form": form,
         "usuario_editado": usuario,
         "es_uno_mismo": usuario.pk == request.user.pk,
-        # Si deja de ser profesor, sus proyectos en revisión los tendrá que decidir un admin
+        # Si deja de ser profesor, sus proyectos en revisión hay que reasignarlos (spec 009)
         "en_revision": usuario.proyectos_revisados.filter(estado="en_revision").count(),
         "cambios_de_rol": usuario.cambios_de_rol.select_related("hecho_por")[:8],
         "acciones": LogEntry.objects.filter(
@@ -270,7 +271,9 @@ def correo_envio(request):
     configuracion = ConfiguracionCorreo.actual()
     inicial = {}
     proveedor = request.GET.get("proveedor")
-    if request.method == "GET" and proveedor in correo_envio_servicio.PROVEEDORES:
+    if request.method == "GET" and proveedor == "personalizado":
+        inicial = FormularioCorreoEnvio(configuracion=configuracion).initial | {"servidor": ""}
+    elif request.method == "GET" and proveedor in correo_envio_servicio.PROVEEDORES:
         # Configuración rápida sin JavaScript: ?proveedor=gmail llena servidor, puerto y seguridad
         servidor, puerto, seguridad = correo_envio_servicio.PROVEEDORES[proveedor]
         inicial = FormularioCorreoEnvio(configuracion=configuracion).initial | {"servidor": servidor, "puerto": puerto, "seguridad": seguridad}
@@ -292,7 +295,7 @@ def correo_envio(request):
                 correo_envio_servicio.registrar_prueba(ok, mensaje)
                 (messages.success if ok else messages.error)(request, mensaje)
             # Se vuelve a mostrar el formulario con lo escrito (sin la contraseña) para corregir o guardar
-            return render(request, "cuentas/correo_envio.html", _contexto_correo(form, configuracion, sin_clave_cifrado))
+            return render(request, "cuentas/correo_envio.html", _contexto_correo(form, configuracion, sin_clave_cifrado, proveedor))
 
         if datos["clave"] and sin_clave_cifrado:
             messages.error(request, _("No se puede guardar la contraseña: falta la variable CLAVE_CIFRADO en el archivo .env del servidor."))
@@ -301,7 +304,7 @@ def correo_envio(request):
             messages.success(request, _("Guardamos la configuración de correo. Los próximos correos saldrán desde esta cuenta."))
             return redirect("cuentas:correo_envio")
 
-    return render(request, "cuentas/correo_envio.html", _contexto_correo(form, configuracion, sin_clave_cifrado))
+    return render(request, "cuentas/correo_envio.html", _contexto_correo(form, configuracion, sin_clave_cifrado, proveedor))
 
 
 def _clave_guardada(configuracion):
@@ -314,11 +317,57 @@ def _clave_guardada(configuracion):
         return ""
 
 
-def _contexto_correo(form, configuracion, sin_clave_cifrado):
+def _contexto_correo(form, configuracion, sin_clave_cifrado, pedido=None):
     return {
         "form": form,
         "configuracion": configuracion,
         "sin_clave_cifrado": sin_clave_cifrado,
         "proveedores": correo_envio_servicio.PROVEEDORES,
         "remitente_env": settings.EMAIL_REMITENTE,
+        "proveedor_activo": correo_envio_servicio.proveedor_de(form, pedido),
     }
+
+
+# --------------------------------------------------------------------------- Bienvenida al perfil (spec 009)
+
+
+@login_required
+@require_POST
+def bienvenida(request):
+    """Invitación "Completa tu perfil" del primer inicio de sesión.
+
+    "Completar ahora" lleva a editar el perfil; "Más tarde" la cierra. En los dos casos no vuelve a
+    salir: queda un enlace discreto en el panel.
+    """
+    perfil = crear_perfil(request.user)
+    perfil.bienvenida_vista = True
+    perfil.save(update_fields=["bienvenida_vista"])
+    if request.POST.get("accion") == "ahora" and request.user.tiene_perfil_publico:
+        return redirect(perfil.get_absolute_url() + "?editar=1")
+    return redirect("vitrina:panel")
+
+
+# --------------------------------------------------------------------------- Disponibilidad del profesor (spec 009)
+
+
+@rol_requerido(Rol.PROFESOR)
+@require_POST
+def disponibilidad(request):
+    """Marca o desmarca "Estoy recibiendo proyectos". No afecta a los proyectos que ya tiene asignados."""
+    perfil = crear_perfil(request.user)
+    perfil.recibiendo_proyectos = request.POST.get("recibiendo") == "1"
+    perfil.save(update_fields=["recibiendo_proyectos"])
+    if perfil.recibiendo_proyectos:
+        messages.success(request, _("Ahora los estudiantes pueden elegirte como revisor."))
+    else:
+        messages.info(request, _("Ya no apareces como disponible para revisar. Tus proyectos asignados no cambian."))
+    return redirect(_destino_seguro(request, request.POST.get("next", "")))
+
+
+# --------------------------------------------------------------------------- Mi cuenta (spec 009)
+
+
+@login_required
+def mi_cuenta(request):
+    """Las opciones del menú del avatar en una página (para navegadores sin JavaScript)."""
+    return render(request, "cuentas/mi_cuenta.html")

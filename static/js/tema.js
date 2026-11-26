@@ -1,11 +1,11 @@
 /*
-  Tema claro/oscuro y menú móvil.
+  Tema claro/oscuro, menús <details> y filtros de Explorar.
 
   - El tema ya se aplicó antes de pintar con el script corto de base.html (sin destello).
     Aquí solo se maneja el botón y se guarda la elección en el navegador.
-  - El menú móvil es un <details>, así que funciona aunque este archivo no cargue.
-    Aquí solo se cierra al tocar fuera o al pulsar Escape.
-  - En la portada, marca "Cómo funciona" en el menú cuando esa sección está a la vista.
+  - Los menús <details data-menu> (por ejemplo, el engranaje del visitante) funcionan aunque este
+    archivo no cargue. Aquí solo se cierran al tocar fuera o al pulsar Escape.
+  - El menú del avatar lo maneja static/js/menu.js (spec 009).
 */
 (function () {
   "use strict";
@@ -58,28 +58,6 @@
     };
     ajustarFiltros();
     escritorio.addEventListener("change", ajustarFiltros);
-  }
-
-  // Menú en la portada: "Cómo funciona" es una sección de esta misma página (#como-funciona), no
-  // otra página. El servidor no ve la parte "#..." de la dirección y siempre marca "Inicio"; aquí
-  // se marca "Cómo funciona" mientras esa sección cruza el centro de la pantalla.
-  var seccionComo = document.getElementById("como-funciona");
-  var enlacesNav = document.querySelectorAll("[data-nav]");
-  if (seccionComo && enlacesNav.length && "IntersectionObserver" in window) {
-    var marcarEnlaces = function (enComo) {
-      enlacesNav.forEach(function (enlace) {
-        var activo = (enlace.dataset.nav === "como-funciona") === enComo;
-        (enlace.dataset.claseActiva || "").split(" ").forEach(function (clase) {
-          if (clase) enlace.classList.toggle(clase, activo);
-        });
-        if (activo) enlace.setAttribute("aria-current", enlace.dataset.nav === "inicio" ? "page" : "location");
-        else enlace.removeAttribute("aria-current");
-      });
-    };
-    // rootMargin -50 % arriba y abajo: la "ventana" es solo la línea central de la pantalla.
-    new IntersectionObserver(function (entradas) {
-      marcarEnlaces(entradas[entradas.length - 1].isIntersecting);
-    }, { rootMargin: "-50% 0px -50% 0px" }).observe(seccionComo);
   }
 
   actualizarBotones();

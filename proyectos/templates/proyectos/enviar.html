@@ -1,32 +1,56 @@
-{% extends "cuentas/base_tarjeta.html" %}
-{% load i18n %}
+{% extends "base.html" %}
+{% load i18n static %}
 
 {% block titulo %}{% if reenvio %}{% translate "Reenviar a revisión" %}{% else %}{% translate "Enviar a revisión" %}{% endif %}{% endblock %}
 
-{% block tarjeta %}
-<span class="insignia insignia-enviado">{% if reenvio %}{% translate "Reenvío" %}{% else %}{% translate "Envío a revisión" %}{% endif %}</span>
-<h1 class="mt-5 text-3xl font-extrabold">{% blocktranslate with titulo=proyecto.titulo %}¿Enviar «{{ titulo }}» a revisión?{% endblocktranslate %}</h1>
-<p class="mt-4 leading-relaxed text-texto-suave">{% translate "Un docente lo tomará de la bandeja y decidirá si lo aprueba, pide cambios o lo rechaza. Mientras esté en revisión no podrás editarlo." %}</p>
+{% block contenido %}
+<section class="bg-seccion py-10 sm:py-14">
+  <div class="contenedor max-w-4xl">
+    <nav aria-label="{% translate 'Ruta' %}" class="text-sm text-texto-suave">
+      <a class="enlace" href="{% url 'proyectos:mis_proyectos' %}">{% translate "Mis proyectos" %}</a><span aria-hidden="true"> / </span>
+      <a class="enlace" href="{{ proyecto.get_absolute_url }}">{{ proyecto.titulo }}</a>
+    </nav>
+    <span class="insignia insignia-enviado mt-5">{% if reenvio %}{% translate "Reenvío" %}{% else %}{% translate "Envío a revisión" %}{% endif %}</span>
+    <h1 class="mt-4 text-3xl font-extrabold">{% blocktranslate with titulo=proyecto.titulo %}¿Enviar «{{ titulo }}» a revisión?{% endblocktranslate %}</h1>
+    <p class="mt-4 max-w-2xl leading-relaxed text-texto-suave">
+      {% if reenvio %}{% translate "Vuelve al mismo profesor que pidió los cambios. Mientras esté en revisión no podrás editarlo." %}
+      {% elif eleccion %}{% translate "Elige al profesor que lo revisará. Mientras esté en revisión no podrás editarlo." %}
+      {% else %}{% translate "Quien creó el proyecto elegirá al profesor que lo revisará. Mientras esté en revisión no podrás editarlo." %}{% endif %}
+    </p>
 
-{% if observacion %}
-  <div class="mt-6 border-2 border-linea bg-observaciones p-4 text-observaciones-texto">
-    <p class="text-xs font-bold uppercase tracking-wider">{% blocktranslate with docente=observacion.actor.nombre_completo %}Lo que pidió {{ docente }}{% endblocktranslate %}</p>
-    <p class="mt-2 whitespace-pre-line text-sm leading-relaxed">{{ observacion.comentario }}</p>
+    {% if observacion %}
+      <div class="mt-6 border-2 border-linea bg-observaciones p-4 text-observaciones-texto">
+        <p class="text-xs font-bold uppercase tracking-wider">{% blocktranslate with docente=observacion.actor.nombre_completo %}Lo que pidió {{ docente }}{% endblocktranslate %}</p>
+        <p class="mt-2 whitespace-pre-line text-sm leading-relaxed">{{ observacion.comentario }}</p>
+      </div>
+    {% endif %}
+
+    {% if sin_periodo %}
+      <div class="mt-6">{% translate "No hay un período académico activo. Avísale a la administración." as texto_sin_periodo %}{% include "componentes/aviso.html" with tipo="warning" texto=texto_sin_periodo %}</div>
+    {% elif periodo_envio and not reenvio %}
+      <p class="mt-6 flex items-center gap-2 text-sm">{% icono "calendar" tam=18 %}<strong>{% translate "Período académico:" %}</strong> {{ periodo_envio.nombre }}</p>
+    {% endif %}
+
+    <ul class="mt-6 flex flex-col gap-2 text-sm">
+      <li class="flex items-center gap-2">{% icono "check" tam=16 %}{% translate "Revisa que el repositorio sea público." %}</li>
+      <li class="flex items-center gap-2">{% icono "check" tam=16 %}{% translate "Comprueba que la descripción explique qué hace y cómo se usa." %}</li>
+      <li class="flex items-center gap-2">{% icono "check" tam=16 %}{% translate "Las capturas ayudan mucho a que el docente entienda tu trabajo." %}</li>
+    </ul>
+
+    {% if eleccion %}<form id="filtros-profesores" method="get" action="#todos"></form>{% endif %}
+    <form method="post" class="mt-8 flex flex-col gap-8">
+      {% csrf_token %}
+      {% if eleccion %}<div class="tarjeta-sobria p-5 sm:p-6">{% include "proyectos/_elegir_profesor.html" %}</div>{% endif %}
+      <div class="tarjeta-sobria flex flex-col gap-5 p-5 sm:p-6">
+        {% include "componentes/campo.html" with campo=form.comentario %}
+        <div class="flex flex-wrap gap-4">
+          <button type="submit" class="btn btn-primario gap-2" {% if sin_periodo %}disabled aria-disabled="true"{% endif %}>{% icono "send" tam=18 %}{% if reenvio %}{% translate "Reenviar" %}{% else %}{% translate "Enviar a revisión" %}{% endif %}</button>
+          <a href="{{ proyecto.get_absolute_url }}" class="btn btn-secundario gap-2">{% icono "arrow-left" tam=18 %}{% translate "Cancelar" %}</a>
+        </div>
+      </div>
+    </form>
   </div>
-{% endif %}
-
-<ul class="mt-6 flex flex-col gap-2 text-sm">
-  <li>→ {% translate "Revisa que el repositorio sea público." %}</li>
-  <li>→ {% translate "Comprueba que la descripción explique qué hace y cómo se usa." %}</li>
-  <li>→ {% translate "Las capturas ayudan mucho a que el docente entienda tu trabajo." %}</li>
-</ul>
-
-<form method="post" class="mt-8 flex flex-col gap-6">
-  {% csrf_token %}
-  {% include "componentes/campo.html" with campo=form.comentario %}
-  <div class="flex flex-wrap gap-4">
-    <button type="submit" class="btn btn-primario">{% if reenvio %}{% translate "Reenviar" %}{% else %}{% translate "Enviar a revisión" %}{% endif %}</button>
-    <a href="{{ proyecto.get_absolute_url }}" class="btn btn-secundario">{% translate "Cancelar" %}</a>
-  </div>
-</form>
+</section>
 {% endblock %}
+
+{% block scripts %}{% if eleccion %}<script src="{% static 'js/revisor.js' %}" defer></script>{% endif %}{% endblock %}

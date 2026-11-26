@@ -1,0 +1,6 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with titulo=proyecto.titulo %}La administración te asignó la revisión del proyecto «{{ titulo }}».{% endblocktranslate %}
+
+{% translate "Lo encuentras en tu bandeja de revisión:" %} {{ enlace }}
+
+{% translate "Vitrina de Proyectos · UTEQ" %}
+{% endautoescape %}

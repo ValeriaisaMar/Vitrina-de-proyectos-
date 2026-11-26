@@ -1,0 +1,97 @@
+{% load i18n %}{% comment %}
+"Elige quién revisa tu proyecto" (spec 009). Va DENTRO del formulario POST de la página.
+Los filtros de la lista completa usan el formulario GET #filtros-profesores, que la página pone
+FUERA del POST (los formularios no se pueden anidar; el atributo form= los une).
+Sin JavaScript: los filtros recargan la página y el nombre abre el perfil en otra pestaña.
+Con JavaScript (static/js/revisor.js): los filtros actúan al instante y el nombre abre un resumen.
+{% endcomment %}
+<fieldset class="flex flex-col gap-6" id="elegir-revisor">
+  <legend class="mb-2 text-2xl font-extrabold">{% translate "Elige quién revisa tu proyecto" %}</legend>
+  <p class="text-sm text-texto-suave">{% translate "El profesor recibe tu solicitud por correo y decide si la acepta. Las sugerencias dicen por qué aparecen." %}</p>
+  {% for error in eleccion.profesor.errors %}<p class="campo-error" role="alert">{{ error }}</p>{% endfor %}
+
+  {% if recomendacion %}
+    <section class="border-2 border-linea bg-uteq-tinte/60 p-4 dark:bg-uteq-verde/25" aria-labelledby="titulo-recomendacion">
+      <h3 id="titulo-recomendacion" class="flex items-center gap-2 font-extrabold">{% icono "user-check" tam=20 %}{% blocktranslate with profesor=recomendacion.por.nombre_completo %}Recomendado por {{ profesor }}{% endblocktranslate %}</h3>
+      {% if recomendacion.mensaje %}<p class="mt-2 whitespace-pre-line text-sm">{{ recomendacion.mensaje }}</p>{% endif %}
+      <ul class="mt-3">{% include "proyectos/_tarjeta_profesor.html" with p=recomendacion.profesor motivos=None %}</ul>
+    </section>
+  {% endif %}
+
+  <section aria-labelledby="titulo-sugerencias">
+    <h3 id="titulo-sugerencias" class="flex items-center gap-2 font-extrabold">{% icono "sparkles" tam=20 %}{% translate "Sugerencias" %}</h3>
+    {% if sugerencias %}
+      <ul class="mt-3 flex flex-col gap-3">
+        {% for s in sugerencias %}{% include "proyectos/_tarjeta_profesor.html" with p=s.profesor motivos=s.motivos %}{% endfor %}
+      </ul>
+    {% else %}
+      <p class="mt-2 text-sm text-texto-suave">{% translate "Por ahora no hay sugerencias para esta asignatura. Busca en la lista completa." %}</p>
+    {% endif %}
+  </section>
+
+  <details id="todos" class="border-2 border-linea p-4" {% if filtrando or not sugerencias %}open{% endif %}>
+    <summary class="flex cursor-pointer items-center gap-2 font-extrabold">{% icono "users" tam=20 %}{% translate "Ver todos los profesores" %}</summary>
+    <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-filtros-profesores>
+      <div class="flex flex-col sm:col-span-2">
+        <label for="filtro-q" class="campo-etiqueta">{% translate "Buscar por nombre" %}</label>
+        <input id="filtro-q" type="search" name="q" value="{{ filtros.q }}" form="filtros-profesores" class="campo-control" data-filtro="q">
+      </div>
+      <div class="flex flex-col">
+        <label for="filtro-asignatura" class="campo-etiqueta">{% translate "Asignatura que imparte" %}</label>
+        <select id="filtro-asignatura" name="asignatura" form="filtros-profesores" class="campo-control" data-filtro="asignatura">
+          <option value="">{% translate "Todas" %}</option>
+          {% for grupo, opciones in opciones_asignatura %}<optgroup label="{{ grupo }}">{% for valor, texto in opciones %}<option value="{{ valor }}" {% if filtros.asignatura == valor|stringformat:"s" %}selected{% endif %}>{{ texto }}</option>{% endfor %}</optgroup>{% endfor %}
+        </select>
+      </div>
+      <div class="flex flex-col">
+        <label for="filtro-semestre" class="campo-etiqueta">{% translate "Semestre" %}</label>
+        <select id="filtro-semestre" name="semestre" form="filtros-profesores" class="campo-control" data-filtro="semestre">
+          <option value="">{% translate "Todos" %}</option>
+          {% for n in semestres %}<option value="{{ n }}" {% if filtros.semestre == n|stringformat:"s" %}selected{% endif %}>{{ n }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="flex flex-col">
+        <label for="filtro-orden" class="campo-etiqueta">{% translate "Ordenar por" %}</label>
+        <select id="filtro-orden" name="orden" form="filtros-profesores" class="campo-control" data-filtro="orden">
+          <option value="relevancia" {% if filtros.orden == "relevancia" %}selected{% endif %}>{% translate "Relevancia" %}</option>
+          <option value="nombre" {% if filtros.orden == "nombre" %}selected{% endif %}>{% translate "Nombre" %}</option>
+          <option value="pendientes" {% if filtros.orden == "pendientes" %}selected{% endif %}>{% translate "Menos pendientes" %}</option>
+        </select>
+      </div>
+      <label class="flex min-h-11 items-center gap-2 text-sm font-semibold sm:col-span-2">
+        <input type="checkbox" name="disponibles" value="1" form="filtros-profesores" class="h-5 w-5 accent-uteq-verde" data-filtro="disponibles" {% if filtros.disponibles %}checked{% endif %}>
+        {% translate "Solo los que están recibiendo proyectos" %}
+      </label>
+      <div class="flex items-end" data-sin-js>
+        <button type="submit" form="filtros-profesores" class="btn btn-secundario gap-2">{% icono "filter" tam=18 %}{% translate "Filtrar" %}</button>
+      </div>
+    </div>
+    <p class="mt-4 text-sm text-texto-suave" data-contador-profesores aria-live="polite">{% blocktranslate count n=todos|length %}{{ n }} profesor{% plural %}{{ n }} profesores{% endblocktranslate %}</p>
+    <ul class="mt-3 flex flex-col gap-3" data-lista-profesores>
+      {% for p in todos %}{% include "proyectos/_tarjeta_profesor.html" with p=p motivos=None %}{% endfor %}
+    </ul>
+    {% if not todos %}<p class="mt-3 text-sm text-texto-suave">{% translate "Ningún profesor coincide con los filtros." %}</p>{% endif %}
+  </details>
+</fieldset>
+
+{# Resumen del perfil sin perder la elección: un solo <dialog> que revisor.js llena con el <template> del profesor #}
+<dialog id="resumen-profesor" class="m-auto w-[min(32rem,calc(100vw-2rem))] border-2 border-linea bg-superficie p-0 text-texto shadow-duro-verde backdrop:bg-black/50" aria-labelledby="resumen-profesor-titulo">
+  <div class="flex items-start justify-between gap-3 border-b-2 border-linea p-4">
+    <h2 id="resumen-profesor-titulo" class="text-lg font-extrabold">{% translate "Perfil del profesor" %}</h2>
+    <button type="button" class="flex h-11 w-11 items-center justify-center border-2 border-linea" data-cerrar-resumen aria-label="{% translate 'Cerrar' %}">{% icono "x" tam=20 %}</button>
+  </div>
+  <div class="p-4" data-contenido-resumen></div>
+</dialog>
+{% for p in todos %}
+  <template id="resumen-{{ p.pk }}">
+    <div class="flex items-center gap-3">
+      {% include "parciales/avatar.html" with perfil=p.perfil tam="h-16 w-16" texto="text-xl" %}
+      <div><p class="text-lg font-extrabold">{{ p.nombre_completo }}</p><p class="text-sm text-texto-suave">{{ p.rol_publico }}</p></div>
+    </div>
+    {% if p.perfil.descripcion %}<p class="mt-3 line-clamp-6 whitespace-pre-line text-sm leading-relaxed">{{ p.perfil.descripcion }}</p>{% endif %}
+    {% with asignaturas=p.perfil.asignaturas_imparte.all %}{% if asignaturas %}
+      <p class="mt-3 text-sm"><strong>{% translate "Imparte:" %}</strong> {% for a in asignaturas %}{{ a.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    {% endif %}{% endwith %}
+    <a href="{{ p.perfil.get_absolute_url }}" target="_blank" rel="noopener" class="btn btn-primario mt-4 gap-2">{% icono "external-link" tam=18 %}{% translate "Ver perfil completo" %}<span class="sr-only"> ({% translate "se abre en una pestaña nueva" %})</span></a>
+  </template>
+{% endfor %}

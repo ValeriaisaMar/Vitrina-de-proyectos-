@@ -1,4 +1,4 @@
-"""Vistas de comunidad: me gusta, favoritos y comentarios.
+"""Vistas de comunidad: me gusta, guardados y comentarios.
 
 Todas las acciones son POST (cambian datos), van protegidas con CSRF y redirigen a la ficha del
 proyecto, así funcionan sin JavaScript. Solo existen sobre proyectos aprobados.
@@ -15,7 +15,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from comunidad.forms import FormularioComentario
-from comunidad.models import Comentario, Favorito, MeGusta
+from comunidad.models import Comentario, Guardado, MeGusta
 from comunidad.correos import avisar_respuesta
 from comunidad.permisos import puede_borrar, puede_moderar, puede_responder
 from proyectos.models import Proyecto
@@ -62,27 +62,28 @@ def me_gusta(request, slug):
 
 @login_required
 @require_POST
-def favorito(request, slug):
+def guardar(request, slug):
+    """Guarda o quita el proyecto de "Guardados" (un mismo botón pone y quita)."""
     proyecto = _publicado(slug)
-    if _interruptor(Favorito, request.user, proyecto):
-        messages.success(request, _("Guardado en tus favoritos."))
+    if _interruptor(Guardado, request.user, proyecto):
+        messages.success(request, _("Proyecto guardado. Lo encuentras en Guardados."))
     else:
-        messages.info(request, _("Quitado de tus favoritos."))
-    if request.POST.get("volver") == "favoritos":
-        return redirect("comunidad:favoritos")
+        messages.info(request, _("Quitaste el proyecto de Guardados."))
+    if request.POST.get("volver") in ("guardados", "favoritos"):
+        return redirect("comunidad:guardados")
     return _volver(proyecto)
 
 
 @login_required
-def mis_favoritos(request):
+def guardados(request):
     """Proyectos guardados por esta persona (solo los que siguen publicados)."""
     proyectos = (
         Proyecto.objects.publicados()
-        .filter(favoritos__usuario=request.user)
-        .select_related("asignatura").prefetch_related("tecnologias", "imagenes")
-        .order_by("-favoritos__creado_en")
+        .filter(guardados__usuario=request.user)
+        .select_related("asignatura", "periodo").prefetch_related("tecnologias", "imagenes")
+        .order_by("-guardados__creado_en")
     )
-    return render(request, "comunidad/favoritos.html", {"proyectos": proyectos})
+    return render(request, "comunidad/guardados.html", {"proyectos": proyectos})
 
 
 def _limite_superado(usuario):

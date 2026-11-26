@@ -56,3 +56,36 @@ def roles(request):
         "rol_activo_etiqueta": Rol(usuario.rol_activo).label,
         "roles_disponibles": [(rol, Rol(rol).label) for rol in usuario.roles],
     }
+
+
+def periodo_actual(request):
+    """El período académico actual, para el pie y el menú de la cuenta (spec 009).
+
+    Periodo.actual() lo guarda en caché y Periodo.save()/delete() la borran: no cuesta una
+    consulta por página.
+    """
+    from proyectos.models import Periodo  # import local: este módulo se carga antes que las apps
+
+    return {"periodo_actual": Periodo.actual()}
+
+
+def menu_cuenta(request):
+    """Contadores del menú de la cuenta (spec 009): una consulta por contador, solo si hacen falta.
+
+    - solicitudes: solicitudes de revisión pendientes del profesor.
+    - bandeja: proyectos asignados al profesor que esperan su revisión (por revisar o en revisión).
+    Solo se calculan cuando el rol activo es profesor; para los demás no hay consultas.
+    """
+    usuario = getattr(request, "user", None)
+    if usuario is None or not usuario.is_authenticated:
+        return {}
+    from cuentas.models import Rol  # import local: este módulo se carga antes que las apps
+
+    if usuario.rol_activo != Rol.PROFESOR:
+        return {"menu_cuenta": {}}
+    from proyectos.models import Estado, EstadoSolicitud, Proyecto, SolicitudRevision
+
+    return {"menu_cuenta": {
+        "solicitudes": SolicitudRevision.objects.filter(profesor=usuario, estado=EstadoSolicitud.PENDIENTE).count(),
+        "bandeja": Proyecto.objects.filter(revisor=usuario, estado__in=[Estado.ENVIADO, Estado.EN_REVISION]).count(),
+    }}

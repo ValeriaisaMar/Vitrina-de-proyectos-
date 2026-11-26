@@ -1,0 +1,27 @@
+{% load i18n %}{% get_current_language as IDIOMA %}{% comment %}
+Tema (claro/oscuro) e idioma (ES/EN) dentro de un menú (spec 009): en el menú del avatar y en el
+engranaje del visitante. El tema lo cambia static/js/tema.js; el idioma, la vista set_language (POST).
+{% endcomment %}
+<div class="flex flex-col gap-2 px-2">
+  <button type="button" data-boton-tema data-menu-item
+          data-texto-oscuro="{% translate 'Cambiar a modo oscuro' %}" data-texto-claro="{% translate 'Cambiar a modo claro' %}"
+          aria-pressed="false"
+          class="flex min-h-11 items-center gap-3 text-sm font-semibold">
+    <span class="dark:hidden">{% icono "moon" %}</span><span class="hidden dark:inline">{% icono "sun" %}</span>
+    <span class="dark:hidden">{% translate "Modo oscuro" %}</span><span class="hidden dark:inline">{% translate "Modo claro" %}</span>
+  </button>
+  <form action="{% url 'set_language' %}" method="post" class="flex items-center gap-3 text-sm font-semibold">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    {% icono "language" %}
+    <span id="etiqueta-idioma-{{ sufijo|default:'menu' }}">{% translate "Idioma" %}</span>
+    <span class="ml-auto flex border-2 border-linea" role="group" aria-labelledby="etiqueta-idioma-{{ sufijo|default:'menu' }}">
+      <button type="submit" name="language" value="es" lang="es" data-menu-item
+              class="min-h-10 min-w-11 px-2.5 text-xs font-bold {% if IDIOMA == 'es' %}bg-uteq-verde text-white{% else %}bg-superficie text-texto{% endif %}"
+              aria-pressed="{% if IDIOMA == 'es' %}true{% else %}false{% endif %}" title="Español">ES</button>
+      <button type="submit" name="language" value="en" lang="en" data-menu-item
+              class="min-h-10 min-w-11 border-l-2 border-linea px-2.5 text-xs font-bold {% if IDIOMA == 'en' %}bg-uteq-verde text-white{% else %}bg-superficie text-texto{% endif %}"
+              aria-pressed="{% if IDIOMA == 'en' %}true{% else %}false{% endif %}" title="English">EN</button>
+    </span>
+  </form>
+</div>

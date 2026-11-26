@@ -1,0 +1,18 @@
+{% extends "cuentas/base_tarjeta.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Marcar como período actual" %}{% endblock %}
+
+{% block tarjeta %}
+<span class="insignia insignia-enviado gap-1">{% icono "calendar-check" tam=14 %}{% translate "Período actual" %}</span>
+<h1 class="mt-5 text-3xl font-extrabold">{% blocktranslate with nombre=periodo.nombre %}¿Marcar «{{ nombre }}» como período actual?{% endblocktranslate %}</h1>
+<p class="mt-4 leading-relaxed text-texto-suave">{% translate "Solo el período actual recibe proyectos: cada proyecto que se envíe desde ahora tomará este período." %}</p>
+{% if anterior %}
+  <p class="mt-4 leading-relaxed"><strong>{% blocktranslate with nombre=anterior.nombre %}«{{ nombre }}» dejará de ser el período actual.{% endblocktranslate %}</strong> {% translate "Los proyectos que ya tiene no cambian." %}</p>
+{% endif %}
+<form method="post" class="mt-8 flex flex-wrap gap-4">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-primario gap-2">{% icono "check" tam=18 %}{% translate "Sí, marcar como actual" %}</button>
+  <a href="{% url 'proyectos:periodos' %}" class="btn btn-secundario gap-2">{% icono "arrow-left" tam=18 %}{% translate "Cancelar" %}</a>
+</form>
+{% endblock %}

@@ -11,9 +11,10 @@ Parámetros:
   url       si se da, se dibuja un enlace <a>; si no, un <button>
   tipo      submit | button (solo para <button>; por defecto submit)
   clase     clases extra de Tailwind
+  icono     nombre de un ícono de static/iconos/ (spec 009), por ejemplo "check"
 {% endcomment %}
 {% if url %}
-<a href="{{ url }}" class="btn btn-{{ variante|default:'primario' }} {{ clase }}">{{ texto }}</a>
+<a href="{{ url }}" class="btn btn-{{ variante|default:'primario' }} gap-2 {{ clase }}">{% if icono %}{% icono icono tam=18 %}{% endif %}{{ texto }}</a>
 {% else %}
-<button type="{{ tipo|default:'submit' }}" class="btn btn-{{ variante|default:'primario' }} {{ clase }}">{{ texto }}</button>
+<button type="{{ tipo|default:'submit' }}" class="btn btn-{{ variante|default:'primario' }} gap-2 {{ clase }}">{% if icono %}{% icono icono tam=18 %}{% endif %}{{ texto }}</button>
 {% endif %}

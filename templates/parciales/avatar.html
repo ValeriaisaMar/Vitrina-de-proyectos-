@@ -1,0 +1,8 @@
+{% comment %}Foto de perfil o, si no hay, iniciales sobre un color fijo (spec 009).
+Uso: {% include "parciales/avatar.html" with perfil=perfil tam="h-12 w-12" texto="text-base" %}
+Es decorativo: el nombre siempre va escrito al lado.{% endcomment %}
+{% if perfil.foto %}
+  <img src="{{ perfil.foto.url }}" alt="" width="400" height="400" loading="lazy" class="{{ tam|default:'h-12 w-12' }} shrink-0 border-2 border-linea object-cover">
+{% else %}
+  <span aria-hidden="true" class="{{ tam|default:'h-12 w-12' }} {{ texto|default:'text-base' }} flex shrink-0 items-center justify-center border-2 border-linea font-titulo font-extrabold text-white" style="background-color: {{ perfil.color }}">{{ perfil.iniciales }}</span>
+{% endif %}

@@ -16,7 +16,7 @@
   <div class="mt-6">{% translate "Esta es una cuenta técnica de Django: sus roles y su estado se cambian en /admin/." as t %}{% include "componentes/aviso.html" with tipo="info" texto=t %}</div>
 {% endif %}
 {% if en_revision and "profesor" in usuario_editado.roles %}
-  <div class="mt-4">{% blocktranslate with n=en_revision asvar t %}Tiene {{ n }} proyecto(s) en revisión. Si deja de ser profesor, un admin tendrá que decidirlos.{% endblocktranslate %}{% include "componentes/aviso.html" with tipo="warning" texto=t %}</div>
+  <div class="mt-4">{% blocktranslate with n=en_revision asvar t %}Tiene {{ n }} proyecto(s) en revisión. Si deja de ser profesor, tendrás que reasignarlos a otro profesor desde la bandeja.{% endblocktranslate %}{% include "componentes/aviso.html" with tipo="warning" texto=t %}</div>
 {% endif %}
 
 {% if form.non_field_errors %}
@@ -50,8 +50,8 @@
 
   {% if not es_uno_mismo %}{% include "componentes/campo.html" with campo=form.is_active %}{% endif %}
   <div class="flex flex-wrap gap-4">
-    <button type="submit" class="btn btn-primario">{% translate "Guardar cambios" %}</button>
-    <a href="{% url 'cuentas:usuarios' %}" class="btn btn-secundario">{% translate "Cancelar" %}</a>
+    <button type="submit" class="btn btn-primario gap-2">{% icono "check" tam=18 %}{% translate "Guardar cambios" %}</button>
+    <a href="{% url 'cuentas:usuarios' %}" class="btn btn-secundario gap-2">{% icono "arrow-left" tam=18 %}{% translate "Cancelar" %}</a>
   </div>
 </form>
 {% endif %}

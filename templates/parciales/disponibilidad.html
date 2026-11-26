@@ -1,0 +1,15 @@
+{% load i18n %}{% comment %}
+Casilla "Estoy recibiendo proyectos" del profesor (spec 009). Es un formulario POST: el botón
+cambia el valor y vuelve a la misma página. Se usa en el panel, en el perfil y en el menú.
+{% endcomment %}
+{% with recibiendo=user.perfil.recibiendo_proyectos %}
+<form method="post" action="{% url 'cuentas:disponibilidad' %}" class="{{ clase_form|default:'' }}">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <input type="hidden" name="recibiendo" value="{{ recibiendo|yesno:'0,1' }}">
+  <button type="submit" role="switch" aria-checked="{{ recibiendo|yesno:'true,false' }}" class="{{ clase_boton|default:'btn btn-secundario gap-2' }}">
+    {% if recibiendo %}{% icono "check" tam=18 %}{% else %}{% icono "hand-stop" tam=18 %}{% endif %}
+    {% translate "Estoy recibiendo proyectos" %}<span class="sr-only">: {% if recibiendo %}{% translate "sí" %}{% else %}{% translate "no" %}{% endif %}</span>
+  </button>
+</form>
+{% endwith %}

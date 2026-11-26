@@ -16,9 +16,10 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
+from config.texto import FormularioNFC
 from cuentas import roles as servicio_roles
 from cuentas.managers import UsuarioManager
-from cuentas.models import Rol, RolAsignado, Seguridad, Usuario
+from cuentas.models import Aptitud, Estudio, ExperienciaLaboral, Perfil, Rol, RolAsignado, Seguridad, Usuario
 
 # --------------------------------------------------------------------------- Panel de Django
 
@@ -42,7 +43,7 @@ class UsuarioCambioForm(UserChangeForm):
 # --------------------------------------------------------------------------- Registro
 
 
-class FormularioRegistro(BaseUserCreationForm):
+class FormularioRegistro(FormularioNFC, BaseUserCreationForm):
     """Registro público. La cuenta queda inactiva hasta abrir el enlace del correo."""
 
     class Meta:
@@ -142,7 +143,7 @@ class FormularioReenvio(forms.Form):
     )
 
 
-class FormularioPerfil(forms.ModelForm):
+class FormularioPerfil(FormularioNFC, forms.ModelForm):
     """Datos que la persona puede cambiar de su perfil. El correo y el rol no se editan aquí."""
 
     class Meta:
@@ -300,3 +301,155 @@ class FormularioCorreoEnvio(forms.Form):
         if not datos.get("clave") and not self.tiene_clave:
             self.add_error("clave", _("Escribe la contraseña de aplicación."))
         return datos
+
+
+# --------------------------------------------------------------------------- Perfil público (spec 009, historia 4)
+
+MAX_APTITUDES = 15
+FORMATO_MES = "%Y-%m"
+
+
+class CampoMes(forms.DateField):
+    """Mes y año (<input type="month">). Se guarda como el día 1 de ese mes."""
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault("input_formats", [FORMATO_MES, "%Y-%m-%d"])
+        kwargs.setdefault("widget", forms.DateInput(attrs={"type": "month"}, format=FORMATO_MES))
+        super().__init__(**kwargs)
+
+
+class FormularioFoto(forms.Form):
+    """Foto de perfil: imagen real JPG, PNG o WEBP de hasta 5 MB; se guarda como webp cuadrado."""
+
+    foto = forms.FileField(label=_("Foto de perfil"), widget=forms.ClearableFileInput(attrs={"accept": "image/jpeg,image/png,image/webp"}),
+                           help_text=_("JPG, PNG o WEBP de hasta 5 MB. Se recorta en cuadrado."))
+
+    def clean_foto(self):
+        from config.imagenes import validar_imagen_subida
+
+        foto = self.cleaned_data["foto"]
+        validar_imagen_subida(foto)
+        return foto
+
+
+class FormularioDescripcion(FormularioNFC, forms.ModelForm):
+    class Meta:
+        model = Perfil
+        fields = ("descripcion",)
+        widgets = {"descripcion": forms.Textarea(attrs={"rows": 4, "maxlength": 600})}
+        help_texts = {"descripcion": _("Máximo 600 caracteres. Cuenta quién eres y qué te interesa.")}
+
+
+class FormularioAptitudes(FormularioNFC, forms.Form):
+    """Aptitudes separadas por comas. Se reutilizan las que ya existen sin distinguir mayúsculas."""
+
+    aptitudes = forms.CharField(
+        label=_("Aptitudes"), required=False, max_length=800,
+        widget=forms.TextInput(attrs={"list": "aptitudes-existentes", "autocomplete": "off", "placeholder": "Django, Flutter, Diseño UX"}),
+        help_text=_("Sepáralas con comas. Máximo 15."),
+    )
+
+    def clean_aptitudes(self):
+        nombres, vistos = [], set()
+        for parte in (self.cleaned_data.get("aptitudes") or "").split(","):
+            nombre = " ".join(parte.split())
+            if nombre and nombre.casefold() not in vistos:
+                if len(nombre) > 50:
+                    raise ValidationError(_("Cada aptitud puede tener como máximo 50 caracteres."))
+                vistos.add(nombre.casefold())
+                nombres.append(nombre)
+        if len(nombres) > MAX_APTITUDES:
+            raise ValidationError(_("Puedes poner como máximo %(n)s aptitudes.") % {"n": MAX_APTITUDES})
+        return nombres
+
+    def guardar(self, perfil):
+        aptitudes = []
+        for nombre in self.cleaned_data["aptitudes"]:
+            aptitud = Aptitud.objects.filter(nombre__iexact=nombre).first() or Aptitud.objects.create(nombre=nombre)
+            aptitudes.append(aptitud)
+        perfil.aptitudes.set(aptitudes)
+
+
+class FormularioEnlaces(forms.ModelForm):
+    """GitHub, LinkedIn y ORCID: se validan y se guardan en una sola forma (cuentas/perfiles.py)."""
+
+    github = forms.CharField(label="GitHub", required=False, max_length=200, widget=forms.TextInput(attrs={"placeholder": "https://github.com/usuario"}),
+                             help_text=_("Tu usuario o el enlace a tu perfil."))
+    linkedin = forms.CharField(label="LinkedIn", required=False, max_length=200, widget=forms.TextInput(attrs={"placeholder": "https://www.linkedin.com/in/tu-nombre"}))
+    orcid = forms.CharField(label="ORCID", required=False, max_length=40, widget=forms.TextInput(attrs={"placeholder": "0000-0000-0000-000X"}))
+
+    class Meta:
+        model = Perfil
+        fields = ("github", "linkedin", "orcid")
+
+    def clean_github(self):
+        from cuentas.perfiles import normalizar_github
+
+        return normalizar_github(self.cleaned_data.get("github"))
+
+    def clean_linkedin(self):
+        from cuentas.perfiles import normalizar_linkedin
+
+        return normalizar_linkedin(self.cleaned_data.get("linkedin"))
+
+    def clean_orcid(self):
+        from cuentas.perfiles import normalizar_orcid
+
+        return normalizar_orcid(self.cleaned_data.get("orcid"))
+
+
+class FormularioAsignaturasImparte(forms.ModelForm):
+    """Asignaturas que imparte un profesor, elegidas de la lista del plan de estudios (historia 3)."""
+
+    class Meta:
+        model = Perfil
+        fields = ("asignaturas_imparte",)
+        widgets = {"asignaturas_imparte": forms.SelectMultiple(attrs={"size": 10})}
+
+    def __init__(self, *args, **kwargs):
+        from proyectos.forms import configurar_selector_asignatura
+
+        super().__init__(*args, **kwargs)
+        actuales = list(self.instance.asignaturas_imparte.values_list("pk", flat=True)) if self.instance.pk else []
+        configurar_selector_asignatura(self.fields["asignaturas_imparte"], conservar=actuales)
+        self.fields["asignaturas_imparte"].required = False
+        self.fields["asignaturas_imparte"].help_text = _("Mantén pulsada Ctrl (o Cmd) para elegir varias.")
+
+
+class _FormularioConFechas(FormularioNFC, forms.ModelForm):
+    """Inicio y fin por mes y año; "hasta hoy" deja el fin vacío."""
+
+    inicio = CampoMes(label=_("Desde"))
+    fin = CampoMes(label=_("Hasta"), required=False)
+    campo_hasta_hoy = ""
+
+    def clean(self):
+        datos = super().clean()
+        hasta_hoy = datos.get(self.campo_hasta_hoy)
+        inicio, fin = datos.get("inicio"), datos.get("fin")
+        if hasta_hoy:
+            datos["fin"] = None
+        elif not fin and "fin" not in self.errors:
+            self.add_error("fin", _("Escribe la fecha de fin o marca la casilla."))
+        elif inicio and fin and fin < inicio:
+            self.add_error("fin", _("La fecha de fin no puede ser anterior a la de inicio."))
+        return datos
+
+
+class FormularioExperiencia(_FormularioConFechas):
+    actualmente = forms.BooleanField(label=_("Actualmente trabajo aquí"), required=False)
+    campo_hasta_hoy = "actualmente"
+
+    class Meta:
+        model = ExperienciaLaboral
+        fields = ("cargo", "organizacion", "inicio", "fin", "descripcion")
+        widgets = {"descripcion": forms.Textarea(attrs={"rows": 2, "maxlength": 300})}
+
+
+class FormularioEstudio(_FormularioConFechas):
+    en_curso = forms.BooleanField(label=_("En curso"), required=False)
+    campo_hasta_hoy = "en_curso"
+
+    class Meta:
+        model = Estudio
+        fields = ("institucion", "titulo", "inicio", "fin")
