@@ -89,6 +89,7 @@ del que es autor.
 - **qrcode + Pillow**: generación del QR. **reportlab**: certificado PDF.
 - **python-dotenv**: lectura de la configuración desde `.env`.
 - **Gmail SMTP**: correos de activación y recuperación.
+- **Docker + gunicorn + WhiteNoise**: despliegue (ver [Despliegue con Docker](#despliegue-con-docker)).
 
 **Diseño:** neo-brutalismo institucional con los colores de la UTEQ (verde `#025a27` y
 amarillo `#ecb932`), tipografías Unbounded y Archivo, responsive y accesible.
@@ -448,10 +449,44 @@ a estar disponible: corre otra vez `codigo_configuracion_inicial` (o búscalo en
 los pasos de arriba. El enlace de Entrar puede tardar hasta un minuto en reaparecer. Los códigos ya
 usados nunca vuelven a servir: siempre hace falta uno nuevo.
 
-## Despliegue
+## Despliegue con Docker
 
-El despliegue con Docker está fuera del alcance de esta etapa y se añadirá en una versión
-posterior.
+El proyecto trae un `Dockerfile` y un `docker-compose.yml` con dos servicios: `db` (PostgreSQL 17)
+y `web` (Django con gunicorn; los estáticos los sirve WhiteNoise). Las claves salen de tu `.env`.
+
+1. Instala Docker Desktop y ábrelo.
+2. En el `.env`, revisa que `ALLOWED_HOSTS` incluya `localhost,127.0.0.1` y que `DB_PASSWORD` no
+   esté vacía (la imagen de PostgreSQL la exige). `DB_HOST` no importa: Compose lo cambia por `db`.
+3. Levanta todo (la primera vez tarda unos minutos):
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+4. Crea el primer admin (ver [Primer arranque](#primer-arranque)):
+
+   ```bash
+   docker compose exec web python manage.py codigo_configuracion_inicial
+   ```
+
+   y abre `http://localhost:8000` → Entrar → "¿Instalación nueva? Configurar la administración".
+
+Comandos útiles:
+
+```bash
+docker compose logs -f web    # ver los logs (Ctrl+C para salir)
+docker compose up -d --build  # después de cambiar código
+docker compose down           # detener (conserva la base y las imágenes subidas)
+docker compose down -v        # detener y BORRAR la base y las imágenes subidas
+```
+
+La base de datos de Docker es distinta de la de tu equipo y empieza vacía. Al arrancar, el
+contenedor corre `migrate` solo.
+
+**En un servidor con HTTPS:** quita `COOKIES_SEGURAS: "False"` del `docker-compose.yml` (las cookies
+deben viajar cifradas), pon el dominio en `ALLOWED_HOSTS` y `CSRF_TRUSTED_ORIGINS`
+(`https://tu-dominio`) y `SITIO_URL`, y lo ideal es poner nginx delante para servir `media/`
+(entonces `SERVIR_MEDIA` va en `False`).
 
 ## Equipo
 

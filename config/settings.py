@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     # Español por defecto: ignora el idioma del navegador; solo cuenta la elección ES/EN.
     "config.middleware.EspanolPorDefectoMiddleware",
@@ -162,6 +163,14 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}
+
+# Servir media/ desde Django cuando no hay nginx delante (por ejemplo, Docker en tu equipo)
+SERVIR_MEDIA = booleano("SERVIR_MEDIA", defecto=False)
+
 # Dirección base para los QR de verificación (opcional). Sirve cuando el servidor se ve desde
 # otros equipos con una dirección distinta, por ejemplo en la demo: http://192.168.1.20:8000
 SITIO_URL = variable("SITIO_URL", "").rstrip("/")
@@ -258,7 +267,11 @@ SESSION_COOKIE_HTTPONLY = True
 X_FRAME_OPTIONS = "DENY"
 
 if not DEBUG:
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    # False solo para probar por http://localhost; True en el servidor real (con HTTPS)
+    SESSION_COOKIE_SECURE = booleano("COOKIES_SEGURAS", defecto=True)
+    CSRF_COOKIE_SECURE = SESSION_COOKIE_SECURE
+    # Detrás de nginx o Cloudflare: le dice a Django que la petición llegó por HTTPS
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    CSRF_TRUSTED_ORIGINS = lista("CSRF_TRUSTED_ORIGINS", "")
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = "same-origin"

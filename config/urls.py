@@ -6,7 +6,8 @@ Cada app define sus propias rutas en su archivo urls.py y aquí solo se incluyen
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.views.static import serve
 
 from cuentas.views import configuracion_inicial
 
@@ -27,3 +28,7 @@ urlpatterns = [
 # En desarrollo, Django sirve los archivos que suben los usuarios.
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Con DEBUG=False y sin nginx delante (por ejemplo, Docker en tu equipo): SERVIR_MEDIA=True.
+# En un servidor de verdad es mejor que nginx sirva media/ directamente.
+elif settings.SERVIR_MEDIA:
+    urlpatterns += [re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT})]

@@ -1,5 +1,17 @@
 <!--
 Sync Impact Report
+Version change: 3.1.0 → 3.2.0 (MINOR: se amplían reglas existentes)
+Principios modificados:
+  I. Tecnología → Docker entra al alcance: Dockerfile y docker-compose.yml (PostgreSQL + Django con
+       gunicorn) como forma de desplegar. El desarrollo local sigue sin Docker.
+  XII. Dependencias → se aprueban gunicorn (servidor de producción) y whitenoise (estáticos en
+       producción). psycopg se instala como psycopg + psycopg-binary (equivale a psycopg[binary]).
+Aprobación: pedida por el equipo al dockerizar la aplicación; se confirma al revisar el Pull Request.
+Plantillas revisadas: sin cambios de estructura.
+Documentos a actualizar: docs/sdd/constitucion.md ✅, README.md ✅ (Despliegue con Docker), .env.example ✅.
+Pendientes: ninguno.
+
+Historial anterior:
 Version change: 3.0.0 → 3.1.0 (MINOR: se amplían reglas con una excepción acotada)
 Principios modificados:
   IV. Autenticación segura → la cuenta del primer admin, creada en la configuración inicial (con un
@@ -77,9 +89,10 @@ todos los entornos. El proyecto Django se llama `config` y el código se organiz
 - `comunidad`: me gusta, favoritos y comentarios.
 - `vitrina`: páginas públicas (inicio, explorar, detalle y verificación).
 
-Una app MUST NOT importar vistas de otra; solo modelos, formularios o servicios. Docker queda
-fuera del alcance actual y se incorporará mediante una enmienda. La razón: un solo stack,
-conocido por todo el equipo, que pueda mantenerse después del curso.
+Una app MUST NOT importar vistas de otra; solo modelos, formularios o servicios. Para desplegar se
+usa Docker (`Dockerfile` y `docker-compose.yml`: PostgreSQL y Django con gunicorn); el desarrollo
+local no lo necesita. La razón: un solo stack, conocido por todo el equipo, que pueda mantenerse
+después del curso.
 
 ### II. Consultas seguras
 Las consultas MUST usar el ORM de Django. MUST NOT escribirse SQL manual ni construirse
@@ -206,8 +219,9 @@ traducción. El contenido escrito por los usuarios no se traduce. Los archivos `
 suben al repositorio. La documentación y los comentarios del código van en español.
 
 ### XII. Dependencias
-Las dependencias aprobadas son: Django, psycopg, python-dotenv, qrcode, Pillow, reportlab y
-cryptography (para cifrar secretos guardados en la base de datos, spec 008), más las que estas
+Las dependencias aprobadas son: Django, psycopg (con psycopg-binary), python-dotenv, qrcode,
+Pillow, reportlab, cryptography (para cifrar secretos guardados en la base de datos, spec 008),
+gunicorn y whitenoise (servidor y estáticos en producción con Docker), más las que estas
 instalan. Cualquier otra MUST aprobarse expresamente por el equipo antes de
 agregarse. `requirements.txt` MUST guardarse en UTF-8 con versiones fijas.
 
@@ -260,4 +274,4 @@ Quienes revisen Pull Requests MUST verificar la conformidad con esta constituci�
 conflicto, esta constitución prevalece sobre cualquier práctica local hasta que se apruebe una
 enmienda.
 
-**Version**: 3.1.0 | **Ratified**: 2026-11-22 | **Last Amended**: 2026-11-26
+**Version**: 3.2.0 | **Ratified**: 2026-11-22 | **Last Amended**: 2026-11-26
