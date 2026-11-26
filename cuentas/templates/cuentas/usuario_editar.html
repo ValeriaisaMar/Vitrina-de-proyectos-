@@ -28,7 +28,7 @@
   {% csrf_token %}
   <fieldset>
     <legend class="campo-etiqueta">{{ form.roles.label }}</legend>
-    <div class="mt-2 grid gap-2 sm:grid-cols-3">
+    <div class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
       {% for opcion in form.roles %}
         <label class="flex cursor-pointer items-center gap-3 border-2 border-linea p-3 font-bold has-checked:bg-uteq-tinte has-checked:shadow-duro-verde dark:has-checked:bg-uteq-verde [&_input]:h-5 [&_input]:w-5 [&_input]:accent-uteq-verde">
           {{ opcion.tag }} {{ opcion.choice_label }}
@@ -64,7 +64,7 @@
         <li>
           <span class="font-semibold">{{ cambio.fecha|date:"SHORT_DATETIME_FORMAT" }}</span> ·
           {% if cambio.accion == "agregado" %}{% blocktranslate with rol=cambio.get_rol_display %}Se le dio el rol {{ rol }}{% endblocktranslate %}{% else %}{% blocktranslate with rol=cambio.get_rol_display %}Se le quitó el rol {{ rol }}{% endblocktranslate %}{% endif %}
-          {% if cambio.hecho_por %}<span class="text-texto-suave">({{ cambio.hecho_por.nombre_completo }})</span>{% endif %}
+          {% if cambio.hecho_por %}<span class="text-texto-suave">({{ cambio.hecho_por.nombre_completo }})</span>{% elif cambio.motivo %}<span class="text-texto-suave">({% translate cambio.motivo %})</span>{% endif %}
         </li>
       {% endfor %}
     </ul>

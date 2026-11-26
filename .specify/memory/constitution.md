@@ -1,5 +1,19 @@
 <!--
 Sync Impact Report
+Version change: 3.0.0 → 3.1.0 (MINOR: se amplían reglas con una excepción acotada)
+Principios modificados:
+  IV. Autenticación segura → la cuenta del primer admin, creada en la configuración inicial (con un
+       código de un solo uso que solo ve quien tiene acceso al servidor) o con createsuperuser, nace
+       activa sin enlace de activación. Solo mientras no hay ningún admin activo.
+  V. Permisos por rol → en ese mismo caso el rol admin se asigna sin un admin que lo dé; queda en el
+       registro de cambios de roles con el motivo "Configuración inicial". El último admin activo no
+       puede perder el rol, desactivarse ni eliminarse (app y panel de Django).
+Aprobación: pedida por el equipo en el documento de la spec 010; se confirma al revisar el Pull Request.
+Plantillas revisadas: sin cambios de estructura.
+Documentos a actualizar: docs/sdd/constitucion.md ✅, README.md ✅ (Primer arranque).
+Pendientes: ninguno.
+
+Historial anterior:
 Version change: 2.1.0 → 3.0.0 (MAJOR: cambian reglas existentes de revisión, estados y archivos)
 Principios modificados:
   III. Entradas no confiables → la foto de perfil y la portada del proyecto admiten hasta 5 MB y se
@@ -90,6 +104,10 @@ MUST tratarse como no confiable:
 - Toda cuenta nueva MUST quedar inactiva hasta que el usuario abra el enlace de activación
   enviado a su correo. Los enlaces de activación y de recuperación MUST usar los generadores de
   tokens de Django y vencer en 24 horas.
+- Única excepción: la cuenta del primer admin, creada mientras no hay ningún admin activo desde la
+  configuración inicial o con `createsuperuser`, nace activa. La configuración inicial MUST exigir
+  un código de un solo uso que solo vea quien tiene acceso al servidor (comando o logs), guardado
+  solo como hash, que venza en 30 minutos y se invalide tras 5 intentos fallidos.
 - La recuperación de contraseña MUST responder lo mismo exista o no el correo, para no revelar
   qué cuentas existen.
 - Las contraseñas MUST pasar los validadores de Django (largo mínimo 8, no comunes, no solo
@@ -99,7 +117,9 @@ MUST tratarse como no confiable:
 
 ### V. Permisos por rol
 Los roles son visitante (sin cuenta), estudiante, profesor y admin. Toda cuenta nace como
-estudiante; solo un admin MUST poder cambiar roles. Cada vista MUST verificar en el servidor el
+estudiante; solo un admin MUST poder cambiar roles. Única excepción: el primer admin (principio IV)
+recibe el rol admin del sistema, con el motivo "Configuración inicial" en el registro de cambios de
+roles. La última cuenta admin activa MUST NOT perder el rol, desactivarse ni eliminarse. Cada vista MUST verificar en el servidor el
 rol y, cuando aplica, la relación con el objeto:
 
 - Un estudiante MUST editar solo proyectos de los que es autor o coautor, y solo en estado
@@ -240,4 +260,4 @@ Quienes revisen Pull Requests MUST verificar la conformidad con esta constituci�
 conflicto, esta constitución prevalece sobre cualquier práctica local hasta que se apruebe una
 enmienda.
 
-**Version**: 3.0.0 | **Ratified**: 2026-11-22 | **Last Amended**: 2026-11-25
+**Version**: 3.1.0 | **Ratified**: 2026-11-22 | **Last Amended**: 2026-11-26

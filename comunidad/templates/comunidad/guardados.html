@@ -9,7 +9,7 @@
     <h1 class="flex items-center gap-3 text-3xl font-extrabold sm:text-4xl">{% icono "bookmark" tam=32 %}{% translate "Guardados" %}</h1>
     <p class="mt-2 text-texto-suave">{% translate "Los proyectos que guardaste. Solo tú ves esta lista." %}</p>
     {% if proyectos %}
-      <div class="mt-8 grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
+      <div class="mt-8 grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3">
         {% for p in proyectos %}
           <div class="flex flex-col gap-3">
             {% include "vitrina/_tarjeta_proyecto.html" %}

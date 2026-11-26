@@ -4,6 +4,7 @@ from django.contrib.auth import views as auth
 from django.urls import path, reverse_lazy
 
 from cuentas import views
+from cuentas.forms import RecuperarContrasenaForm
 
 app_name = "cuentas"
 
@@ -25,6 +26,7 @@ urlpatterns = [
     path("mi-cuenta/", views.mi_cuenta, name="mi_cuenta"),
     # Recuperar contraseña: vistas de Django con nuestras plantillas y correos
     path("contrasena/recuperar/", auth.PasswordResetView.as_view(
+        form_class=RecuperarContrasenaForm,
         template_name="cuentas/recuperar.html",
         email_template_name="cuentas/correos/recuperacion.txt",
         html_email_template_name="cuentas/correos/recuperacion.html",

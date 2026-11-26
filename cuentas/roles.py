@@ -42,8 +42,10 @@ def validar_roles(usuario, nuevos):
         )
 
 
-def asignar_roles(usuario, nuevos, actor):
+def asignar_roles(usuario, nuevos, actor, motivo=""):
     """Deja a la persona exactamente con los roles indicados. Devuelve (agregados, quitados).
+
+    motivo queda en cada CambioRol cuando no lo decide un admin (spec 010: "Configuración inicial").
 
     Todo ocurre en una transacción: las filas de los admins se bloquean para que dos admins que
     se quitan el rol a la vez no dejen la plataforma sin ninguno.
@@ -62,17 +64,19 @@ def asignar_roles(usuario, nuevos, actor):
         for rol in agregados:
             RolAsignado.objects.create(usuario=usuario, rol=rol, asignado_por=actor)
         CambioRol.objects.bulk_create(
-            [CambioRol(usuario=usuario, rol=rol, accion=CambioRol.Accion.AGREGADO, hecho_por=actor) for rol in agregados]
-            + [CambioRol(usuario=usuario, rol=rol, accion=CambioRol.Accion.QUITADO, hecho_por=actor) for rol in quitados]
+            [CambioRol(usuario=usuario, rol=rol, accion=CambioRol.Accion.AGREGADO, hecho_por=actor, motivo=motivo)
+             for rol in agregados]
+            + [CambioRol(usuario=usuario, rol=rol, accion=CambioRol.Accion.QUITADO, hecho_por=actor, motivo=motivo)
+               for rol in quitados]
         )
     usuario.olvidar_roles()
     return agregados, quitados
 
 
-def dar_rol(usuario, rol, actor=None):
+def dar_rol(usuario, rol, actor=None, motivo=""):
     """Agrega un rol si la persona todavía no lo tiene (por ejemplo, al registrarse)."""
     if not usuario.tiene_rol(rol):
-        asignar_roles(usuario, set(usuario.roles) | {rol}, actor)
+        asignar_roles(usuario, set(usuario.roles) | {rol}, actor, motivo)
 
 
 def resumen(agregados, quitados):

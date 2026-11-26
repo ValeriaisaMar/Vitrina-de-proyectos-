@@ -3,13 +3,13 @@
 import logging
 
 from django.conf import settings
-from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import gettext as _
 
-from config.correo import url_logo_correo
+from config.correo import CorreoConLogo
 
 logger = logging.getLogger(__name__)
 
@@ -28,13 +28,12 @@ def avisar_decision(request, proyecto, evento):
         "proyecto": proyecto,
         "evento": evento,
         "enlace": request.build_absolute_uri(proyecto.get_absolute_url()),
-        "logo_correo_url": url_logo_correo(request),
     }
     with translation.override(settings.LANGUAGE_CODE):
         asunto = "".join(render_to_string("proyectos/correos/decision_asunto.txt", contexto).splitlines())
         texto = render_to_string("proyectos/correos/decision.txt", contexto)
         html = render_to_string("proyectos/correos/decision.html", contexto)
-    mensaje = EmailMultiAlternatives(subject=asunto, body=texto, to=destinatarios)
+    mensaje = CorreoConLogo(subject=asunto, body=texto, to=destinatarios)
     mensaje.attach_alternative(html, "text/html")
     try:
         mensaje.send()

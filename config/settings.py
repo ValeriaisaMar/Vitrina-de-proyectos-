@@ -213,6 +213,44 @@ CLAVE_CIFRADO = variable("CLAVE_CIFRADO", "")
 
 
 # ---------------------------------------------------------------------------
+# Logs (spec 010)
+#
+# Con DEBUG=False, la configuración por defecto de Django no escribe sus mensajes en la consola, y
+# Docker o systemd solo guardan lo que el proceso escribe en stdout/stderr. Por eso se define aquí
+# un handler "consola" sin el filtro require_debug_true: los avisos de la app (por ejemplo el código
+# de la configuración inicial) se ven en `docker compose logs`, `journalctl` o la consola de runserver.
+# Nunca se registran contraseñas ni códigos introducidos por el usuario.
+# ---------------------------------------------------------------------------
+
+NIVEL_LOG_DJANGO = (variable("NIVEL_LOG_DJANGO", "INFO") or "INFO").upper()
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,  # no apaga los loggers que ya existen (Django, librerías)
+    "filters": {
+        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
+    },
+    "formatters": {
+        "simple": {"format": "{asctime} {levelname} {name}: {message}", "style": "{"},
+    },
+    "handlers": {
+        # StreamHandler escribe en stderr, que Docker y systemd guardan igual que stdout
+        "consola": {"class": "logging.StreamHandler", "formatter": "simple"},
+        # El mismo envío de errores por correo que trae Django (solo si ADMINS tiene direcciones)
+        "correo_admins": {
+            "level": "ERROR",
+            "filters": ["require_debug_false"],
+            "class": "django.utils.log.AdminEmailHandler",
+        },
+    },
+    "loggers": {
+        "cuentas": {"handlers": ["consola"], "level": "INFO", "propagate": False},
+        "django": {"handlers": ["consola", "correo_admins"], "level": NIVEL_LOG_DJANGO, "propagate": False},
+    },
+}
+
+
+# ---------------------------------------------------------------------------
 # Endurecimiento para producción (solo cuando DEBUG es False)
 # ---------------------------------------------------------------------------
 

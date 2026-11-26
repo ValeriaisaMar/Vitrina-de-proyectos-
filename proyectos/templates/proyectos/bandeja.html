@@ -10,7 +10,7 @@
     <h1 class="mt-3 text-3xl font-extrabold sm:text-4xl">{% translate "Bandeja de revisión" %}</h1>
     <p class="mt-2 max-w-2xl text-texto-suave">{% if user.es_admin %}{% translate "Todos los proyectos enviados y en revisión. Puedes reasignar el profesor revisor de cualquiera." %}{% else %}{% translate "Los proyectos que te asignaron. Las solicitudes nuevas llegan a «Solicitudes de revisión»." %}{% endif %}</p>
 
-    <nav class="mt-8 flex gap-1 overflow-x-auto" aria-label="{% translate 'Vistas de la bandeja' %}">
+    <nav class="relative mt-8 flex gap-1 overflow-x-auto" aria-label="{% translate 'Vistas de la bandeja' %}">
       {% with clases="flex min-h-12 shrink-0 items-center gap-2 border-2 border-b-0 px-4 text-sm font-bold" %}
         <a href="?vista=pendientes" class="{{ clases }} {% if vista == 'pendientes' %}border-linea bg-seccion{% else %}border-transparent text-texto-suave hover:text-texto{% endif %}" {% if vista == 'pendientes' %}aria-current="page"{% endif %}>
           {% translate "Por revisar" %} <span class="insignia insignia-enviado">{{ totales.pendientes }}</span>

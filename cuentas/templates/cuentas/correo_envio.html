@@ -16,7 +16,7 @@
       <div class="mt-6">{% translate "Falta la variable CLAVE_CIFRADO en el archivo .env del servidor: sin ella no se puede guardar una contraseña nueva. Mira el README, sección «Correo de envío»." as t %}{% include "componentes/aviso.html" with tipo="warning" texto=t %}</div>
     {% endif %}
 
-    <div class="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+    <div class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1.4fr_1fr]">
       <div class="tarjeta-sobria p-6 sm:p-8">
         <h2 class="text-xl font-extrabold">{% translate "Configuración rápida" %}</h2>
         <div class="mt-4 flex flex-wrap gap-3" data-proveedores>
@@ -31,7 +31,7 @@
 
         <form method="post" class="mt-8 flex flex-col gap-5" novalidate>
           {% csrf_token %}
-          <div class="grid gap-5 sm:grid-cols-[2fr_1fr]">
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-[2fr_1fr]">
             {% include "componentes/campo.html" with campo=form.servidor %}
             {% include "componentes/campo.html" with campo=form.puerto %}
           </div>
@@ -41,7 +41,7 @@
             {% include "componentes/campo.html" with campo=form.clave %}
             {% if form.tiene_clave %}<p class="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-acento"><span aria-hidden="true">●●●●</span> {% translate "Contraseña guardada" %}</p>{% endif %}
           </div>
-          <div class="grid gap-5 sm:grid-cols-2">
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {% include "componentes/campo.html" with campo=form.nombre_remitente %}
             {% include "componentes/campo.html" with campo=form.correo_remitente %}
           </div>

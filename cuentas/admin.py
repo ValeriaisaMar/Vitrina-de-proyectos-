@@ -1,17 +1,57 @@
 """Registro del usuario en el panel de administración de Django."""
 
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.contrib.admin.actions import delete_selected
 from django.contrib.auth.admin import UserAdmin
+from django.core.exceptions import ValidationError
+from django.forms.models import BaseInlineFormSet
 from django.utils.translation import gettext_lazy as _
 
 from cuentas.forms import UsuarioCambioForm, UsuarioCreacionForm
 from cuentas.models import Aptitud, CambioRol, Estudio, ExperienciaLaboral, Perfil, Rol, RolAsignado, Usuario
+from cuentas.roles import es_ultimo_admin
+
+
+def hay_admin_activo_sin(usuarios):
+    """True si queda al menos una cuenta admin activa fuera de las indicadas."""
+    return Usuario.objects.filter(is_active=True, roles_asignados__rol=Rol.ADMIN).exclude(pk__in=usuarios).exists()
+
+
+class RolesEnLineaFormSet(BaseInlineFormSet):
+    """No deja quitarle (o cambiarle) el rol admin a la única cuenta admin activa (spec 010)."""
+
+    def clean(self):
+        super().clean()
+        if self.instance.pk is None or not es_ultimo_admin(self.instance):
+            return
+        queda_admin = any(
+            form.cleaned_data.get("rol") == Rol.ADMIN and not form.cleaned_data.get("DELETE")
+            for form in self.forms if hasattr(form, "cleaned_data")
+        )
+        if not queda_admin:
+            raise ValidationError(
+                _("No puedes quitarle el rol admin: es la única cuenta admin activa. Primero nombra a otro admin."),
+            )
+
+
+@admin.action(permissions=["delete"], description=_("Eliminar los usuarios seleccionados"))
+def eliminar_seleccionados(modeladmin, request, queryset):
+    """La acción "eliminar" de Django, pero sin dejar la plataforma sin admins activos (spec 010)."""
+    hay_admins = Usuario.objects.filter(is_active=True, roles_asignados__rol=Rol.ADMIN).exists()
+    if hay_admins and not hay_admin_activo_sin(queryset.values("pk")):
+        modeladmin.message_user(
+            request, _("No se eliminó nada: entre los seleccionados está la única cuenta admin activa."),
+            messages.ERROR,
+        )
+        return None
+    return delete_selected(modeladmin, request, queryset)
 
 
 class RolAsignadoEnLinea(admin.TabularInline):
     """Los roles de la persona, en la misma página del usuario."""
 
     model = RolAsignado
+    formset = RolesEnLineaFormSet
     fk_name = "usuario"
     extra = 0
     fields = ("rol", "asignado_por", "asignado_en")
@@ -48,6 +88,19 @@ class UsuarioAdmin(UserAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("roles_asignados")
 
+    def get_actions(self, request):
+        """Cambia la acción "eliminar" por la que protege al último admin."""
+        acciones = super().get_actions(request)
+        if "delete_selected" in acciones:
+            acciones["delete_selected"] = (eliminar_seleccionados, "delete_selected", eliminar_seleccionados.short_description)
+        return acciones
+
+    def has_delete_permission(self, request, obj=None):
+        """La única cuenta admin activa no se puede eliminar (spec 010)."""
+        if obj is not None and es_ultimo_admin(obj):
+            return False
+        return super().has_delete_permission(request, obj)
+
     @admin.display(description=_("roles"))
     def lista_roles(self, usuario):
         return ", ".join(str(Rol(r).label) for r in usuario.roles)
@@ -65,7 +118,7 @@ class UsuarioAdmin(UserAdmin):
 class CambioRolAdmin(admin.ModelAdmin):
     """Registro de roles dados y quitados. Solo lectura."""
 
-    list_display = ("fecha", "usuario", "rol", "accion", "hecho_por")
+    list_display = ("fecha", "usuario", "rol", "accion", "hecho_por", "motivo")
     list_filter = ("rol", "accion")
     search_fields = ("usuario__email", "hecho_por__email")
 

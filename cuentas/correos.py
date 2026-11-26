@@ -2,13 +2,12 @@
 
 import logging
 
-from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from config.correo import url_logo_correo
+from config.correo import CorreoConLogo
 from cuentas.tokens import token_activacion
 
 logger = logging.getLogger(__name__)
@@ -31,12 +30,9 @@ def enviar_activacion(request, usuario):
     Si el servidor de correo falla, no se pierde la cuenta: se registra el error y la vista
     avisa a la persona que puede pedir el reenvío.
     """
-    contexto = {
-        "usuario": usuario, "enlace": enlace_activacion(request, usuario), "horas": 24,
-        "logo_correo_url": url_logo_correo(request),
-    }
+    contexto = {"usuario": usuario, "enlace": enlace_activacion(request, usuario), "horas": 24}
     asunto = "".join(render_to_string("cuentas/correos/activacion_asunto.txt", contexto).splitlines())
-    mensaje = EmailMultiAlternatives(
+    mensaje = CorreoConLogo(
         subject=asunto,
         body=render_to_string("cuentas/correos/activacion.txt", contexto),
         to=[usuario.email],

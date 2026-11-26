@@ -4,22 +4,29 @@ Los de Django vienen pensados para un usuario con "username"; aquí se adaptan a
 agregan los propios del registro, el inicio de sesión, el reenvío de activación y el perfil.
 """
 
+import logging
+
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import (
     AdminUserCreationForm,
     AuthenticationForm,
     BaseUserCreationForm,
+    PasswordResetForm,
     UserChangeForm,
 )
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
+from config.correo import CorreoConLogo
 from config.texto import FormularioNFC
 from cuentas import roles as servicio_roles
 from cuentas.managers import UsuarioManager
 from cuentas.models import Aptitud, Estudio, ExperienciaLaboral, Perfil, Rol, RolAsignado, Seguridad, Usuario
+
+logger = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------- Panel de Django
 
@@ -32,12 +39,30 @@ class UsuarioCreacionForm(AdminUserCreationForm):
         fields = ("email", "nombres", "apellidos")
 
 
+MENSAJE_ULTIMO_ADMIN = _("No puedes desactivar esta cuenta: es la única cuenta admin activa. Primero nombra a otro admin.")
+
+
+def desactiva_al_ultimo_admin(form):
+    """True si el formulario apaga is_active de la única cuenta admin activa (spec 010, historia 4).
+
+    Si se quedara sin admins, la configuración inicial se volvería a abrir.
+    """
+    return ("is_active" in form.changed_data and not form.cleaned_data.get("is_active")
+            and servicio_roles.es_ultimo_admin(form.instance))
+
+
 class UsuarioCambioForm(UserChangeForm):
     """Editar un usuario desde el admin."""
 
     class Meta:
         model = Usuario
         fields = ("email", "nombres", "apellidos", "is_active", "is_staff")
+
+    def clean(self):
+        datos = super().clean()
+        if desactiva_al_ultimo_admin(self):
+            self.add_error("is_active", MENSAJE_ULTIMO_ADMIN)
+        return datos
 
 
 # --------------------------------------------------------------------------- Registro
@@ -227,6 +252,8 @@ class FormularioGestionUsuario(forms.ModelForm):
             raise forms.ValidationError(_("Esta es una cuenta técnica de Django: sus roles y su estado se cambian en /admin/."))
         if self.es_uno_mismo and "is_active" in self.changed_data:
             raise forms.ValidationError(_("No puedes desactivar tu propia cuenta. Pídeselo a otro admin."))
+        if desactiva_al_ultimo_admin(self):
+            raise forms.ValidationError(MENSAJE_ULTIMO_ADMIN)
         if "roles" in datos:
             try:
                 servicio_roles.validar_roles(self.instance, datos["roles"])
@@ -453,3 +480,81 @@ class FormularioEstudio(_FormularioConFechas):
     class Meta:
         model = Estudio
         fields = ("institucion", "titulo", "inicio", "fin")
+
+
+# --------------------------------------------------------------------------- Recuperar contraseña
+
+
+class RecuperarContrasenaForm(PasswordResetForm):
+    """El de Django, pero el correo sale con el logo UTEQ incrustado (config.correo.CorreoConLogo)."""
+
+    def send_mail(self, subject_template_name, email_template_name, context, from_email, to_email,
+                  html_email_template_name=None):
+        asunto = "".join(render_to_string(subject_template_name, context).splitlines())
+        mensaje = CorreoConLogo(asunto, render_to_string(email_template_name, context), from_email, [to_email])
+        if html_email_template_name is not None:
+            mensaje.attach_alternative(render_to_string(html_email_template_name, context), "text/html")
+        try:
+            mensaje.send()
+        except Exception:
+            logger.exception("No se pudo enviar el correo de recuperación al usuario %s", context["user"].pk)
+
+
+# --------------------------------------------------------------------------- Configuración inicial (spec 010)
+
+
+def _campo_codigo():
+    return forms.CharField(
+        label=_("Código de configuración"), max_length=30, strip=True,
+        help_text=_("12 caracteres, por ejemplo 7K4Q-M2XP-9WDA. Puedes escribirlo con o sin guiones."),
+        widget=forms.TextInput(attrs={
+            "autocomplete": "off", "autocapitalize": "characters", "spellcheck": "false",
+            "autofocus": True, "placeholder": "XXXX-XXXX-XXXX", "class": "font-mono tracking-wider",
+        }),
+    )
+
+
+class FormularioPrimerAdminNuevo(FormularioNFC, BaseUserCreationForm):
+    """Configuración inicial, pestaña "Crear una cuenta nueva": código y datos del admin.
+
+    Usa los validadores de contraseña de Django (BaseUserCreationForm). No avisa aquí si el correo
+    ya existe: eso lo dice el servicio solo cuando el código es correcto, para que alguien sin
+    código no pueda averiguar qué correos tienen cuenta.
+    """
+
+    codigo = _campo_codigo()
+
+    class Meta:
+        model = Usuario
+        fields = ("nombres", "apellidos", "email")
+        widgets = {
+            "nombres": forms.TextInput(attrs={"autocomplete": "given-name"}),
+            "apellidos": forms.TextInput(attrs={"autocomplete": "family-name"}),
+            "email": forms.EmailInput(attrs={"autocomplete": "email", "placeholder": "nombre@correo.com"}),
+        }
+
+    field_order = ["codigo", "nombres", "apellidos", "email", "password1", "password2"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["email"].widget.attrs.pop("autofocus", None)
+
+    def clean_email(self):
+        return UsuarioManager.normalizar_correo(self.cleaned_data.get("email"))
+
+    def validate_unique(self):
+        """Sin la validación de correo único del modelo (ver el docstring de la clase)."""
+
+
+class FormularioPrimerAdminExistente(forms.Form):
+    """Configuración inicial, pestaña "Usar una cuenta que ya existe": código, correo y contraseña."""
+
+    codigo = _campo_codigo()
+    email = forms.EmailField(
+        label=_("Correo de la cuenta"),
+        widget=forms.EmailInput(attrs={"autocomplete": "email", "placeholder": "nombre@correo.com"}),
+    )
+    password = forms.CharField(
+        label=_("Contraseña de la cuenta"), strip=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}),
+    )

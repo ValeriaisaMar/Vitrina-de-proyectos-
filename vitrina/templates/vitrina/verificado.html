@@ -39,7 +39,7 @@
         </div>
         <p class="leading-relaxed">{% translate "Este código corresponde a un proyecto de la carrera de Ingeniería de Software de la UTEQ, revisado y aprobado por un docente." %}</p>
       </div>
-      <dl class="mt-8 grid gap-6 sm:grid-cols-2">
+      <dl class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div class="sm:col-span-2">
           <dt class="text-xs font-bold uppercase tracking-wider text-texto-suave">{% translate "Autores" %}</dt>
           <dd class="mt-1 text-lg font-bold">{% for autor in proyecto.autores.all %}{{ autor.nombre_completo }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd>

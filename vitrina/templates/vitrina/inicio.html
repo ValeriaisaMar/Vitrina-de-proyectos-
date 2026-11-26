@@ -7,7 +7,7 @@
 
 {# ---------------------------------------------------------------- Portada #}
 <section class="relative overflow-hidden border-b-2 border-linea bg-uteq-verde text-white" aria-labelledby="titulo-portada">
-  <div class="contenedor grid items-center gap-14 py-16 lg:grid-cols-[1.1fr_1fr] lg:py-24">
+  <div class="contenedor grid grid-cols-1 items-center gap-14 py-16 lg:grid-cols-[1.1fr_1fr] lg:py-24">
 
     <div class="flex flex-col gap-6">
       <span class="animate-entrar self-start border-2 border-tinta bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-tinta">
@@ -87,7 +87,7 @@
 {# ---------------------------------------------------------------- Cifras y destacados #}
 {% if cifras.verificados %}
 <section class="border-b-2 border-linea bg-uteq-profundo text-white" aria-label="{% translate 'La vitrina en cifras' %}">
-  <dl class="contenedor grid gap-8 py-10 sm:grid-cols-3">
+  <dl class="contenedor grid grid-cols-1 gap-8 py-10 sm:grid-cols-3">
     <div class="flex flex-col-reverse gap-1"><dt class="text-sm font-semibold text-uteq-claro">{% translate "Proyectos verificados" %}</dt><dd class="font-titulo text-4xl font-extrabold text-uteq-amarillo">{{ cifras.verificados }}</dd></div>
     <div class="flex flex-col-reverse gap-1"><dt class="text-sm font-semibold text-uteq-claro">{% translate "Estudiantes autores" %}</dt><dd class="font-titulo text-4xl font-extrabold text-white">{{ cifras.autores }}</dd></div>
     <div class="flex flex-col-reverse gap-1"><dt class="text-sm font-semibold text-uteq-claro">{% translate "Tecnologías usadas" %}</dt><dd class="font-titulo text-4xl font-extrabold text-white">{{ cifras.tecnologias }}</dd></div>
@@ -103,7 +103,7 @@
       </div>
       <a href="{% url 'vitrina:explorar' %}" class="enlace">{% translate "Ver todos los proyectos" %} →</a>
     </div>
-    <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
       {% for p in destacados %}{% include "vitrina/_tarjeta_proyecto.html" %}{% endfor %}
     </div>
   </div>
@@ -128,7 +128,7 @@
       {% translate "De tu repositorio a la vitrina en cuatro pasos" %}
     </h2>
 
-    <ol class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+    <ol class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
       {% for paso in pasos %}
       <li class="tarjeta flex flex-col gap-3 p-6 transition-transform duration-150 hover:-translate-x-1 hover:-translate-y-1">
         <span class="font-titulo text-4xl font-extrabold text-acento">{{ paso.numero }}</span>

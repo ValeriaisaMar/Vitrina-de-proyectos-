@@ -25,7 +25,7 @@
   </section>
 
   <section class="bg-seccion py-10">
-    <div class="contenedor grid gap-8 lg:grid-cols-[17rem_1fr]">
+    <div class="contenedor grid grid-cols-1 gap-8 lg:grid-cols-[17rem_1fr]">
 
       {# En móvil los filtros se pliegan (tema.js cierra el <details>); sin JS quedan abiertos. #}
       <details class="tarjeta-sobria group h-fit" data-filtros open>
@@ -92,14 +92,14 @@
         {% if personas %}
           <section class="mb-8" aria-labelledby="titulo-personas">
             <h2 id="titulo-personas" class="flex items-center gap-2 text-lg font-extrabold">{% icono "users" tam=20 %}{% translate "Personas" %}</h2>
-            <ul class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <ul class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {% for perfil in personas %}<li>{% include "vitrina/_tarjeta_persona.html" with perfil=perfil %}</li>{% endfor %}
             </ul>
           </section>
         {% endif %}
 
         {% if pagina.object_list %}
-          <div class="grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
+          <div class="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3">
             {% for p in pagina.object_list %}{% include "vitrina/_tarjeta_proyecto.html" %}{% endfor %}
           </div>
 

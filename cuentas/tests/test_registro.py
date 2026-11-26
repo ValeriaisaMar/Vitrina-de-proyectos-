@@ -66,7 +66,7 @@ class RegistroTests(TestCase):
         self.assertRedirects(self.client.get(reverse("cuentas:registro")), reverse("vitrina:inicio"))
 
     def test_si_el_correo_falla_la_cuenta_se_crea_igual_y_se_avisa(self):
-        with mock.patch("cuentas.correos.EmailMultiAlternatives.send", side_effect=OSError("sin red")):
+        with mock.patch("cuentas.correos.CorreoConLogo.send", side_effect=OSError("sin red")):
             respuesta = self.client.post(reverse("cuentas:registro"), DATOS, follow=True)
         self.assertTrue(Usuario.objects.filter(email="valeria@correo.com").exists())
         self.assertContains(respuesta, "no pudimos enviar el correo")

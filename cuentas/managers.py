@@ -51,4 +51,10 @@ class UsuarioManager(BaseUserManager):
         campos.setdefault("is_active", True)
         if not campos["is_staff"] or not campos["is_superuser"]:
             raise ValueError("Un superusuario debe tener is_staff e is_superuser en True.")
-        return self._crear(email, password, roles or [rol or "admin"], **campos)
+        usuario = self._crear(email, password, roles or [rol or "admin"], **campos)
+        # Spec 010: queda "Configuración inicial" en el registro de roles y el código pendiente
+        # de la configuración inicial deja de servir (import local para evitar un ciclo).
+        from cuentas.configuracion_inicial import al_crear_superusuario
+
+        al_crear_superusuario(usuario)
+        return usuario

@@ -31,7 +31,7 @@ Con JavaScript (static/js/revisor.js): los filtros actúan al instante y el nomb
 
   <details id="todos" class="border-2 border-linea p-4" {% if filtrando or not sugerencias %}open{% endif %}>
     <summary class="flex cursor-pointer items-center gap-2 font-extrabold">{% icono "users" tam=20 %}{% translate "Ver todos los profesores" %}</summary>
-    <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-filtros-profesores>
+    <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" data-filtros-profesores>
       <div class="flex flex-col sm:col-span-2">
         <label for="filtro-q" class="campo-etiqueta">{% translate "Buscar por nombre" %}</label>
         <input id="filtro-q" type="search" name="q" value="{{ filtros.q }}" form="filtros-profesores" class="campo-control" data-filtro="q">

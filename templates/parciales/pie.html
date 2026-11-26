@@ -1,6 +1,6 @@
 {% load i18n static %}
 <footer class="border-t-2 border-linea bg-uteq-profundo text-uteq-claro">
-  <div class="contenedor grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]">
+  <div class="contenedor grid grid-cols-1 gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]">
     <div class="flex flex-col gap-4">
       <picture>
         <source srcset="{% static 'img/logo-uteq-blanco.webp' %}" type="image/webp">
@@ -37,9 +37,16 @@
     </nav>
     <nav class="flex flex-col gap-2 text-sm" aria-label="{% translate 'Cuenta' %}">
       <span class="font-bold text-white">{% translate "Cuenta" %}</span>
-      <a class="py-1 hover:text-white hover:underline" href="{% url 'cuentas:entrar' %}">{% translate "Iniciar sesión" %}</a>
-      <a class="py-1 hover:text-white hover:underline" href="{% url 'cuentas:registro' %}">{% translate "Crear cuenta" %}</a>
-      <a class="py-1 hover:text-white hover:underline" href="{% url 'cuentas:recuperar' %}">{% translate "Recuperar contraseña" %}</a>
+      {% if user.is_authenticated %}
+        {# Con sesión iniciada no tiene sentido ofrecer "Iniciar sesión" ni "Crear cuenta" #}
+        <a class="py-1 hover:text-white hover:underline" href="{% url 'vitrina:panel' %}">{% translate "Panel" %}</a>
+        {% if user.tiene_perfil_publico %}<a class="py-1 hover:text-white hover:underline" href="{{ user.perfil.get_absolute_url }}">{% translate "Mi perfil" %}</a>{% endif %}
+        <a class="py-1 hover:text-white hover:underline" href="{% url 'cuentas:perfil' %}">{% translate "Datos de la cuenta" %}</a>
+      {% else %}
+        <a class="py-1 hover:text-white hover:underline" href="{% url 'cuentas:entrar' %}">{% translate "Iniciar sesión" %}</a>
+        <a class="py-1 hover:text-white hover:underline" href="{% url 'cuentas:registro' %}">{% translate "Crear cuenta" %}</a>
+        <a class="py-1 hover:text-white hover:underline" href="{% url 'cuentas:recuperar' %}">{% translate "Recuperar contraseña" %}</a>
+      {% endif %}
     </nav>
   </div>
   <div class="border-t border-uteq-verde">
