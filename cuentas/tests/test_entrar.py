@@ -91,6 +91,6 @@ class SalirTests(TestCase):
 
     def test_el_encabezado_muestra_perfil_y_salir(self):
         respuesta = self.client.get(reverse("vitrina:inicio"))
-        self.assertContains(respuesta, "Hola, Ana")
+        self.assertContains(respuesta, "Menú de la cuenta")  # el avatar (spec 009)
         self.assertContains(respuesta, reverse("cuentas:salir"))
         self.assertContains(respuesta, reverse("cuentas:perfil"))

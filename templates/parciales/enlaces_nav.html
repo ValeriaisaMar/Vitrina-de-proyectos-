@@ -1,6 +1,0 @@
-{% load i18n %}{# Enlaces principales. Recibe "clase" y "clase_activa"; "actual" viene del encabezado. #}
-{# data-nav y data-clase-activa los usa static/js/tema.js para marcar "Cómo funciona" cuando esa sección está a la vista. #}
-<a href="{% url 'vitrina:inicio' %}" class="{{ clase }} {% if actual == 'inicio' %}{{ clase_activa }}{% endif %}" {% if actual == 'inicio' %}aria-current="page"{% endif %} data-nav="inicio" data-clase-activa="{{ clase_activa }}">{% translate "Inicio" %}</a>
-<a href="{% url 'vitrina:explorar' %}" class="{{ clase }} {% if actual == 'explorar' %}{{ clase_activa }}{% endif %}" {% if actual == 'explorar' %}aria-current="page"{% endif %}>{% translate "Explorar" %}</a>
-<a href="{% url 'vitrina:verificar' %}" class="{{ clase }} {% if actual == 'verificar' %}{{ clase_activa }}{% endif %}" {% if actual == 'verificar' %}aria-current="page"{% endif %}>{% translate "Verificar QR" %}</a>
-<a href="{% url 'vitrina:inicio' %}#como-funciona" class="{{ clase }}" data-nav="como-funciona" data-clase-activa="{{ clase_activa }}">{% translate "Cómo funciona" %}</a>

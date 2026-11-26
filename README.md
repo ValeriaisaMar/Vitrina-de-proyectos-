@@ -38,11 +38,13 @@ Borrador ─► Enviado ─► En revisión ─┬─► Aprobado (público, con
                └──── el autor corrige y reenvía┘
 ```
 
-1. **El estudiante sube su proyecto**: resumen, descripción, coautores, asignatura, periodo,
-   tecnologías, repositorio, demo, imágenes y PDF.
-2. **Lo envía a revisión.** Queda en la bandeja común de los profesores.
-3. **Un profesor lo toma** y decide: aprobar, pedir cambios o rechazar. Si pide cambios o
-   rechaza, deja un comentario obligatorio.
+1. **El estudiante sube su proyecto**: resumen, descripción, coautores, asignatura, tecnologías,
+   repositorio, proyecto desplegado, video, portada, imágenes y PDF.
+2. **Lo envía a revisión y elige al profesor** que lo revisará, con sugerencias que explican por
+   qué aparecen. El proyecto toma el período académico actual.
+3. **El profesor acepta la solicitud** (o no, y puede recomendar a otro) y decide: aprobar, pedir
+   cambios o rechazar. Si pide cambios o rechaza, deja un comentario obligatorio. Al reenviar con
+   observaciones, el proyecto vuelve al mismo profesor.
 4. **Si se aprueba**, aparece en la vitrina pública con su sello, y los autores pueden descargar
    el QR y el certificado.
 
@@ -56,24 +58,27 @@ Borrador ─► Enviado ─► En revisión ─┬─► Aprobado (público, con
 | 004 Revisión | Bandeja de profesores, decisiones con comentario, historial de estados |
 | 005 Verificación | Código `VP`, QR descargable, certificado PDF y página pública de verificación |
 | 006 Paneles | Panel del estudiante, del profesor y de administración (usuarios y roles) |
-| 007 Comunidad | Me gusta, favoritos (privados) y comentarios que pueden ocultar los autores del proyecto y el admin |
+| 007 Comunidad | Me gusta, guardados (privados) y comentarios que pueden ocultar los autores del proyecto y el admin |
 | 008 Ajustes del profesor | Varios roles por persona con selector "Entrar como", periodos académicos administrables, correo de envío configurable desde la app, respuestas del autor en los comentarios e identidad visual completa (logos, sellos, favicon, vista previa al compartir) |
+| 009 Perfiles y revisor | Un solo período actual, plan de estudios administrable, perfil público de cada persona, el estudiante elige al profesor revisor (sugerencias, solicitudes, reasignación), menú de la cuenta con íconos, portada y color del proyecto, enlaces a demo y video |
 
 ## Roles
 
 | Acción | Visitante | Estudiante | Profesor | Admin |
 |---|:-:|:-:|:-:|:-:|
 | Ver la vitrina y verificar un QR | ✓ | ✓ | ✓ | ✓ |
-| Dar me gusta, comentar y guardar favoritos | | ✓ | ✓ | ✓ |
-| Crear y editar sus proyectos (antes de aprobarse) | | ✓ | | |
-| Revisar: aprobar, pedir cambios o rechazar | | | ✓ | ✓ |
+| Ver perfiles públicos | ✓ | ✓ | ✓ | ✓ |
+| Dar me gusta, comentar y guardar proyectos | | ✓ | ✓ | ✓ |
+| Crear y editar sus proyectos (antes de aprobarse) y elegir revisor (el creador) | | ✓ | | |
+| Aceptar solicitudes y revisar: aprobar, pedir cambios o rechazar | | | ✓ (asignado) | |
+| Reasignar el revisor de un proyecto | | | | ✓ |
 | Ocultar y responder comentarios de sus proyectos | | ✓ (autor) | | ✓ (ocultar) |
-| Dar y quitar roles, periodos académicos y correo de envío | | | | ✓ |
+| Dar y quitar roles, período actual, plan de estudios y correo de envío | | | | ✓ |
 
 Toda cuenta nueva es de estudiante. Un admin le da o le quita roles, y **una persona puede tener
-varios** (por ejemplo, estudiante y admin). Quien tiene más de uno elige en el menú de su cuenta
-**Entrar como: …**; lo que ve y puede hacer depende de ese **rol activo**, que siempre se muestra
-en el encabezado. Al iniciar sesión se usa el último rol con el que entró. Nadie revisa un proyecto
+varios** (por ejemplo, estudiante y admin). Quien tiene más de uno lo cambia con un clic en el menú de su
+avatar (**Cambiar de rol**); lo que ve y puede hacer depende de ese **rol activo**, que siempre se
+muestra en el encabezado. Al iniciar sesión se usa el último rol con el que entró. Nadie revisa un proyecto
 del que es autor.
 
 ## Tecnologías
@@ -96,7 +101,7 @@ Navegador (HTML + Tailwind + JS mínimo)
 Django · proyecto config
  ├── cuentas     usuario, registro, activación, login, recuperación, roles
  ├── proyectos   proyectos, estados, historial, revisión, QR y certificado
- ├── comunidad   me gusta, favoritos, comentarios
+ ├── comunidad   me gusta, guardados, comentarios
  └── vitrina     inicio, explorar, detalle, verificación pública
         │
 PostgreSQL · carpeta media (imágenes y PDF) · Gmail SMTP
@@ -206,8 +211,8 @@ Vitrina-de-proyectos-/
    El superusuario que creaste con `createsuperuser` es admin. Para nombrar profesores: entra
    con él → **Mi panel** → **Gestionar usuarios** → elige la cuenta → marca el rol **Profesor**.
    Al iniciar sesión, cada persona llega al panel de su rol activo (estudiante, profesor o admin).
-   La migración crea el periodo académico del semestre actual; los demás se crean en
-   **Mi panel** → **Periodos académicos**.
+   La migración crea el periodo académico del semestre actual y lo deja como **período actual**;
+   los demás se crean en **Mi panel** → **Periodos académicos** (ahí se marca cuál es el actual).
 
 ### Si ya tenías el proyecto y bajas la versión 008
 
@@ -223,6 +228,33 @@ python manage.py runserver
 
 Tus datos se conservan: cada usuario queda con el rol que tenía y cada proyecto con su periodo
 (los periodos "AAAA-1"/"AAAA-2" se convierten en periodos ordinarios con ese nombre).
+
+### Si ya tenías el proyecto y bajas la versión 009
+
+```bash
+git pull
+pip install -r requirements.txt          # sin dependencias nuevas
+python manage.py migrate                 # período actual, planes, perfiles, solicitudes, portadas
+python manage.py compilemessages         # solo si tienes gettext; el .mo ya viene compilado
+python manage.py runserver
+```
+
+- **No hay variables de entorno nuevas.** Los íconos (`static/iconos/`, Tabler Icons y Simple
+  Icons, licencias en `static/iconos/LICENCIAS.txt`) y las fuentes ya vienen en el repositorio.
+- **Qué hacen las migraciones con tus datos:** el periodo abierto más reciente queda como
+  **período actual**; los aprobados guardan su período de aprobación; las asignaturas pasan al plan
+  "Plan vigente"; cada usuario recibe su perfil público; los proyectos que estaban en revisión
+  conservan su profesor; los enviados sin revisor quedan "Por asignar revisor" (su creador ve un
+  aviso en el panel); "Favoritos" pasa a llamarse "Guardados"; y la primera captura de cada
+  proyecto se convierte en su portada. No se pierde ningún proyecto, autoría, evento, comentario
+  ni guardado.
+- **Carpeta `media/`:** las fotos de perfil (`media/perfiles/fotos/`) y las portadas
+  (`media/proyectos/portadas/`) se guardan ahí, convertidas a webp con nombres aleatorios. En
+  desarrollo las sirve Django (`DEBUG=True`, ver `config/urls.py`); en producción las debe servir
+  el servidor web (por ejemplo, nginx con `location /media/`). La carpeta no se sube a Git.
+- **Recordatorio de solicitudes (opcional):** `python manage.py recordar_solicitudes` avisa a
+  los profesores que llevan 3 días sin responder. Prográmalo una vez al día (Programador de tareas
+  de Windows o cron).
 
 ## Variables de entorno
 
@@ -327,6 +359,9 @@ python manage.py test
 Cada app tiene su carpeta `tests/`. Se prueban los permisos de cada rol en cada página, todos
 los cambios de estado, los correos y los archivos generados (QR y PDF). Ningún módulo se entrega
 si las pruebas no pasan.
+
+Las pruebas usan un ejecutor propio (`config/pruebas.py`): vacía la caché antes de cada prueba y
+usa un hasher de contraseñas rápido, así la suite completa corre en menos de un minuto.
 
 ## Cómo trabajamos: desarrollo guiado por especificaciones (SDD)
 

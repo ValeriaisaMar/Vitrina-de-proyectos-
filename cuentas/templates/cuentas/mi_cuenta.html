@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Mi cuenta" %}{% endblock %}
+
+{% comment %}"Mi cuenta" (spec 009): las mismas opciones del menú del avatar en una página. Es lo que
+se abre al pulsar el avatar si el navegador no tiene JavaScript.{% endcomment %}
+{% block contenido %}
+<section class="bg-seccion py-10 sm:py-14">
+  <div class="contenedor max-w-md">
+    <h1 class="text-3xl font-extrabold">{% translate "Mi cuenta" %}</h1>
+    <div class="tarjeta-sobria mt-6 p-4">{% include "parciales/menu_cuenta.html" %}</div>
+  </div>
+</section>
+{% endblock %}

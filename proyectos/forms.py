@@ -8,8 +8,10 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
 
+from config.texto import FormularioNFC
 from cuentas.models import Rol
-from proyectos.models import MAX_AUTORES, MAX_IMAGENES, MAX_TECNOLOGIAS, Asignatura, Estado, Imagen, Periodo, Proyecto, Tecnologia
+from proyectos.models import MAX_AUTORES, MAX_IMAGENES, MAX_TECNOLOGIAS, Asignatura, Estado, Imagen, Periodo, PlanEstudio, Proyecto, Tecnologia
+from proyectos.paleta import COLOR_POR_DEFECTO, PALETA
 from proyectos.validadores import validar_imagen
 
 Usuario = get_user_model()
@@ -36,10 +38,44 @@ class VariasImagenesField(forms.ImageField):
         return [limpiar_una(data, initial)] if data else []
 
 
+# ---------------------------------------------------------------- Asignaturas por plan y semestre (spec 009)
+
+
+def asignaturas_elegibles(conservar=()):
+    """Asignaturas que se pueden elegir: activas de planes activos, más las indicadas en `conservar`.
+
+    `conservar` son las que ya tiene el proyecto o el profesor: aunque las hayan desactivado, no
+    desaparecen de su formulario (así no se pierden al guardar otra cosa).
+    """
+    conservar = [pk for pk in conservar if pk]
+    consulta = Asignatura.objects.ofrecidas()
+    if conservar:
+        consulta = consulta | Asignatura.objects.filter(pk__in=conservar)
+    return consulta.distinct().select_related("plan").order_by("-plan__anio", "plan__nombre", "semestre", "nombre")
+
+
+def opciones_por_plan_y_semestre(asignaturas, vacio=True):
+    """Opciones agrupadas para un <select>: «Plan 2022 · Semestre III» → asignaturas."""
+    grupos = {}
+    for asignatura in asignaturas:
+        etiqueta = _("%(plan)s · Semestre %(n)s") % {"plan": asignatura.plan.nombre, "n": ROMANOS[asignatura.semestre]}
+        texto = f"{asignatura.nombre} ({asignatura.codigo})" if asignatura.codigo else asignatura.nombre
+        grupos.setdefault(etiqueta, []).append((asignatura.pk, texto))
+    return ([("", "—")] if vacio else []) + list(grupos.items())
+
+
+def configurar_selector_asignatura(campo, conservar=()):
+    """Deja un campo de asignatura con las elegibles, agrupadas, y el buscador de selector.js."""
+    asignaturas = asignaturas_elegibles(conservar)
+    campo.queryset = asignaturas
+    campo.widget.choices = opciones_por_plan_y_semestre(asignaturas, vacio=not getattr(campo.widget, "allow_multiple_selected", False))
+    campo.widget.attrs["data-buscable"] = ""
+
+
 # ---------------------------------------------------------------- Formulario principal
 
 
-class FormularioProyecto(forms.ModelForm):
+class FormularioProyecto(FormularioNFC, forms.ModelForm):
     """Crea o edita un proyecto. Recibe el usuario que lo usa para saber quién es el creador."""
 
     coautores = forms.CharField(
@@ -57,22 +93,34 @@ class FormularioProyecto(forms.ModelForm):
         label=_("Quitar imágenes"), queryset=Imagen.objects.none(), required=False,
         widget=forms.CheckboxSelectMultiple,
     )
+    # Spec 009, historia 7: la cara del proyecto. Se convierte a webp 16:9 en save().
+    portada = forms.FileField(
+        label=_("Imagen de portada"), required=False,
+        widget=forms.ClearableFileInput(attrs={"accept": "image/jpeg,image/png,image/webp"}),
+        help_text=_("Opcional. JPG, PNG o WEBP de hasta 5 MB. Se recorta a 16:9 (1200 × 675). Es la cara del proyecto en la vitrina y al compartirlo."),
+    )
+    quitar_portada = forms.BooleanField(label=_("Quitar la portada y usar la portada de color"), required=False)
 
     class Meta:
         model = Proyecto
-        fields = ("titulo", "resumen", "descripcion", "asignatura", "periodo", "tecnologias",
-                  "repositorio", "demo", "documento_pdf")
+        # Sin "periodo": el proyecto toma el período actual al enviarse (spec 009)
+        fields = ("titulo", "resumen", "descripcion", "asignatura", "tecnologias",
+                  "repositorio", "demo", "video", "documento_pdf", "color_portada")
         widgets = {
             "resumen": forms.Textarea(attrs={"rows": 2, "maxlength": 300}),
             "descripcion": forms.Textarea(attrs={"rows": 8}),
             "tecnologias": forms.CheckboxSelectMultiple,
             "repositorio": forms.URLInput(attrs={"placeholder": "https://github.com/usuario/proyecto"}),
             "demo": forms.URLInput(attrs={"placeholder": "https://"}),
+            "video": forms.URLInput(attrs={"placeholder": "https://www.youtube.com/watch?v=…"}),
+            "color_portada": forms.RadioSelect,
             "documento_pdf": forms.ClearableFileInput(attrs={"accept": "application/pdf"}),
         }
         help_texts = {
             "repositorio": _("Enlace público a GitHub, GitLab u otro servicio."),
-            "demo": _("Opcional. Donde se puede probar el proyecto."),
+            "demo": _("Opcional. Donde se puede ver funcionando. Aparece como «Ver proyecto desplegado»."),
+            "video": _("Opcional. YouTube u otro sitio. Se abre en una pestaña nueva; no se incrusta."),
+            "color_portada": _("Se usa cuando el proyecto no tiene imagen de portada."),
             "documento_pdf": _("Opcional. Informe o manual del proyecto, PDF de hasta 10 MB."),
         }
 
@@ -85,27 +133,22 @@ class FormularioProyecto(forms.ModelForm):
         self._creador = usuario if es_nuevo else self.instance.creador
         self._pdf_anterior = None if es_nuevo else self.instance.documento_pdf.name
 
-        # Asignaturas activas (más la actual, aunque la hayan desactivado), agrupadas por semestre
-        asignaturas = Asignatura.objects.filter(activa=True)
+        # Asignaturas activas de planes activos (más la actual, aunque la hayan desactivado),
+        # agrupadas por plan y semestre (spec 009)
         tecnologias = Tecnologia.objects.filter(activa=True)
         if not es_nuevo:
-            asignaturas = asignaturas | Asignatura.objects.filter(pk=self.instance.asignatura_id)
             tecnologias = tecnologias | self.instance.tecnologias.all()
-        self.fields["asignatura"].queryset = asignaturas.distinct()
         self.fields["tecnologias"].queryset = tecnologias.distinct()
-        self.fields["asignatura"].widget.choices = self._asignaturas_por_semestre(asignaturas.distinct())
+        configurar_selector_asignatura(self.fields["asignatura"], conservar=[self.instance.asignatura_id] if not es_nuevo else [])
 
-        # Solo periodos abiertos; al editar se conserva el actual aunque ya esté cerrado (spec 008)
-        periodos = Periodo.objects.abiertos()
-        if not es_nuevo:
-            periodos = periodos | Periodo.objects.filter(pk=self.instance.periodo_id)
-        self.fields["periodo"].queryset = periodos.distinct().order_by("-fecha_inicio", "-id")
-        self.fields["periodo"].empty_label = "—"
-        self.sin_periodos = not self.fields["periodo"].queryset.exists()
-        if self.sin_periodos:
-            self.fields["periodo"].help_text = _("No hay periodos abiertos para registrar proyectos. Avísale a la administración de la carrera.")
         self.fields["tecnologias"].help_text = _("Elige entre 1 y 8.")
 
+        self._portada_anterior = None if es_nuevo else self.instance.imagen_portada.name
+        # Para dibujar la paleta con su muestra de color (clave, nombre, código)
+        self.colores = [(clave, nombre, codigo) for clave, (nombre, codigo) in PALETA.items()]
+        self.fields["color_portada"].required = False  # vacío: se conserva el color que tenía
+        if es_nuevo or not self.instance.imagen_portada:
+            del self.fields["quitar_portada"]
         if es_nuevo:
             del self.fields["quitar_imagenes"]
         else:
@@ -118,14 +161,6 @@ class FormularioProyecto(forms.ModelForm):
                 # Solo el creador agrega o quita coautores; los demás autores ven la lista bloqueada
                 self.fields["coautores"].disabled = True
                 self.fields["coautores"].help_text = _("Solo quien creó el proyecto puede cambiar los coautores. Si quieres dejar el proyecto, usa «Salir del proyecto» en Mis proyectos.")
-
-    @staticmethod
-    def _asignaturas_por_semestre(asignaturas):
-        grupos = {}
-        for asignatura in asignaturas.order_by("semestre", "nombre"):
-            etiqueta = _("Semestre %(n)s") % {"n": ROMANOS[asignatura.semestre]}
-            grupos.setdefault(etiqueta, []).append((asignatura.pk, asignatura.nombre))
-        return [("", "—")] + list(grupos.items())
 
     # ------------------------------------------------------------ Validaciones
 
@@ -191,6 +226,17 @@ class FormularioProyecto(forms.ModelForm):
             raise ValidationError(errores)
         return imagenes
 
+    def clean_color_portada(self):
+        return self.cleaned_data.get("color_portada") or self.instance.color_portada or COLOR_POR_DEFECTO
+
+    def clean_portada(self):
+        from config.imagenes import validar_imagen_subida
+
+        portada = self.cleaned_data.get("portada")
+        if portada:
+            validar_imagen_subida(portada)
+        return portada
+
     def clean(self):
         datos = super().clean()
         actuales = self.instance.imagenes.count() if self.instance.pk else 0
@@ -210,8 +256,25 @@ class FormularioProyecto(forms.ModelForm):
 
         self._guardar_autores(proyecto)
         self._guardar_imagenes(proyecto)
+        self._guardar_portada(proyecto)
         self._borrar_pdf_reemplazado(proyecto)
         return proyecto
+
+    def _guardar_portada(self, proyecto):
+        """Nueva portada (webp 16:9 con nombre aleatorio) o quitarla; el archivo anterior se borra."""
+        from config.imagenes import TAM_PORTADA, convertir_a_webp
+
+        nueva = self.cleaned_data.get("portada")
+        if nueva:
+            contenido = convertir_a_webp(nueva, TAM_PORTADA)
+            proyecto.imagen_portada.save(contenido.name, contenido, save=False)
+        elif self.cleaned_data.get("quitar_portada"):
+            proyecto.imagen_portada = ""
+        else:
+            return
+        proyecto.save(update_fields=["imagen_portada"])
+        if self._portada_anterior and self._portada_anterior != proyecto.imagen_portada.name:
+            proyecto.imagen_portada.storage.delete(self._portada_anterior)
 
     def _guardar_autores(self, proyecto):
         from proyectos.models import Autoria
@@ -256,7 +319,7 @@ class FormularioTransferir(forms.Form):
         self.fields["nuevo_creador"].label_from_instance = lambda u: f"{u.nombre_completo} · {u.email}"
 
 
-class FormularioEnvio(forms.Form):
+class FormularioEnvio(FormularioNFC, forms.Form):
     """Mensaje opcional del autor al enviar o reenviar el proyecto."""
 
     comentario = forms.CharField(
@@ -266,7 +329,7 @@ class FormularioEnvio(forms.Form):
     )
 
 
-class FormularioDecision(forms.Form):
+class FormularioDecision(FormularioNFC, forms.Form):
     """Decisión del docente sobre un proyecto en revisión."""
 
     decision = forms.ChoiceField(
@@ -299,7 +362,7 @@ class FormularioPeriodo(forms.ModelForm):
 
     class Meta:
         model = Periodo
-        fields = ("nombre", "tipo", "fecha_inicio", "fecha_fin", "abierto")
+        fields = ("nombre", "tipo", "fecha_inicio", "fecha_fin")
         widgets = {
             "nombre": forms.TextInput(attrs={"placeholder": "2026-2 · Intensivo noviembre 2026"}),
             "fecha_inicio": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
@@ -324,3 +387,99 @@ class FormularioPeriodo(forms.ModelForm):
         if commit:
             periodo.save()
         return periodo
+
+
+# ---------------------------------------------------------------- Plan de estudios (spec 009, historia 3)
+
+
+class FormularioPlan(FormularioNFC, forms.ModelForm):
+    """El admin crea o edita un plan de estudios."""
+
+    class Meta:
+        model = PlanEstudio
+        fields = ("nombre", "anio", "activo")
+        widgets = {"nombre": forms.TextInput(attrs={"placeholder": "Plan 2026"})}
+        help_texts = {"activo": _("Solo las asignaturas de planes activos se ofrecen en los formularios.")}
+
+    def clean_nombre(self):
+        nombre = " ".join(self.cleaned_data["nombre"].split())
+        if PlanEstudio.objects.filter(nombre__iexact=nombre).exclude(pk=self.instance.pk).exists():
+            raise ValidationError(_("Ya existe un plan con ese nombre."))
+        return nombre
+
+
+class FormularioAsignatura(FormularioNFC, forms.ModelForm):
+    """El admin crea o edita una asignatura dentro de un plan."""
+
+    class Meta:
+        model = Asignatura
+        fields = ("nombre", "codigo", "semestre", "activa")
+        widgets = {"codigo": forms.TextInput(attrs={"placeholder": "ISW-301"})}
+        help_texts = {"codigo": _("Opcional."), "activa": _("Una asignatura inactiva no se ofrece en los formularios, pero la conservan quienes ya la tienen.")}
+
+    def __init__(self, *args, plan, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.plan = plan
+        self.fields["semestre"].widget = forms.Select(choices=[(n, _("Semestre %(n)s") % {"n": ROMANOS[n]}) for n in range(1, 11)])
+
+    def clean_nombre(self):
+        """Sin repetir dentro del plan, sin distinguir mayúsculas ni espacios de más."""
+        nombre = " ".join(self.cleaned_data["nombre"].split())
+        if Asignatura.objects.filter(plan=self.plan, nombre__iexact=nombre).exclude(pk=self.instance.pk).exists():
+            raise ValidationError(_("Ya existe una asignatura con ese nombre en este plan."))
+        return nombre
+
+    def save(self, commit=True):
+        asignatura = super().save(commit=False)
+        asignatura.plan = self.plan
+        if commit:
+            asignatura.save()
+        return asignatura
+
+
+# ---------------------------------------------------------------- Revisor elegido (spec 009, historia 5)
+
+
+class _ProfesorField(forms.ModelChoiceField):
+    def label_from_instance(self, usuario):
+        return usuario.nombre_completo
+
+
+class FormularioElegirProfesor(forms.Form):
+    """El creador elige al profesor que revisará su proyecto (las tarjetas se dibujan a mano)."""
+
+    profesor = _ProfesorField(
+        label=_("Profesor"), queryset=Usuario.objects.none(), widget=forms.RadioSelect,
+        error_messages={"required": _("Elige quién revisará tu proyecto."), "invalid_choice": _("No puedes elegir a ese profesor.")},
+    )
+
+    def __init__(self, *args, elegibles, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["profesor"].queryset = elegibles
+
+
+class FormularioNoAceptar(FormularioNFC, forms.Form):
+    """El profesor no acepta la solicitud: mensaje y recomendación opcionales."""
+
+    mensaje = forms.CharField(
+        label=_("Mensaje para los estudiantes"), required=False, max_length=1000,
+        widget=forms.Textarea(attrs={"rows": 4}),
+        help_text=_("Opcional. Por ejemplo, por qué no puedes revisarlo ahora."),
+    )
+    recomendado = _ProfesorField(label=_("Recomendar a otro profesor"), queryset=Usuario.objects.none(), required=False, empty_label=_("Sin recomendación"))
+
+    def __init__(self, *args, elegibles, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["recomendado"].queryset = elegibles
+
+
+class FormularioReasignar(FormularioNFC, forms.Form):
+    """El admin asigna otro profesor revisor."""
+
+    profesor = _ProfesorField(label=_("Nuevo profesor revisor"), queryset=Usuario.objects.none())
+    motivo = forms.CharField(label=_("Motivo"), required=False, max_length=500, widget=forms.Textarea(attrs={"rows": 2}),
+                             help_text=_("Opcional. Queda en el historial del proyecto."))
+
+    def __init__(self, *args, elegibles, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["profesor"].queryset = elegibles

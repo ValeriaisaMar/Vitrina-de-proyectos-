@@ -37,10 +37,13 @@ class FormularioFiltros(forms.Form):
 
         datos = self.cleaned_data if self.is_bound and self.is_valid() else getattr(self, "cleaned_data", {})
         if texto := (datos.get("q") or "").strip():
+            # Por título y por autor: el nombre completo ("Ana Pérez"), no solo nombres o apellidos (spec 009)
+            from cuentas.perfiles import usuarios_por_nombre
+
             consulta = consulta.filter(
                 Q(titulo__icontains=texto) | Q(resumen__icontains=texto)
                 | Q(tecnologias__nombre__icontains=texto)
-                | Q(autores__nombres__icontains=texto) | Q(autores__apellidos__icontains=texto)
+                | Q(autores__in=usuarios_por_nombre(texto))
             )
         if tecnologias := datos.get("tecnologia"):
             consulta = consulta.filter(tecnologias__in=tecnologias)

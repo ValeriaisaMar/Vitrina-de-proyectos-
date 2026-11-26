@@ -1,0 +1,24 @@
+{% load i18n %}{% comment %}
+Invitación "Completa tu perfil" (spec 009). Sale hasta que la persona elige "Completar ahora" o
+"Más tarde"; después queda solo un enlace discreto al perfil. Sin barra de porcentaje.
+{% endcomment %}
+{% if user.tiene_perfil_publico %}{% with perfil=user.perfil %}
+  {% if not perfil.bienvenida_vista %}
+    <section class="tarjeta flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between" aria-labelledby="titulo-bienvenida">
+      <div class="flex items-start gap-4">
+        <span class="mt-1 text-uteq-verde dark:text-uteq-claro">{% icono "user-circle" tam=36 %}</span>
+        <div>
+          <h2 id="titulo-bienvenida" class="text-xl font-extrabold">{% translate "Completa tu perfil" %}</h2>
+          <p class="mt-1 text-texto-suave">{% translate "Agrega una foto, una descripción y tus aptitudes para que los demás te conozcan. Tu perfil es público; tu correo no se muestra." %}</p>
+        </div>
+      </div>
+      <form method="post" action="{% url 'cuentas:bienvenida' %}" class="flex shrink-0 flex-wrap gap-3">
+        {% csrf_token %}
+        <button type="submit" name="accion" value="ahora" class="btn btn-primario gap-2">{% icono "pencil" tam=18 %}{% translate "Completar ahora" %}</button>
+        <button type="submit" name="accion" value="despues" class="btn btn-secundario gap-2">{% icono "clock" tam=18 %}{% translate "Más tarde" %}</button>
+      </form>
+    </section>
+  {% else %}
+    <p class="text-sm"><a class="enlace inline-flex items-center gap-1" href="{{ perfil.get_absolute_url }}">{% icono "user-circle" tam=16 %}{% translate "Ver o editar mi perfil público" %}</a></p>
+  {% endif %}
+{% endwith %}{% endif %}

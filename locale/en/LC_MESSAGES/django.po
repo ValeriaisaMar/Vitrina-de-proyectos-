@@ -2961,3 +2961,1135 @@ msgstr "last test passed"
 #: cuentas/models.py
 msgid "último rol usado"
 msgstr "last role used"
+
+msgid "El archivo no es una imagen válida."
+msgstr "The file is not a valid image."
+
+msgid "La imagen debe ser JPG, PNG o WEBP."
+msgstr "The image must be JPG, PNG or WEBP."
+
+#, python-format
+msgid "La imagen pesa más de %(mb)s MB."
+msgstr "The image is larger than %(mb)s MB."
+
+msgid "Los proyectos que ya tiene no cambian."
+msgstr "The projects it already has do not change."
+
+msgid "Marcar como período actual"
+msgstr "Mark as current term"
+
+msgid "Período actual"
+msgstr "Current term"
+
+msgid "Solo el período actual recibe proyectos: cada proyecto que se envíe desde ahora tomará este período."
+msgstr "Only the current term receives projects: every project submitted from now on will take this term."
+
+msgid "Sí, marcar como actual"
+msgstr "Yes, mark as current"
+
+#, python-format
+msgid "«%(nombre)s» dejará de ser el período actual."
+msgstr "“%(nombre)s” will no longer be the current term."
+
+#, python-format
+msgid "¿Marcar «%(nombre)s» como período actual?"
+msgstr "Mark “%(nombre)s” as the current term?"
+
+#, python-format
+msgid "Actual: %(nombre)s"
+msgstr "Current: %(nombre)s"
+
+msgid "El período académico se asigna solo: el proyecto toma el período actual cuando lo envías a revisión."
+msgstr "The academic term is assigned automatically: the project takes the current term when you submit it for review."
+
+msgid "El único período en el que los estudiantes pueden enviar proyectos."
+msgstr "The only term in which students can submit projects."
+
+msgid "No hay un período académico activo. Avísale a la administración."
+msgstr "There is no active academic term. Let the administration know."
+
+#, python-format
+msgid "No se puede borrar «%(nombre)s» porque es el período actual. Marca otro como actual primero."
+msgstr "“%(nombre)s” can't be deleted because it is the current term. Mark another one as current first."
+
+#, python-format
+msgid "No se puede borrar «%(nombre)s» porque tiene proyectos."
+msgstr "“%(nombre)s” can't be deleted because it has projects."
+
+msgid "Ordinarios, intersemestrales, intensivos… Solo el período actual recibe proyectos: al enviarlo, cada proyecto toma el período actual."
+msgstr "Regular, intersession, intensive… Only the current term receives projects: when submitted, each project takes the current term."
+
+#, python-format
+msgid "Período académico actual: %(nombre)s"
+msgstr "Current academic term: %(nombre)s"
+
+msgid "Período académico de aprobación"
+msgstr "Academic term of approval"
+
+msgid "Período académico:"
+msgstr "Academic term:"
+
+msgid "Período de aprobación"
+msgstr "Term of approval"
+
+msgid "Sin período actual: marca uno"
+msgstr "No current term: mark one"
+
+msgid "Un periodo con proyectos, o el período actual, no se puede borrar."
+msgstr "A term with projects, or the current term, can't be deleted."
+
+msgid "periodo de aprobación"
+msgstr "term of approval"
+
+msgid "período actual"
+msgstr "current term"
+
+#, python-format
+msgid "«%(nombre)s» es ahora el período académico actual."
+msgstr "“%(nombre)s” is now the current academic term."
+
+msgid "Abrir contraseñas de aplicación de Google"
+msgstr "Open Google app passwords"
+
+msgid "Abrir información de seguridad de Microsoft"
+msgstr "Open Microsoft security info"
+
+msgid "Activa la verificación en dos pasos en tu cuenta de Google."
+msgstr "Turn on 2-Step Verification in your Google account."
+
+msgid "Activa la verificación en dos pasos en tu cuenta de Microsoft."
+msgstr "Turn on two-step verification in your Microsoft account."
+
+msgid "Ahí: Agregar método → Contraseña de aplicación. Si no aparece esa opción, TI no la tiene habilitada."
+msgstr "There: Add sign-in method → App password. If that option does not appear, IT has not enabled it."
+
+msgid "Busca «Contraseñas de aplicación» en la configuración de la cuenta."
+msgstr "Search for “App passwords” in your account settings."
+
+msgid "Crea una con el nombre «Vitrina» y copia los 16 caracteres (sin espacios)."
+msgstr "Create one named “Vitrina” and copy the 16 characters (without spaces)."
+
+msgid "Guardados"
+msgstr "Saved"
+
+msgid "Inicia sesión con la cuenta que enviará los correos."
+msgstr "Sign in with the account that will send the emails."
+
+msgid "Microsoft bloqueó el inicio de sesión con contraseña para esta cuenta. Usa una cuenta institucional con SMTP AUTH habilitado o una cuenta de Gmail."
+msgstr "Microsoft blocked password sign-in for this account. Use an institutional account with SMTP AUTH enabled or a Gmail account."
+
+msgid "Pide a TI que confirme que tu cuenta tiene habilitado SMTP AUTH."
+msgstr "Ask IT to confirm that your account has SMTP AUTH enabled."
+
+msgid "Pide a quien administra tu correo el servidor SMTP, el puerto y el tipo de seguridad. Si tu cuenta usa verificación en dos pasos, crea una contraseña de aplicación en la configuración de seguridad de tu cuenta y úsala aquí."
+msgstr "Ask whoever manages your email for the SMTP server, the port and the security type. If your account uses two-step verification, create an app password in your account's security settings and use it here."
+
+msgid "Proyecto guardado. Lo encuentras en Guardados."
+msgstr "Project saved. You'll find it in Saved."
+
+msgid "Pégala en el campo «Contraseña de aplicación» y pulsa «Probar configuración»."
+msgstr "Paste it in the “App password” field and click “Test settings”."
+
+msgid "Quitar de Guardados"
+msgstr "Remove from Saved"
+
+msgid "Quitaste el proyecto de Guardados."
+msgstr "You removed the project from Saved."
+
+msgid "Solo funciona con cuentas institucionales de Microsoft 365 que tengan habilitado el envío SMTP autenticado (lo activa el área de TI). Las cuentas personales @outlook.com y @hotmail.com ya no permiten enviar correos con contraseña desde otras aplicaciones."
+msgstr "It only works with institutional Microsoft 365 accounts that have authenticated SMTP sending enabled (IT turns it on). Personal @outlook.com and @hotmail.com accounts no longer allow sending email with a password from other apps."
+
+msgid "guardado"
+msgstr "saved project"
+
+msgid "guardados"
+msgstr "saved projects"
+
+msgid "se abre en una pestaña nueva"
+msgstr "opens in a new tab"
+
+#, python-format
+msgid "%(n)s asignatura activa"
+msgid_plural "%(n)s asignaturas activas"
+msgstr[0] "%(n)s active subject"
+msgstr[1] "%(n)s active subjects"
+
+#, python-format
+msgid "%(n)s plan activo"
+msgid_plural "%(n)s planes activos"
+msgstr[0] "%(n)s active plan"
+msgstr[1] "%(n)s active plans"
+
+#, python-format
+msgid "%(n)s proyecto"
+msgid_plural "%(n)s proyectos"
+msgstr[0] "%(n)s project"
+msgstr[1] "%(n)s projects"
+
+#, python-format
+msgid "%(plan)s · Semestre %(n)s"
+msgstr "%(plan)s · Semester %(n)s"
+
+#, python-format
+msgid "%(total)s en total"
+msgstr "%(total)s in total"
+
+msgid "Activar"
+msgstr "Activate"
+
+msgid "Activar plan"
+msgstr "Activate plan"
+
+msgid "Activo"
+msgstr "Active"
+
+#, python-format
+msgid "Asignaturas del semestre %(n)s"
+msgstr "Semester %(n)s subjects"
+
+#, python-format
+msgid "Año %(anio)s"
+msgstr "Year %(anio)s"
+
+#, python-format
+msgid "Borramos el plan «%(nombre)s»."
+msgstr "We deleted the plan “%(nombre)s”."
+
+#, python-format
+msgid "Borramos la asignatura «%(nombre)s»."
+msgstr "We deleted the subject “%(nombre)s”."
+
+msgid "Borrar plan"
+msgstr "Delete plan"
+
+msgid "Crea uno y agrégale sus asignaturas para que los estudiantes puedan elegirlas."
+msgstr "Create one and add its subjects so students can choose them."
+
+#, python-format
+msgid "Desactivamos el plan «%(nombre)s»: sus asignaturas ya no se ofrecen en los formularios."
+msgstr "We deactivated the plan “%(nombre)s”: its subjects are no longer offered in forms."
+
+#, python-format
+msgid "Desactivamos «%(nombre)s». Quienes ya la tienen la conservan."
+msgstr "We deactivated “%(nombre)s”. Those who already have it keep it."
+
+msgid "Desactivar"
+msgstr "Deactivate"
+
+msgid "Desactivar plan"
+msgstr "Deactivate plan"
+
+msgid "Editar asignatura"
+msgstr "Edit subject"
+
+msgid "Editar plan"
+msgstr "Edit plan"
+
+#, python-format
+msgid "El plan «%(nombre)s» está activo."
+msgstr "The plan “%(nombre)s” is active."
+
+msgid "Este plan todavía no tiene asignaturas."
+msgstr "This plan has no subjects yet."
+
+#, python-format
+msgid "Guardamos el plan «%(nombre)s»."
+msgstr "We saved the plan “%(nombre)s”."
+
+#, python-format
+msgid "Guardamos la asignatura «%(nombre)s»."
+msgstr "We saved the subject “%(nombre)s”."
+
+msgid "Inactiva"
+msgstr "Inactive"
+
+msgid "Inactivo"
+msgstr "Inactive"
+
+#, python-format
+msgid "La asignatura «%(nombre)s» está activa."
+msgstr "The subject “%(nombre)s” is active."
+
+msgid "Los planes de la carrera y sus asignaturas. Puede haber más de un plan activo mientras se hace la transición de uno a otro."
+msgstr "The program's curricula and their subjects. More than one plan can be active during the transition from one to another."
+
+#, python-format
+msgid "No se puede borrar «%(nombre)s» porque está en uso. Desactívala para que no se ofrezca."
+msgstr "“%(nombre)s” can't be deleted because it is in use. Deactivate it so it is no longer offered."
+
+#, python-format
+msgid "No se puede borrar «%(nombre)s» porque tiene asignaturas. Desactívalo para que no se ofrezca."
+msgstr "“%(nombre)s” can't be deleted because it has subjects. Deactivate it so it is no longer offered."
+
+msgid "Nueva"
+msgstr "New"
+
+msgid "Nueva asignatura"
+msgstr "New subject"
+
+msgid "Nuevo plan"
+msgstr "New plan"
+
+msgid "Plan de estudios"
+msgstr "Curriculum"
+
+msgid "Solo las asignaturas de planes activos se ofrecen en los formularios."
+msgstr "Only subjects from active plans are offered in forms."
+
+msgid "Todavía no hay planes de estudio."
+msgstr "There are no curricula yet."
+
+msgid "Una asignatura en uso no se puede borrar: desactívala para que no se ofrezca. Quien ya la tiene la conserva."
+msgstr "A subject in use can't be deleted: deactivate it so it is no longer offered. Whoever already has it keeps it."
+
+msgid "Una asignatura inactiva no se ofrece en los formularios, pero la conservan quienes ya la tienen."
+msgstr "An inactive subject is not offered in forms, but those who already have it keep it."
+
+msgid "Ver asignaturas"
+msgstr "View subjects"
+
+msgid "Ya existe un plan con ese nombre."
+msgstr "A plan with that name already exists."
+
+msgid "Ya existe una asignatura con ese nombre en este plan."
+msgstr "A subject with that name already exists in this plan."
+
+msgid "código"
+msgstr "code"
+
+msgid "plan de estudios"
+msgstr "curriculum"
+
+msgid "planes de estudio"
+msgstr "curricula"
+
+#, python-format
+msgid "%(n)s proyecto en común"
+msgid_plural "%(n)s proyectos en común"
+msgstr[0] "%(n)s project in common"
+msgstr[1] "%(n)s projects in common"
+
+msgid "Actualizamos tu foto."
+msgstr "We updated your photo."
+
+msgid "Actualmente"
+msgstr "Present"
+
+msgid "Actualmente trabajo aquí"
+msgstr "I currently work here"
+
+msgid "Agrega una foto, una descripción y tus aptitudes para que los demás te conozcan. Tu perfil es público; tu correo no se muestra."
+msgstr "Add a photo, a description and your skills so others can get to know you. Your profile is public; your email is not shown."
+
+msgid "Agregar"
+msgstr "Add"
+
+msgid "Agregar estudio"
+msgstr "Add education"
+
+msgid "Agregar experiencia"
+msgstr "Add experience"
+
+msgid "Aptitudes"
+msgstr "Skills"
+
+msgid "Asignaturas que imparte"
+msgstr "Subjects taught"
+
+msgid "Cada aptitud puede tener como máximo 50 caracteres."
+msgstr "Each skill can have at most 50 characters."
+
+msgid "Cambiar foto"
+msgstr "Change photo"
+
+msgid "Completa tu perfil"
+msgstr "Complete your profile"
+
+msgid "Completar ahora"
+msgstr "Complete now"
+
+msgid "Datos de la cuenta"
+msgstr "Account details"
+
+msgid "Desde"
+msgstr "From"
+
+msgid "Editar GitHub, LinkedIn y ORCID"
+msgstr "Edit GitHub, LinkedIn and ORCID"
+
+msgid "Editar descripción"
+msgstr "Edit description"
+
+msgid "Editar perfil"
+msgstr "Edit profile"
+
+msgid "El ORCID tiene la forma 0000-0000-0000-000X."
+msgstr "An ORCID looks like 0000-0000-0000-000X."
+
+msgid "En curso"
+msgstr "In progress"
+
+msgid "Enlaces"
+msgstr "Links"
+
+msgid "Escribe el enlace de tu perfil de LinkedIn, como https://www.linkedin.com/in/tu-nombre."
+msgstr "Enter your LinkedIn profile link, like https://www.linkedin.com/in/your-name."
+
+msgid "Escribe la fecha de fin o marca la casilla."
+msgstr "Enter the end date or tick the box."
+
+msgid "Escribe tu usuario de GitHub o un enlace como https://github.com/usuario."
+msgstr "Enter your GitHub username or a link like https://github.com/username."
+
+msgid "Ese ORCID no es válido: revisa los números (el último es un dígito de control)."
+msgstr "That ORCID is not valid: check the numbers (the last one is a check digit)."
+
+msgid "Estudios"
+msgstr "Education"
+
+msgid "Experiencia laboral"
+msgstr "Work experience"
+
+msgid "Foto de perfil"
+msgstr "Profile photo"
+
+msgid "GitHub"
+msgstr "GitHub"
+
+msgid "Guardar aptitudes"
+msgstr "Save skills"
+
+msgid "Guardar asignaturas"
+msgstr "Save subjects"
+
+msgid "Guardar foto"
+msgstr "Save photo"
+
+msgid "Hasta"
+msgstr "To"
+
+msgid "JPG, PNG o WEBP de hasta 5 MB. Se recorta en cuadrado."
+msgstr "JPG, PNG or WEBP up to 5 MB. It is cropped to a square."
+
+msgid "LinkedIn"
+msgstr "LinkedIn"
+
+msgid "Mantén pulsada Ctrl (o Cmd) para elegir varias."
+msgstr "Hold Ctrl (or Cmd) to choose several."
+
+msgid "Más tarde"
+msgstr "Later"
+
+msgid "Máximo 600 caracteres. Cuenta quién eres y qué te interesa."
+msgstr "Up to 600 characters. Tell who you are and what interests you."
+
+msgid "No encontramos ese elemento."
+msgstr "We couldn't find that item."
+
+msgid "No está recibiendo proyectos"
+msgstr "Not accepting projects"
+
+msgid "ORCID"
+msgstr "ORCID"
+
+msgid "Personas"
+msgstr "People"
+
+msgid "Personas relacionadas"
+msgstr "Related people"
+
+msgid "Proyectos publicados"
+msgstr "Published projects"
+
+#, python-format
+msgid "Puedes poner como máximo %(n)s aptitudes."
+msgstr "You can add at most %(n)s skills."
+
+msgid "Quitamos el elemento."
+msgstr "We removed the item."
+
+msgid "Quitamos tu foto."
+msgstr "We removed your photo."
+
+msgid "Quitar foto"
+msgstr "Remove photo"
+
+msgid "Recibiendo proyectos"
+msgstr "Accepting projects"
+
+msgid "Sepáralas con comas. Máximo 15."
+msgstr "Separate them with commas. Up to 15."
+
+msgid "Tu usuario o el enlace a tu perfil."
+msgstr "Your username or the link to your profile."
+
+msgid "Ver como lo ven los demás"
+msgstr "View as others see it"
+
+msgid "Ver mi perfil público"
+msgstr "View my public profile"
+
+msgid "Ver o editar mi perfil público"
+msgstr "View or edit my public profile"
+
+msgid "aptitud"
+msgstr "skill"
+
+msgid "aptitudes"
+msgstr "skills"
+
+msgid "asignaturas que imparte"
+msgstr "subjects taught"
+
+msgid "cargo"
+msgstr "position"
+
+msgid "descripción corta"
+msgstr "short description"
+
+msgid "estudio"
+msgstr "education"
+
+msgid "estudios"
+msgstr "education"
+
+msgid "está recibiendo proyectos"
+msgstr "is accepting projects"
+
+msgid "experiencia laboral"
+msgstr "work experience"
+
+msgid "experiencias laborales"
+msgstr "work experiences"
+
+msgid "fin"
+msgstr "end"
+
+msgid "foto"
+msgstr "photo"
+
+msgid "inicio"
+msgstr "start"
+
+msgid "institución"
+msgstr "institution"
+
+msgid "organización"
+msgstr "organization"
+
+msgid "perfil"
+msgstr "profile"
+
+msgid "perfiles"
+msgstr "profiles"
+
+msgid "título o programa"
+msgstr "degree or program"
+
+msgid "ya vio la bienvenida"
+msgstr "has seen the welcome"
+
+#, python-format
+msgid "%(estudiante)s te pide que revises su proyecto «%(titulo)s»."
+msgstr "%(estudiante)s asks you to review their project “%(titulo)s”."
+
+#, python-format
+msgid "%(n)s pendiente"
+msgid_plural "%(n)s pendientes"
+msgstr[0] "%(n)s pending"
+msgstr[1] "%(n)s pending"
+
+#, python-format
+msgid "%(n)s profesor"
+msgid_plural "%(n)s profesores"
+msgstr[0] "%(n)s teacher"
+msgstr[1] "%(n)s teachers"
+
+#, python-format
+msgid "%(n)s proyecto revisado"
+msgid_plural "%(n)s proyectos revisados"
+msgstr[0] "%(n)s project reviewed"
+msgstr[1] "%(n)s projects reviewed"
+
+#, python-format
+msgid "%(por)s recomendó a %(profesor)s."
+msgstr "%(por)s recommended %(profesor)s."
+
+#, python-format
+msgid "%(profesor)s aceptó revisar tu proyecto «%(titulo)s». Ya está en revisión."
+msgstr "%(profesor)s agreed to review your project “%(titulo)s”. It is now under review."
+
+#, python-format
+msgid "%(profesor)s no aceptó revisar el proyecto «%(titulo)s»."
+msgstr "%(profesor)s did not accept to review the project “%(titulo)s”."
+
+#, python-format
+msgid "%(profesor)s revisará «%(titulo)s»"
+msgstr "%(profesor)s will review “%(titulo)s”"
+
+msgid "Aceptada"
+msgstr "Accepted"
+
+msgid "Aceptar"
+msgstr "Accept"
+
+#, python-format
+msgid "Aceptaste revisar «%(titulo)s». Ya está en tu bandeja."
+msgstr "You agreed to review “%(titulo)s”. It is now in your inbox."
+
+msgid "Aceptó revisar"
+msgstr "Agreed to review"
+
+#, python-format
+msgid "Ahora %(profesor)s revisa «%(titulo)s»."
+msgstr "%(profesor)s now reviews “%(titulo)s”."
+
+msgid "Ahora los estudiantes pueden elegirte como revisor."
+msgstr "Students can now choose you as a reviewer."
+
+msgid "Aquí aparecen los proyectos enviados y en revisión."
+msgstr "Submitted projects and projects under review appear here."
+
+msgid "Asignatura que imparte"
+msgstr "Subject taught"
+
+#, python-format
+msgid "Asignatura: %(asignatura)s"
+msgstr "Subject: %(asignatura)s"
+
+#, python-format
+msgid "Avisamos a los estudiantes que no puedes revisar «%(titulo)s»."
+msgstr "We let the students know you can't review “%(titulo)s”."
+
+msgid "Avisaremos por correo a todos los autores. El proyecto quedará esperando que elijan a otro profesor; si recomiendas a alguien, lo verán destacado."
+msgstr "We will email all the authors. The project will wait for them to choose another teacher; if you recommend someone, they will see it highlighted."
+
+msgid "Buscar por nombre"
+msgstr "Search by name"
+
+msgid "Cambio de estado"
+msgstr "Status change"
+
+#, python-format
+msgid "Conoce %(tecnologias)s"
+msgstr "Knows %(tecnologias)s"
+
+msgid "Cuando aceptes una solicitud o te asignen un proyecto, aparecerá aquí."
+msgstr "When you accept a request or a project is assigned to you, it will appear here."
+
+msgid "Cuando un estudiante te pida revisar su proyecto, aparecerá aquí y te llegará un correo."
+msgstr "When a student asks you to review their project, it will appear here and you will get an email."
+
+msgid "El cambio queda en el historial y se avisa por correo al nuevo profesor."
+msgstr "The change is recorded in the history and the new teacher is notified by email."
+
+msgid "El profesor recibe tu solicitud por correo y decide si la acepta. Las sugerencias dicen por qué aparecen."
+msgstr "The teacher gets your request by email and decides whether to accept it. Suggestions say why they appear."
+
+msgid "Elegir revisor"
+msgstr "Choose reviewer"
+
+msgid "Elige al profesor que lo revisará. Mientras esté en revisión no podrás editarlo."
+msgstr "Choose the teacher who will review it. While it is under review you won't be able to edit it."
+
+#, python-format
+msgid "Elige otro revisor para «%(titulo)s»"
+msgstr "Choose another reviewer for “%(titulo)s”"
+
+msgid "Elige quién revisa tu proyecto"
+msgstr "Choose who reviews your project"
+
+msgid "Elige quién revisará estos proyectos:"
+msgstr "Choose who will review these projects:"
+
+msgid "Elige quién revisará tu proyecto."
+msgstr "Choose who will review your project."
+
+msgid "Eliges al docente que lo revisa. Lo aprueba, pide cambios o lo rechaza, y cada paso queda en el historial."
+msgstr "You choose the teacher who reviews it. They approve it, request changes or reject it, and every step is recorded in the history."
+
+msgid "Empezar revisión"
+msgstr "Start review"
+
+msgid "Empezaste la revisión. El proyecto está en revisión a tu nombre."
+msgstr "You started the review. The project is under review in your name."
+
+#, python-format
+msgid "En revisión desde hace %(tiempo)s"
+msgstr "Under review for %(tiempo)s"
+
+msgid "Entra a «Solicitudes de revisión» para aceptarla o no aceptarla:"
+msgstr "Go to “Review requests” to accept it or not:"
+
+#, python-format
+msgid "Enviamos tu proyecto y le pedimos a %(profesor)s que lo revise. Te avisaremos cuando responda."
+msgstr "We submitted your project and asked %(profesor)s to review it. We'll let you know when they answer."
+
+msgid "Enviamos tu proyecto. Quien lo creó debe elegir al profesor que lo revisará."
+msgstr "We submitted your project. Its creator must choose the teacher who will review it."
+
+msgid "Eres autor de este proyecto: no puedes revisarlo, aprobarlo ni rechazarlo. Lo decidirá otro profesor."
+msgstr "You are an author of this project: you can't review, approve or reject it. Another teacher will decide."
+
+msgid "Ese profesor no puede revisar este proyecto."
+msgstr "That teacher can't review this project."
+
+msgid "Esperando aceptación"
+msgstr "Awaiting acceptance"
+
+msgid "Esta solicitud ya no está pendiente."
+msgstr "This request is no longer pending."
+
+msgid "Estoy recibiendo proyectos"
+msgstr "I'm accepting projects"
+
+msgid "Estudiantes que te pidieron revisar su proyecto. Si aceptas, pasa a tu bandeja; si no, puedes dejarles un mensaje y recomendar a otro profesor."
+msgstr "Students who asked you to review their project. If you accept, it goes to your inbox; if not, you can leave them a message and recommend another teacher."
+
+#, python-format
+msgid "Ha revisado %(n)s proyecto de esta asignatura"
+msgid_plural "Ha revisado %(n)s proyectos de esta asignatura"
+msgstr[0] "Has reviewed %(n)s project in this subject"
+msgstr[1] "Has reviewed %(n)s projects in this subject"
+
+msgid "Ha revisado proyectos del mismo semestre"
+msgstr "Has reviewed projects from the same semester"
+
+#, python-format
+msgid "Hay una solicitud pendiente a %(profesor)s: quedará como reasignada."
+msgstr "There is a pending request to %(profesor)s: it will be marked as reassigned."
+
+#, python-format
+msgid "Hoy lo revisa %(profesor)s."
+msgstr "%(profesor)s currently reviews it."
+
+#, python-format
+msgid "Imparte %(asignatura)s"
+msgstr "Teaches %(asignatura)s"
+
+msgid "Imparte:"
+msgstr "Teaches:"
+
+#, python-format
+msgid "La administración te asignó la revisión del proyecto «%(titulo)s»."
+msgstr "The administration assigned you the review of the project “%(titulo)s”."
+
+#, python-format
+msgid "Le pedimos a %(profesor)s que revise tu proyecto. Te avisaremos cuando responda."
+msgstr "We asked %(profesor)s to review your project. We'll let you know when they answer."
+
+#, python-format
+msgid "Le pediste la revisión a %(profesor)s hace %(tiempo)s. Te avisaremos por correo cuando responda."
+msgstr "You asked %(profesor)s for a review %(tiempo)s ago. We'll email you when they answer."
+
+msgid "Lo encuentras en tu bandeja de revisión:"
+msgstr "You'll find it in your review inbox:"
+
+#, python-format
+msgid "Lo revisará %(profesor)s."
+msgstr "%(profesor)s will review it."
+
+msgid "Los proyectos que te asignaron. Las solicitudes nuevas llegan a «Solicitudes de revisión»."
+msgstr "The projects assigned to you. New requests arrive in “Review requests”."
+
+msgid "Menos pendientes"
+msgstr "Fewest pending"
+
+msgid "Mensaje para los estudiantes"
+msgstr "Message for the students"
+
+msgid "Motivo"
+msgstr "Reason"
+
+msgid "Ningún profesor coincide con los filtros."
+msgstr "No teacher matches the filters."
+
+msgid "No aceptada"
+msgstr "Not accepted"
+
+msgid "No aceptar"
+msgstr "Decline"
+
+msgid "No aceptar la solicitud"
+msgstr "Decline the request"
+
+msgid "No aceptar y avisar"
+msgstr "Decline and notify"
+
+#, python-format
+msgid "No aceptar «%(titulo)s»"
+msgstr "Decline “%(titulo)s”"
+
+msgid "No aceptó revisar"
+msgstr "Declined to review"
+
+msgid "No puedes elegir a ese profesor."
+msgstr "You can't choose that teacher."
+
+msgid "No puedes elegir a este profesor."
+msgstr "You can't choose this teacher."
+
+msgid "No puedes recomendar a ese profesor."
+msgstr "You can't recommend that teacher."
+
+msgid "No tienes que hacer nada."
+msgstr "You don't need to do anything."
+
+msgid "No tienes solicitudes pendientes."
+msgstr "You have no pending requests."
+
+msgid "Nuevo profesor revisor"
+msgstr "New reviewing teacher"
+
+msgid "Opcional. Por ejemplo, por qué no puedes revisarlo ahora."
+msgstr "Optional. For example, why you can't review it now."
+
+msgid "Opcional. Queda en el historial del proyecto."
+msgstr "Optional. It is recorded in the project history."
+
+msgid "Ordenar por"
+msgstr "Sort by"
+
+#, python-format
+msgid "Pedida hace %(tiempo)s"
+msgstr "Requested %(tiempo)s ago"
+
+msgid "Pedir la revisión"
+msgstr "Request the review"
+
+msgid "Pendiente"
+msgstr "Pending"
+
+msgid "Perfil del profesor"
+msgstr "Teacher profile"
+
+msgid "Por ahora no hay sugerencias para esta asignatura. Busca en la lista completa."
+msgstr "There are no suggestions for this subject yet. Search the full list."
+
+msgid "Por asignar revisor"
+msgstr "Reviewer to be assigned"
+
+msgid "Quien creó el proyecto debe elegir otro revisor:"
+msgstr "The project's creator must choose another reviewer:"
+
+msgid "Quien creó el proyecto debe elegirlo."
+msgstr "The project's creator must choose it."
+
+msgid "Quien creó el proyecto elegirá al profesor que lo revisará. Mientras esté en revisión no podrás editarlo."
+msgstr "The project's creator will choose the teacher who will review it. While it is under review you won't be able to edit it."
+
+msgid "Reasignada"
+msgstr "Reassigned"
+
+msgid "Reasignar"
+msgstr "Reassign"
+
+msgid "Reasignar revisor"
+msgstr "Reassign reviewer"
+
+#, python-format
+msgid "Reasignar «%(titulo)s»"
+msgstr "Reassign “%(titulo)s”"
+
+#, python-format
+msgid "Recomendado por %(profesor)s"
+msgstr "Recommended by %(profesor)s"
+
+msgid "Recomendar a otro profesor"
+msgstr "Recommend another teacher"
+
+#, python-format
+msgid "Recordatorio: solicitud de revisión de «%(titulo)s»"
+msgstr "Reminder: review request for “%(titulo)s”"
+
+msgid "Reenviamos tu proyecto al mismo profesor. Te avisaremos por correo cuando decida."
+msgstr "We resubmitted your project to the same teacher. We'll email you when they decide."
+
+msgid "Relevancia"
+msgstr "Relevance"
+
+msgid "Retirada"
+msgstr "Withdrawn"
+
+msgid "Retirar la solicitud y elegir a otro"
+msgstr "Withdraw the request and choose someone else"
+
+msgid "Retiraste la solicitud. Elige a otro profesor."
+msgstr "You withdrew the request. Choose another teacher."
+
+msgid "Revisor"
+msgstr "Reviewer"
+
+msgid "Revisor reasignado"
+msgstr "Reviewer reassigned"
+
+#, python-format
+msgid "Se retiró la solicitud de revisión de «%(titulo)s»"
+msgstr "The review request for “%(titulo)s” was withdrawn"
+
+#, python-format
+msgid "Se retiró la solicitud para que revisaras el proyecto «%(titulo)s»: pasaron varios días sin respuesta y el estudiante eligió a otra persona."
+msgstr "The request for you to review the project “%(titulo)s” was withdrawn: several days passed without an answer and the student chose someone else."
+
+msgid "Semestre"
+msgstr "Semester"
+
+#, python-format
+msgid "Si no responde, podrás retirarla a partir del %(fecha)s."
+msgstr "If they don't answer, you can withdraw it from %(fecha)s."
+
+msgid "Sin recomendación"
+msgstr "No recommendation"
+
+msgid "Solicitud de revisión"
+msgstr "Review request"
+
+msgid "Solicitud retirada"
+msgstr "Request withdrawn"
+
+msgid "Solicitudes de revisión"
+msgstr "Review requests"
+
+msgid "Solo los que están recibiendo proyectos"
+msgstr "Only those accepting projects"
+
+msgid "Solo se reasignan proyectos enviados o en revisión."
+msgstr "Only submitted projects or projects under review can be reassigned."
+
+msgid "Su mensaje:"
+msgstr "Their message:"
+
+msgid "Sugerencias"
+msgstr "Suggestions"
+
+msgid "Te asignaron este proyecto. Cuando empieces, quedará en revisión a tu nombre."
+msgstr "This project was assigned to you. When you start, it will be under review in your name."
+
+#, python-format
+msgid "Te asignaron la revisión de «%(titulo)s»"
+msgstr "You were assigned the review of “%(titulo)s”"
+
+msgid "Te avisaremos por correo cuando decida."
+msgstr "We'll email you when they decide."
+
+#, python-format
+msgid "Te piden revisar «%(titulo)s»"
+msgstr "You are asked to review “%(titulo)s”"
+
+#, python-format
+msgid "Te recomienda pedírselo a %(recomendado)s."
+msgstr "They recommend asking %(recomendado)s."
+
+#, python-format
+msgid "Te recordamos que tienes una solicitud de revisión sin responder desde hace %(dias)s días."
+msgstr "This is a reminder that you have had an unanswered review request for %(dias)s days."
+
+#, python-format
+msgid "Tiene %(n)s proyecto(s) en revisión. Si deja de ser profesor, tendrás que reasignarlos a otro profesor desde la bandeja."
+msgstr "They have %(n)s project(s) under review. If they stop being a teacher, you will have to reassign them to another teacher from the inbox."
+
+msgid "Todavía no tiene revisor."
+msgstr "It doesn't have a reviewer yet."
+
+msgid "Todos los proyectos enviados y en revisión. Puedes reasignar el profesor revisor de cualquiera."
+msgstr "All submitted projects and projects under review. You can reassign the reviewing teacher of any of them."
+
+msgid "Tu proyecto está enviado y espera revisor."
+msgstr "Your project is submitted and waiting for a reviewer."
+
+msgid "Ver perfil completo"
+msgstr "View full profile"
+
+msgid "Ver todos los profesores"
+msgstr "View all teachers"
+
+msgid "Volver"
+msgstr "Back"
+
+msgid "Vuelve al mismo profesor que pidió los cambios. Mientras esté en revisión no podrás editarlo."
+msgstr "It goes back to the same teacher who requested the changes. While it is under review you won't be able to edit it."
+
+msgid "Ya no apareces como disponible para revisar. Tus proyectos asignados no cambian."
+msgstr "You no longer appear as available to review. Your assigned projects don't change."
+
+msgid "Ya rechazó este proyecto"
+msgstr "Already declined this project"
+
+msgid "aceptó revisar el proyecto"
+msgstr "agreed to review the project"
+
+msgid "creada en"
+msgstr "created on"
+
+msgid "creada por"
+msgstr "created by"
+
+msgid "empezó la revisión"
+msgstr "started the review"
+
+msgid "mensaje"
+msgstr "message"
+
+msgid "no"
+msgstr "no"
+
+msgid "no aceptó revisar el proyecto"
+msgstr "declined to review the project"
+
+#, python-format
+msgid "pidió la revisión a %(profesor)s"
+msgstr "asked %(profesor)s for a review"
+
+msgid "profesor"
+msgstr "teacher"
+
+msgid "profesor recomendado"
+msgstr "recommended teacher"
+
+#, python-format
+msgid "reasignó la revisión a %(profesor)s"
+msgstr "reassigned the review to %(profesor)s"
+
+#, python-format
+msgid "recomendó a %(profesor)s"
+msgstr "recommended %(profesor)s"
+
+msgid "recordatorio enviado"
+msgstr "reminder sent"
+
+msgid "respondida en"
+msgstr "answered on"
+
+#, python-format
+msgid "retiró la solicitud a %(profesor)s"
+msgstr "withdrew the request to %(profesor)s"
+
+msgid "solicitud de revisión"
+msgstr "review request"
+
+msgid "solicitudes de revisión"
+msgstr "review requests"
+
+msgid "sí"
+msgstr "yes"
+
+msgid "ver resumen del perfil"
+msgstr "view profile summary"
+
+msgid "Ajustes"
+msgstr "Settings"
+
+msgid "Buscar proyectos o personas"
+msgstr "Search projects or people"
+
+msgid "Cambiar de rol"
+msgstr "Switch role"
+
+msgid "Menú de la cuenta"
+msgstr "Account menu"
+
+msgid "Mi cuenta"
+msgstr "My account"
+
+msgid "Modo claro"
+msgstr "Light mode"
+
+msgid "Modo oscuro"
+msgstr "Dark mode"
+
+msgid "Opciones rápidas"
+msgstr "Quick options"
+
+msgid "Panel"
+msgstr "Dashboard"
+
+msgid "Proyectos que revisé"
+msgstr "Projects I reviewed"
+
+msgid "Registrarse"
+msgstr "Sign up"
+
+msgid "Subir proyecto"
+msgstr "Upload project"
+
+msgid "Tema e idioma"
+msgstr "Theme and language"
+
+msgid "pendientes"
+msgstr "pending"
+
+msgid "Azul"
+msgstr "Blue"
+
+msgid "Ciruela"
+msgstr "Plum"
+
+msgid "Galería"
+msgstr "Gallery"
+
+msgid "Grafito"
+msgstr "Graphite"
+
+msgid "Imagen de portada"
+msgstr "Cover image"
+
+msgid "Morado"
+msgstr "Purple"
+
+msgid "Ocre"
+msgstr "Ochre"
+
+msgid "Opcional. Donde se puede ver funcionando. Aparece como «Ver proyecto desplegado»."
+msgstr "Optional. Where it can be seen running. It appears as “View deployed project”."
+
+msgid "Opcional. JPG, PNG o WEBP de hasta 5 MB. Se recorta a 16:9 (1200 × 675). Es la cara del proyecto en la vitrina y al compartirlo."
+msgstr "Optional. JPG, PNG or WEBP up to 5 MB. It is cropped to 16:9 (1200 × 675). It is the face of the project in the showcase and when shared."
+
+msgid "Opcional. YouTube u otro sitio. Se abre en una pestaña nueva; no se incrusta."
+msgstr "Optional. YouTube or another site. It opens in a new tab; it is not embedded."
+
+msgid "Petróleo"
+msgstr "Petrol"
+
+msgid "Portada"
+msgstr "Cover"
+
+#, python-format
+msgid "Portada de %(titulo)s"
+msgstr "Cover of %(titulo)s"
+
+msgid "Quitar la portada y usar la portada de color"
+msgstr "Remove the cover and use the color cover"
+
+msgid "Se usa cuando el proyecto no tiene imagen de portada."
+msgstr "Used when the project has no cover image."
+
+msgid "Terracota"
+msgstr "Terracotta"
+
+msgid "Ver proyecto desplegado"
+msgstr "View deployed project"
+
+msgid "Ver video"
+msgstr "Watch video"
+
+msgid "Verde institucional"
+msgstr "Institutional green"
+
+msgid "Vino"
+msgstr "Wine"
+
+msgid "color de la portada"
+msgstr "cover color"
+
+msgid "imagen de portada"
+msgstr "cover image"
+
+msgid "proyecto desplegado"
+msgstr "deployed project"
+
+msgid "video"
+msgstr "video"
+
+msgid "Índigo"
+msgstr "Indigo"

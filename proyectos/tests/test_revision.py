@@ -1,4 +1,4 @@
-"""Pruebas de las pantallas de revisión: enviar, bandeja, tomar, decidir y correo."""
+"""Pruebas de las pantallas de revisión: enviar, bandeja, empezar la revisión, decidir y correo."""
 
 from unittest import mock
 
@@ -11,7 +11,7 @@ from cuentas.models import Rol
 from cuentas.tests.utilidades import crear_usuario
 from proyectos.models import Estado, EventoEstado, Proyecto
 from proyectos.servicios import cambiar_estado
-from proyectos.tests.utilidades import crear_proyecto
+from proyectos.tests.utilidades import crear_proyecto, tomar
 
 
 class BaseRevision(TestCase):
@@ -29,9 +29,15 @@ class BaseRevision(TestCase):
     def enviado(self):
         cambiar_estado(self.proyecto, Estado.ENVIADO, self.ana)
 
+    def asignado(self, profesor=None):
+        """Enviado y con revisor asignado, sin empezar ("Por revisar", spec 009)."""
+        self.enviado()
+        Proyecto.objects.filter(pk=self.proyecto.pk).update(revisor=profesor or self.profe)
+        self.proyecto.refresh_from_db()
+
     def en_revision(self):
         self.enviado()
-        cambiar_estado(self.proyecto, Estado.EN_REVISION, self.profe)
+        tomar(self.proyecto, self.profe)
 
     def estado(self):
         self.proyecto.refresh_from_db()
@@ -91,13 +97,18 @@ class BandejaTests(BaseRevision):
             self.entrar(usuario)
             self.assertEqual(self.client.get(self.URL).status_code, 200)
 
-    def test_por_revisar_muestra_solo_enviados(self):
+    def test_por_revisar_muestra_solo_los_asignados(self):
+        """Spec 009: cada profesor ve solo lo que tiene asignado; el admin ve todos los enviados."""
         crear_proyecto(self.ana, titulo="Borrador invisible")
-        self.enviado()
+        self.asignado()
         self.entrar(self.profe)
         respuesta = self.client.get(self.URL)
         self.assertEqual(list(respuesta.context["proyectos"]), [self.proyecto])
         self.assertNotContains(respuesta, "Borrador invisible")
+        self.entrar(self.otro_profe)
+        self.assertEqual(list(self.client.get(self.URL).context["proyectos"]), [])
+        self.entrar(self.admin)
+        self.assertEqual(list(self.client.get(self.URL).context["proyectos"]), [self.proyecto])
 
     def test_mis_revisiones_y_vista_del_admin(self):
         self.en_revision()
@@ -120,10 +131,10 @@ class BandejaTests(BaseRevision):
         self.en_revision()
         cambiar_estado(self.proyecto, Estado.CON_OBSERVACIONES, self.profe, "Corrige")
         cambiar_estado(self.proyecto, Estado.ENVIADO, self.ana)
-        self.entrar(self.otro_profe)
+        self.entrar(self.profe)  # vuelve al mismo profesor (spec 009)
         respuesta = self.client.get(self.URL)
         self.assertContains(respuesta, "Reenviado")
-        self.assertContains(respuesta, "Carla Vera")
+        self.assertEqual(list(respuesta.context["proyectos"]), [self.proyecto])
 
     def test_vista_desconocida(self):
         self.entrar(self.profe)
@@ -135,7 +146,7 @@ class TomarTests(BaseRevision):
         return reverse("proyectos:tomar", args=[self.proyecto.slug])
 
     def test_tomar_lleva_a_la_revision(self):
-        self.enviado()
+        self.asignado()
         self.entrar(self.profe)
         respuesta = self.client.post(self.url())
         self.assertRedirects(respuesta, reverse("proyectos:revisar", args=[self.proyecto.slug]))
@@ -151,8 +162,16 @@ class TomarTests(BaseRevision):
         self.en_revision()
         self.entrar(self.otro_profe)
         respuesta = self.client.post(self.url(), follow=True)
-        self.assertContains(respuesta, "Otro docente ya tomó este proyecto")
+        self.assertContains(respuesta, "El proyecto cambió de estado mientras tanto")
         self.assertEqual(self.proyecto.revisor, self.profe)
+
+    def test_sin_ser_el_asignado_no_se_empieza(self):
+        self.asignado(self.profe)
+        self.entrar(self.otro_profe)
+        self.assertEqual(self.client.post(self.url()).status_code, 403)
+        self.entrar(self.admin)
+        self.assertEqual(self.client.post(self.url()).status_code, 403)
+        self.assertEqual(self.estado(), Estado.ENVIADO)
 
     def test_un_estudiante_no_toma(self):
         self.enviado()
@@ -197,14 +216,15 @@ class DecidirTests(BaseRevision):
         self.assertEqual(self.estado(), Estado.RECHAZADO)
         self.assertIn("No es de la carrera", mail.outbox[0].body)
 
-    def test_otro_profesor_no_decide_y_el_admin_si(self):
+    def test_ni_otro_profesor_ni_el_admin_deciden(self):
+        """Spec 009: solo el profesor asignado decide; el admin puede reasignar."""
         self.en_revision()
-        self.entrar(self.otro_profe)
-        self.assertNotContains(self.client.get(self.url()), "Guardar decisión")
-        self.assertEqual(self.client.post(self.url(), {"decision": "aprobado"}).status_code, 403)
-        self.entrar(self.admin)
-        self.client.post(self.url(), {"decision": "aprobado"})
-        self.assertEqual(self.estado(), Estado.APROBADO)
+        for usuario in (self.otro_profe, self.admin):
+            self.entrar(usuario)
+            self.assertNotContains(self.client.get(self.url()), "Guardar decisión")
+            self.assertEqual(self.client.post(self.url(), {"decision": "aprobado"}).status_code, 403)
+        self.assertEqual(self.estado(), Estado.EN_REVISION)
+        self.assertContains(self.client.get(self.url()), reverse("proyectos:reasignar", args=[self.proyecto.slug]))
 
     def test_si_el_correo_falla_la_decision_se_guarda(self):
         self.en_revision()
@@ -227,7 +247,7 @@ class DecidirTests(BaseRevision):
         self.en_revision()
         self.entrar(self.profe)
         respuesta = self.client.get(self.url())
-        self.assertContains(respuesta, "tomó el proyecto")
+        self.assertContains(respuesta, "empezó la revisión")
         self.assertContains(respuesta, "Guardar decisión")
 
 
@@ -255,14 +275,11 @@ class AdminTests(BaseRevision):
 
 
 class QuienDecideQuedaComoRevisorTests(BaseRevision):
-    def test_si_decide_un_admin_el_revisor_es_el_admin(self):
-        self.en_revision()  # lo tomó self.profe
-        cambiar_estado(self.proyecto, Estado.APROBADO, self.admin)
-        self.proyecto.refresh_from_db()
-        self.assertEqual(self.proyecto.revisor, self.admin)
+    def test_la_verificacion_nombra_al_profesor_asignado(self):
+        self.en_revision()
+        cambiar_estado(self.proyecto, Estado.APROBADO, self.profe)
         respuesta = self.client.get(reverse("vitrina:verificar_codigo", args=[self.proyecto.codigo]))
-        self.assertContains(respuesta, self.admin.nombre_completo)
-        self.assertNotContains(respuesta, "Carla Vera")
+        self.assertContains(respuesta, "Carla Vera")
 
     def test_si_decide_quien_lo_tomo_sigue_siendo_el(self):
         self.en_revision()

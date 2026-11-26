@@ -12,7 +12,7 @@
 <form method="post" action="{% url 'cuentas:reenviar' %}" class="mt-8 flex flex-col gap-5" novalidate>
   {% csrf_token %}
   {% include "componentes/campo.html" with campo=form.email %}
-  <button type="submit" class="btn btn-primario">{% translate "Enviarme un enlace nuevo" %}</button>
+  <button type="submit" class="btn btn-primario gap-2">{% icono "mail" tam=18 %}{% translate "Enviarme un enlace nuevo" %}</button>
 </form>
 <p class="mt-6 text-sm"><a class="enlace" href="{% url 'cuentas:entrar' %}">{% translate "Iniciar sesión" %}</a></p>
 {% endblock %}

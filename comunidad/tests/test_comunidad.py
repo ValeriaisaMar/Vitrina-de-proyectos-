@@ -1,15 +1,15 @@
-"""Pruebas de comunidad (módulo 007): me gusta, favoritos, comentarios y moderación."""
+"""Pruebas de comunidad (módulo 007): me gusta, guardados, comentarios y moderación."""
 
 from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 
-from comunidad.models import Comentario, Favorito, MeGusta
+from comunidad.models import Comentario, Guardado, MeGusta
 from cuentas.models import Rol
 from cuentas.tests.utilidades import crear_usuario
 from proyectos.models import Estado
 from proyectos.servicios import cambiar_estado
-from proyectos.tests.utilidades import crear_proyecto
+from proyectos.tests.utilidades import crear_proyecto, tomar
 
 
 class BaseComunidad(TestCase):
@@ -22,7 +22,7 @@ class BaseComunidad(TestCase):
         self.admin = crear_usuario("admin@correo.com", rol=Rol.ADMIN)
         self.proyecto = crear_proyecto(self.ana, titulo="Gestor de tutorías", coautores=[self.luis])
         cambiar_estado(self.proyecto, Estado.ENVIADO, self.ana)
-        cambiar_estado(self.proyecto, Estado.EN_REVISION, self.profe)
+        tomar(self.proyecto, self.profe)
         cambiar_estado(self.proyecto, Estado.APROBADO, self.profe)
 
     def url(self, nombre, *args):
@@ -55,7 +55,7 @@ class MeGustaTests(BaseComunidad):
     def test_solo_proyectos_aprobados(self):
         borrador = crear_proyecto(self.ana, titulo="Borrador")
         self.client.force_login(self.visita)
-        for nombre in ("me_gusta", "favorito", "comentar"):
+        for nombre in ("me_gusta", "guardar", "comentar"):
             self.assertEqual(self.client.post(reverse(f"comunidad:{nombre}", args=[borrador.slug])).status_code, 404)
 
     def test_la_ficha_muestra_el_total(self):
@@ -67,19 +67,19 @@ class MeGustaTests(BaseComunidad):
 class FavoritosTests(BaseComunidad):
     def test_guardar_ver_y_quitar(self):
         self.client.force_login(self.visita)
-        self.client.post(self.url("favorito"))
-        self.assertContains(self.client.get(reverse("comunidad:favoritos")), "Gestor de tutorías")
-        respuesta = self.client.post(self.url("favorito"), {"volver": "favoritos"})
-        self.assertRedirects(respuesta, reverse("comunidad:favoritos"))
-        self.assertFalse(Favorito.objects.exists())
+        self.client.post(self.url("guardar"))
+        self.assertContains(self.client.get(reverse("comunidad:guardados")), "Gestor de tutorías")
+        respuesta = self.client.post(self.url("guardar"), {"volver": "guardados"})
+        self.assertRedirects(respuesta, reverse("comunidad:guardados"))
+        self.assertFalse(Guardado.objects.exists())
 
     def test_son_privados(self):
-        Favorito.objects.create(usuario=self.visita, proyecto=self.proyecto)
+        Guardado.objects.create(usuario=self.visita, proyecto=self.proyecto)
         self.client.force_login(self.profe)
-        self.assertNotContains(self.client.get(reverse("comunidad:favoritos")), "Gestor de tutorías")
+        self.assertNotContains(self.client.get(reverse("comunidad:guardados")), "Gestor de tutorías")
 
     def test_sin_sesion_va_al_login(self):
-        self.assertEqual(self.client.get(reverse("comunidad:favoritos")).status_code, 302)
+        self.assertEqual(self.client.get(reverse("comunidad:guardados")).status_code, 302)
 
 
 class ComentariosTests(BaseComunidad):
@@ -149,3 +149,35 @@ class ModeracionTests(BaseComunidad):
             self.assertEqual(self.client.post(self.url("ocultar", self.comentario.pk)).status_code, 403)
         self.comentario.refresh_from_db()
         self.assertFalse(self.comentario.oculto)
+
+
+class GuardadosTests(BaseComunidad):
+    """Spec 009, historia 2c: una sola lista, "Guardados", con botón Guardar/Guardado."""
+
+    def test_el_boton_dice_guardar_y_luego_guardado(self):
+        self.client.force_login(self.visita)
+        detalle = self.proyecto.get_absolute_url()
+        self.assertContains(self.client.get(detalle), "Guardar")
+        self.client.post(self.url("guardar"))
+        pagina = self.client.get(detalle)
+        self.assertContains(pagina, 'aria-pressed="true"')
+        self.assertContains(pagina, "Guardado")
+        self.assertNotContains(pagina, "avorito")
+
+    def test_la_lista_se_llama_guardados(self):
+        self.client.force_login(self.visita)
+        self.client.post(self.url("guardar"))
+        pagina = self.client.get(reverse("comunidad:guardados"))
+        self.assertContains(pagina, "<title>Guardados")
+        self.assertContains(pagina, "Quitar de Guardados")
+        self.assertNotContains(pagina, "avorito")
+
+    def test_la_direccion_vieja_redirige(self):
+        self.client.force_login(self.visita)
+        respuesta = self.client.get("/comunidad/favoritos/")
+        self.assertRedirects(respuesta, reverse("comunidad:guardados"), status_code=301)
+
+    def test_el_formulario_viejo_sigue_funcionando(self):
+        self.client.force_login(self.visita)
+        self.client.post(f"/comunidad/proyecto/{self.proyecto.slug}/favorito/")
+        self.assertTrue(Guardado.objects.filter(usuario=self.visita, proyecto=self.proyecto).exists())

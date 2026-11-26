@@ -14,7 +14,17 @@ from django.shortcuts import render
 from django.utils import timezone
 
 from cuentas.models import ConfiguracionCorreo, Rol
-from proyectos.models import ESTADOS_DE_DECISION, Estado, EventoEstado, Periodo, Proyecto, Tecnologia
+from proyectos.models import (
+    ESTADOS_DE_DECISION,
+    Estado,
+    EstadoSolicitud,
+    EventoEstado,
+    Periodo,
+    PlanEstudio,
+    Proyecto,
+    SolicitudRevision,
+    Tecnologia,
+)
 from proyectos.servicios import consultas_bandeja
 
 Usuario = get_user_model()
@@ -69,7 +79,13 @@ def _panel_estudiante(request):
         .prefetch_related(Prefetch("eventos", queryset=observaciones, to_attr="observaciones"))
         .order_by("-actualizado_en")
     )
+    # Spec 009: enviados sin revisor ni solicitud pendiente, de los que es creador (debe elegir)
+    elegir_revisor = (
+        mios.filter(estado=Estado.ENVIADO, revisor__isnull=True, autorias__usuario=request.user, autorias__es_creador=True)
+        .con_subestado().filter(tiene_solicitud_pendiente=False).order_by("-actualizado_en")
+    )
     return render(request, "vitrina/paneles/estudiante.html", {
+        "elegir_revisor": elegir_revisor,
         "cifras": cifras,
         "corregir": corregir,
         "borradores": mios.filter(estado=Estado.BORRADOR).select_related("asignatura").order_by("-actualizado_en"),
@@ -88,6 +104,7 @@ def _panel_profesor(request):
         rechazados=_contar("estado_nuevo", Estado.RECHAZADO),
     )
     return render(request, "vitrina/paneles/profesor.html", {
+        "solicitudes_pendientes": SolicitudRevision.objects.filter(profesor=request.user, estado=EstadoSolicitud.PENDIENTE).count(),
         "por_revisar": bandeja["pendientes"].count(),
         "mis_revisiones": bandeja["en_revision"].count(),
         "decisiones": decisiones,
@@ -129,9 +146,9 @@ def _panel_admin(request):
         .filter(enviado_en__lt=limite).order_by("enviado_en")
     )
 
-    # Aprobados por periodo, del más reciente al más antiguo, con su nombre (spec 008)
+    # Aprobados por período de aprobación (spec 009), del más reciente al más antiguo
     periodos = _barras(list(
-        Periodo.objects.annotate(n=Count("proyectos", filter=Q(proyectos__estado=Estado.APROBADO)))
+        Periodo.objects.annotate(n=Count("proyectos_aprobados", filter=Q(proyectos_aprobados__estado=Estado.APROBADO)))
         .filter(n__gt=0).order_by("-fecha_inicio", "-id").values_list("nombre", "n")[:6]
     ))
     tecnologias = _barras(list(
@@ -147,7 +164,8 @@ def _panel_admin(request):
         "total_atrasados": atrasados.count(),
         "dias_espera": DIAS_DE_ESPERA,
         "periodos": periodos,
-        "periodos_abiertos": Periodo.objects.abiertos().count(),
+        "periodo_actual_panel": Periodo.actual(),
+        "planes_activos": PlanEstudio.objects.filter(activo=True).count(),
         "correo_envio": _correo_envio(),
         "tecnologias": tecnologias,
         "actividad": EventoEstado.objects.select_related("proyecto", "actor").order_by("-creado_en")[:8],

@@ -4,9 +4,10 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from comunidad.models import MAX_COMENTARIO, Comentario
+from config.texto import FormularioNFC
 
 
-class FormularioComentario(forms.ModelForm):
+class FormularioComentario(FormularioNFC, forms.ModelForm):
     class Meta:
         model = Comentario
         fields = ("texto",)

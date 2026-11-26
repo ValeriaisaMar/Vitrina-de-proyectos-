@@ -19,8 +19,34 @@ PROVEEDORES = {
 }
 
 
+# Códigos con los que Microsoft 365 responde cuando la cuenta tiene apagada la autenticación básica
+# (SMTP AUTH): 5.7.139 "basic authentication is disabled" y 5.7.30 (spec 009).
+CODIGOS_MICROSOFT_SIN_SMTP_AUTH = ("5.7.139", "5.7.30")
+
+
+def proveedor_de(form, pedido=None):
+    """gmail, outlook o personalizado: el pedido con ?proveedor= o, si no, el del servidor escrito."""
+    if pedido in ("gmail", "outlook", "personalizado"):
+        return pedido
+    servidor = str(form["servidor"].value() or "").strip().lower()
+    for nombre, (host, _puerto, _seguridad) in PROVEEDORES.items():
+        if servidor == host:
+            return nombre
+    return "personalizado" if servidor else "gmail"
+
+
+def _es_bloqueo_de_microsoft(error):
+    """True si el servidor respondió con un código de autenticación básica desactivada."""
+    detalle = getattr(error, "smtp_error", b"")
+    if isinstance(detalle, bytes):
+        detalle = detalle.decode("utf-8", "replace")
+    return any(codigo in str(detalle) for codigo in CODIGOS_MICROSOFT_SIN_SMTP_AUTH)
+
+
 def mensaje_de_error(error):
     """Traduce una excepción de SMTP a un mensaje que el admin entienda. Nunca incluye la contraseña."""
+    if isinstance(error, smtplib.SMTPResponseException) and _es_bloqueo_de_microsoft(error):
+        return _("Microsoft bloqueó el inicio de sesión con contraseña para esta cuenta. Usa una cuenta institucional con SMTP AUTH habilitado o una cuenta de Gmail.")
     if isinstance(error, smtplib.SMTPAuthenticationError):
         return _("El servidor rechazó el usuario o la contraseña. En Gmail usa una contraseña de aplicación, no la contraseña normal de la cuenta.")
     if isinstance(error, ssl.SSLError):

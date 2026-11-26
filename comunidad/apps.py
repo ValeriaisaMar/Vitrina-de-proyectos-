@@ -1,4 +1,4 @@
-"""Configuración de la app comunidad: Me gusta, favoritos y comentarios (módulo 007)."""
+"""Configuración de la app comunidad: Me gusta, guardados y comentarios (módulo 007)."""
 
 from django.apps import AppConfig
 

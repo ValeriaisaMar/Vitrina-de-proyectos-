@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
 from cuentas.forms import UsuarioCambioForm, UsuarioCreacionForm
-from cuentas.models import CambioRol, Rol, RolAsignado, Usuario
+from cuentas.models import Aptitud, CambioRol, Estudio, ExperienciaLaboral, Perfil, Rol, RolAsignado, Usuario
 
 
 class RolAsignadoEnLinea(admin.TabularInline):
@@ -77,3 +77,30 @@ class CambioRolAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(Aptitud)
+class AptitudAdmin(admin.ModelAdmin):
+    search_fields = ("nombre",)
+
+
+class ExperienciaEnLinea(admin.TabularInline):
+    model = ExperienciaLaboral
+    extra = 0
+
+
+class EstudioEnLinea(admin.TabularInline):
+    model = Estudio
+    extra = 0
+
+
+@admin.register(Perfil)
+class PerfilAdmin(admin.ModelAdmin):
+    """Perfil público (spec 009). Cada persona edita el suyo desde su página."""
+
+    list_display = ("usuario", "slug", "recibiendo_proyectos", "bienvenida_vista")
+    list_select_related = ("usuario",)
+    search_fields = ("usuario__email", "usuario__nombres", "usuario__apellidos", "slug")
+    readonly_fields = ("slug",)
+    filter_horizontal = ("aptitudes", "asignaturas_imparte")
+    inlines = [ExperienciaEnLinea, EstudioEnLinea]

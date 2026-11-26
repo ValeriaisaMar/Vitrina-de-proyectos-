@@ -701,3 +701,203 @@ título, su resumen y su portada.
 - **La página 500 no usa procesadores de contexto** (puede que el error venga de ellos): el logo
   se pide con `{% static %}` directo.
 - **reportlab no lee webp ni SVG**: el certificado usa las versiones PNG grandes de `static/img/marca/`.
+
+## Spec 009 · Perfiles, profesor revisor elegido, período actual y navegación
+
+**Línea base (25-nov-2026):** antes de empezar, `python manage.py test` → 357 pruebas, todas en verde.
+Todo lo que pasaba antes tiene que seguir pasando al final.
+
+**Enmienda de la constitución (3.0.0):** la 009 cambia reglas que la constitución fijaba, así que
+primero se enmienda y después se programa. Es MAJOR porque cambia reglas existentes: el revisor
+lo elige el creador del proyecto y lo acepta el profesor; solo el profesor asignado decide (el
+admin reasigna); la foto de perfil y la portada admiten hasta 5 MB.
+
+### Base · Íconos SVG, imágenes subidas y pruebas más rápidas
+**Qué:** los íconos (Tabler Icons y los logos de GitHub, LinkedIn y ORCID) quedan guardados en
+`static/iconos/` y se insertan con `{% icono "nombre" %}`. `config/imagenes.py` valida y convierte
+las imágenes que suben las personas. Las pruebas usan un ejecutor propio (`config/pruebas.py`).
+**Conceptos de Django:**
+- **Etiqueta de plantilla propia** (`@register.simple_tag`) y **filtro** (`@register.filter`).
+  Con `"builtins"` en `TEMPLATES` quedan disponibles en todas las plantillas sin `{% load %}`.
+- **`mark_safe` con cuidado**: solo sobre archivos del repositorio; lo que viene del usuario
+  (la etiqueta accesible) se escapa con `escape()`.
+- **`lru_cache`**: cada SVG se lee del disco una vez por proceso.
+- **Pillow para validar**: la extensión no prueba nada; `Image.open().verify()` sí. Volver a dibujar
+  la imagen en webp borra los metadatos (GPS) y cualquier cosa escondida en el archivo.
+- **`TEST_RUNNER`**: el ejecutor vacía la caché antes de cada prueba (el rollback no la deshace) y
+  usa un hasher de contraseñas rápido solo en pruebas: la suite pasó de 7 minutos a menos de uno.
+
+### Historia 1 · Un solo período actual
+**Qué:** el admin marca un período como "actual" (con confirmación). El estudiante ya no elige
+período: al enviar el proyecto toma el actual; si no hay, no puede enviar. Al aprobar se guarda
+también el período de aprobación, que muestran la verificación y el certificado. El pie dice
+"Período académico actual: …" a todo el mundo.
+**Reglas y por qué:**
+- Un solo actual, garantizado por la base de datos, no solo por el código: dos admins que marcan a
+  la vez no pueden dejar dos actuales.
+- Primero se desmarca el anterior y luego se marca el nuevo, en una transacción: al revés, por un
+  instante habría dos y la restricción lo rechazaría.
+- El período se asigna en `servicios.cambiar_estado`, la única puerta de los estados: así no hay
+  forma de enviar sin período, venga de la vista que venga.
+**Conceptos de Django:**
+- **`UniqueConstraint(fields=["es_actual"], condition=Q(es_actual=True))`**: restricción única
+  *parcial*. Solo cuentan las filas con `True`; las `False` pueden repetirse.
+- **Migración en tres pasos** (campo nuevo → datos con `RunPython` → quitar el campo viejo), cada
+  uno reversible. Una prueba migra hacia atrás y hacia adelante con `MigrationExecutor`.
+- **Caché con invalidación**: `Periodo.actual()` guarda el resultado y `save()`/`delete()` lo
+  borran. Se guarda un valor especial para "no hay período", porque `None` en la caché significa
+  "no está guardado".
+- **Procesador de contexto** (`config.contexto.periodo_actual`): el pie lo recibe en todas las páginas.
+- **`ForeignKey(..., null=True, on_delete=PROTECT)`**: el borrador no tiene período, y un período
+  con proyectos no se puede borrar.
+
+### Historia 2 · Arreglos rápidos: correo, tildes y "Guardados"
+**Qué:**
+- *Correo de envío*: las instrucciones cambian según el botón (Gmail, Outlook / Microsoft 365 o
+  Personalizado), con enlaces directos a la página de contraseñas de aplicación de cada proveedor.
+  Si Microsoft responde con 5.7.139 o 5.7.30 se explica que bloqueó el inicio con contraseña.
+- *Tildes*: el texto que escriben las personas se guarda en NFC; la portada de color toma la
+  primera letra completa (filtro `|inicial`) y el certificado cambia los caracteres que su fuente
+  no trae (por ejemplo `→` por `->`) en vez de dibujar una caja con una x.
+- *Guardados*: "Favoritos" pasa a llamarse "Guardados" en todas partes; `/comunidad/favoritos/`
+  redirige a `/comunidad/guardados/`.
+**Por qué salía la "cajita":** en el navegador nunca sale, porque si a una fuente le falta un
+carácter el navegador busca otra. reportlab no: dibuja el glifo vacío de la fuente. Además, un
+texto copiado de macOS o de un PDF puede venir en NFD («n» + tilde suelta), que reportlab no compone.
+**Conceptos de Django y Python:**
+- **Mejora progresiva**: las tres ayudas se dibujan en el servidor; el JavaScript solo esconde las
+  que no tocan. Sin JavaScript se ven todas, con su título.
+- **`unicodedata.normalize("NFC", …)`** en una mezcla de formulario (`FormularioNFC`) que toca
+  `cleaned_data` en `clean()`: un `ModelForm` copia esos datos al modelo después.
+- **`RenameModel`** en una migración: cambia el nombre del modelo y de su tabla sin tocar las
+  filas. Una prueba migra hacia adelante y hacia atrás y comprueba que nadie pierde lo guardado.
+- **`RedirectView.as_view(pattern_name=..., permanent=True)`**: una dirección vieja que responde 301.
+- **`smtplib.SMTPResponseException.smtp_error`**: el texto que devolvió el servidor, donde vienen
+  los códigos ampliados como 5.7.139.
+
+### Historia 3 · Plan de estudios y asignaturas administrables
+**Qué:** en "Mi panel → Plan de estudios" el admin crea, edita, activa y desactiva planes ("Plan
+2026") y, dentro de cada uno, sus asignaturas (nombre, código, semestre). En el formulario del
+proyecto las asignaturas salen agrupadas por plan y semestre, con un buscador.
+**Qué se fusionó al migrar:** nada. Las asignaturas ya eran una lista (modelo `Asignatura`) desde
+el módulo 003, no texto libre; las 53 pasaron al plan "Plan vigente". Igual la migración fusiona las
+que solo se diferencian en mayúsculas o espacios, por si alguna base las tuviera, y lo imprime.
+**Reglas y por qué:**
+- Puede haber varios planes activos: mientras la carrera cambia de plan conviven los dos.
+- El nombre se repite entre planes pero no dentro del mismo plan.
+- Lo que está en uso no se borra, se desactiva: borrar dejaría proyectos sin asignatura. Quien ya
+  tiene una asignatura desactivada la conserva y la sigue viendo en su formulario.
+**Conceptos de Django:**
+- **`UniqueConstraint(fields=["plan", "nombre"])`**: unicidad compuesta, garantizada por la base.
+- **`on_delete=PROTECT`**: la base de datos impide borrar un plan con asignaturas.
+- **QuerySet propio** (`Asignatura.objects.ofrecidas()`): la regla "activa y de plan activo" se
+  escribe una vez y se reutiliza.
+- **`<optgroup>`**: en Django, un `choices` con tuplas `(grupo, [(valor, texto), ...])` dibuja
+  grupos dentro del `<select>`.
+- **Migración en tres pasos** con `RunPython` (crear plan y campo nulo → datos → campo
+  obligatorio y restricción).
+
+### Historia 4 · Perfil público de cada usuario
+**Qué:** cada estudiante y profesor tiene un perfil público en `/personas/<slug>/` (lo ven también
+los visitantes): foto o iniciales, descripción, aptitudes, experiencia, estudios, GitHub, LinkedIn,
+ORCID, asignaturas que imparte (profesores), proyectos publicados y personas relacionadas. Cada
+bloque sale solo si tiene contenido y el correo nunca se muestra. El dueño lo edita en la misma
+página. En el primer inicio de sesión aparece "Completa tu perfil". Los nombres de autores, revisor
+y comentaristas enlazan a su perfil. Explorar busca también por autor y muestra un bloque "Personas".
+**Reglas y por qué:**
+- Quien solo es admin no tiene perfil visible: el admin no publica ni revisa proyectos.
+- El slug sale del nombre y no cambia nunca: un enlace compartido sigue funcionando aunque la
+  persona corrija su nombre. Nunca se usa el correo ni el id (no se adivinan otros perfiles).
+- Personas relacionadas solo de proyectos aprobados: lo demás todavía no es público.
+- ORCID se valida con su dígito de control (norma ISO 7064 11,2): un número mal copiado se detecta.
+**Conceptos de Django:**
+- **`OneToOneField`** (`Perfil.usuario`): un perfil por persona; se lee como `usuario.perfil`.
+- **Señal `post_save`** (`cuentas/signals.py`, conectada en `AppConfig.ready()`): toda cuenta nueva
+  recibe su perfil, se cree desde donde se cree. Las que ya existían lo reciben en una migración de datos.
+- **`UniqueConstraint(Lower("nombre"))`**: unicidad sin distinguir mayúsculas, en la base de datos.
+- **Formularios con `prefix`**: varios formularios en una página sin que sus campos choquen.
+  Cada uno manda `seccion` y la vista sabe cuál procesar; con errores se vuelve a dibujar la página
+  con lo escrito, y si todo va bien se redirige (patrón POST/Redirect/GET).
+- **`Concat("nombres", Value(" "), "apellidos")`**: buscar por nombre completo en la base de datos.
+- **Pocas consultas para "personas relacionadas"**: tres consultas traen solo parejas
+  `(persona, proyecto)` con `values_list` y una cuarta trae los perfiles; se juntan en Python. Una
+  prueba comprueba que más proyectos no significan más consultas.
+- **`select_related("usuario__perfil")` + `prefetch_related("usuario__roles_asignados")`**: el
+  enlace a cada perfil sale sin una consulta por persona.
+
+### Historia 5 · El estudiante elige al profesor que revisa su proyecto
+**Qué:** al enviar, el creador elige al profesor revisor: hasta 5 sugerencias con su motivo ("Imparte
+Bases de datos", "Ha revisado 4 proyectos de esta asignatura") y la lista completa con búsqueda,
+filtros y orden. El profesor recibe un correo y la solicitud en "Solicitudes de revisión": acepta
+(pasa a En revisión a su nombre) o no acepta (con mensaje y recomendación opcionales). Si no
+responde en 5 días, el creador la retira. El admin reasigna. Al reenviar con observaciones el
+proyecto vuelve al mismo profesor. Solo el profesor asignado decide. Todo queda en el historial.
+**Decisión: subestados, no estados nuevos.** "Por asignar revisor", "Esperando aceptación" y "Por
+revisar" son momentos del estado Enviado. Se deducen de dos datos que ya existen (el revisor del
+proyecto y si hay una solicitud pendiente), así que `Proyecto.subestado` es una propiedad, no un
+campo. Ventajas: los seis estados de la constitución no cambian, ni los filtros, insignias, paneles
+o pruebas que ya los usaban; y no hay dos lugares donde guardar lo mismo (que podrían contradecirse).
+La única regla que cambia en la tabla `TRANSICIONES` es quién pasa de Enviado a En revisión: el
+profesor asignado (al aceptar, o al retomar un reenvío).
+**Otras reglas y por qué:**
+- Una sola solicitud pendiente por proyecto, garantizada por la base de datos (restricción única
+  condicional, como el período actual).
+- Las pendientes de cada profesor solo informan: nunca impiden elegirlo.
+- Quien ya no aceptó no sale en las sugerencias (no insistir), pero se puede volver a elegir.
+- El historial guarda también las acciones de las solicitudes con un campo `accion`: así la
+  línea de tiempo cuenta toda la historia y sigue siendo una sola e inmutable.
+**Conceptos de Django:**
+- **`Subquery` + `OuterRef` con `Coalesce`**: contar pendientes y revisados de cada profesor sin
+  que los `JOIN` multipliquen filas (un `Count` con varios `JOIN` contaría de más).
+- **`Exists`** en `con_subestado()`: anotar si hay una solicitud pendiente sin traerla.
+- **`select_for_update()` dentro de `transaction.atomic()`**: si dos personas responden la misma
+  solicitud a la vez, la segunda ve que ya no está pendiente.
+- **Comando de gestión** (`python manage.py recordar_solicitudes`): el recordatorio del tercer día,
+  para programarlo una vez al día.
+- **`<dialog>` y `<template>`**: el resumen del perfil del profesor se abre sin salir de la página
+  ni perder la elección; sin JavaScript, el nombre abre el perfil en otra pestaña.
+- **El atributo `form=`** de HTML: los filtros (GET) viven dentro del formulario de la elección
+  (POST) sin anidar formularios, que no está permitido.
+
+### Historia 6 · Menú de la cuenta con íconos y opciones rápidas
+**Qué:** la barra superior queda mínima: logo, "Explorar", buscador y el avatar (o, sin sesión,
+"Entrar", "Registrarse" y un engranaje con tema e idioma). El menú del avatar muestra nombre, rol
+activo y período actual; cambia de rol con un clic; trae "Mi perfil", "Panel", las opciones rápidas
+del rol activo (con contadores para el profesor), tema, idioma y "Cerrar sesión". Todos los botones
+de acción llevan ícono.
+**Reglas y por qué:**
+- Mejora progresiva: sin JavaScript el avatar es un enlace a "Mi cuenta", una página con las mismas
+  opciones (el mismo parcial `menu_cuenta.html`), y el engranaje es un `<details>`.
+- Accesible con teclado: `aria-haspopup` y `aria-expanded`; al abrir, el foco va al primer ítem; las
+  flechas recorren el menú; `Esc` cierra y devuelve el foco al avatar.
+- En celular el menú se abre como hoja de ancho completo (clases `fixed inset-x-0` que en pantallas
+  grandes pasan a `sm:absolute sm:w-80`).
+**Conceptos de Django:**
+- **Procesador de contexto con consultas condicionales** (`config.contexto.menu_cuenta`): los
+  contadores solo se calculan si el rol activo es profesor, y es una consulta por contador. Una
+  prueba comprueba que más solicitudes no significan más consultas.
+- **Parcial reutilizado** en dos lugares (menú y página): una sola fuente para las opciones.
+- **Un componente con parámetros** (`componentes/boton.html` ahora acepta `icono`).
+
+### Historia 7 · Detalles del proyecto: portada, color, demo y video
+**Qué:** el estudiante puede subir una imagen de portada (se recorta a 16:9, 1200 × 675, en webp),
+que es la cara del proyecto en la vitrina, en el detalle y al compartirlo; puede quitarla y volver a
+la portada de color. Sin imagen, elige un color de una paleta de 10, con vista previa en vivo. En el
+detalle, "Ver proyecto desplegado" y "Ver video" aparecen junto al repositorio si están llenos.
+**Reglas y por qué:**
+- Se guarda la clave del color ("vino"), no el código: si se ajusta un tono, cambia en todos.
+- Todos los colores tienen contraste ≥ 4.5:1 con el texto blanco de la portada (lo comprueba una
+  prueba con la fórmula de las pautas WCAG), así se lee en modo claro y oscuro.
+- Los enlaces solo aceptan `http`/`https` (nada de `javascript:`), se abren en pestaña nueva con
+  `rel="noopener noreferrer"` (la página abierta no puede tocar la nuestra) y el video solo se
+  enlaza, no se incrusta.
+- Para que ningún proyecto cambiara de cara, una migración de datos convirtió la primera captura de
+  la galería en su portada.
+**Conceptos de Django:**
+- **`choices`** en un `CharField`: la base de datos guarda la clave y el formulario valida que sea
+  una de la paleta.
+- **`ImageField` + conversión propia**: el formulario recibe el archivo, `config/imagenes.py` lo
+  valida y lo convierte, y `FieldFile.save(nombre, contenido)` lo guarda con nombre aleatorio. El
+  archivo anterior se borra a mano (borrar o reemplazar el valor del campo no borra el archivo).
+- **Migración de datos con archivos**: `RunPython` abre la imagen con Pillow desde el almacenamiento
+  de Django y guarda la nueva; si un archivo falta, ese proyecto se salta en vez de fallar.

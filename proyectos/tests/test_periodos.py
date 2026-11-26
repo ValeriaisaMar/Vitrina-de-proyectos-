@@ -31,11 +31,11 @@ class GestionDePeriodosTests(TestCase):
     def test_crear_un_periodo_con_nombre_libre(self):
         respuesta = self.client.post(NUEVO, {
             "nombre": "Intensivo  noviembre 2026", "tipo": "intensivo",
-            "fecha_inicio": "2026-11-02", "fecha_fin": "2026-11-28", "abierto": "on",
+            "fecha_inicio": "2026-11-02", "fecha_fin": "2026-11-28",
         })
         self.assertRedirects(respuesta, LISTA, fetch_redirect_response=False)
         creado = Periodo.objects.get(nombre="Intensivo noviembre 2026")
-        self.assertEqual((creado.slug, creado.tipo, creado.abierto), ("intensivo-noviembre-2026", "intensivo", True))
+        self.assertEqual((creado.slug, creado.tipo, creado.es_actual), ("intensivo-noviembre-2026", "intensivo", False))
 
     def test_el_nombre_es_unico_y_las_fechas_coherentes(self):
         periodo("2026-2")
@@ -49,15 +49,8 @@ class GestionDePeriodosTests(TestCase):
         self.client.post(reverse("proyectos:periodo_editar", args=[p.pk]),
                          {"nombre": "Verano 2027", "tipo": "intersemestral", "fecha_inicio": "2027-01-10"})
         p.refresh_from_db()
-        self.assertEqual((p.nombre, p.slug, p.abierto), ("Verano 2027", "verano-2027", False))
+        self.assertEqual((p.nombre, p.slug), ("Verano 2027", "verano-2027"))
 
-    def test_abrir_y_cerrar(self):
-        p = periodo("2026-2", abierto=True)
-        url = reverse("proyectos:periodo_abrir_cerrar", args=[p.pk])
-        self.assertEqual(self.client.get(url).status_code, 405)
-        self.client.post(url)
-        p.refresh_from_db()
-        self.assertFalse(p.abierto)
 
     def test_la_lista_muestra_el_numero_de_proyectos(self):
         crear_proyecto(crear_usuario("ana@correo.com"), periodo="2025-1")
@@ -79,31 +72,9 @@ class GestionDePeriodosTests(TestCase):
 
 
 class PeriodoEnElFormularioTests(TestCase):
-    def setUp(self):
-        self.ana = crear_usuario("ana@correo.com")
-        self.abierto = periodo("2026-2", abierto=True)
-        self.cerrado = periodo("2025-2", abierto=False)
-
-    def test_al_crear_solo_ofrece_periodos_abiertos(self):
-        opciones = list(FormularioProyecto(usuario=self.ana).fields["periodo"].queryset)
-        self.assertEqual(opciones, [self.abierto])
-
-    def test_al_editar_conserva_su_periodo_aunque_este_cerrado(self):
-        proyecto = crear_proyecto(self.ana, periodo=self.cerrado)
-        opciones = set(FormularioProyecto(instance=proyecto, usuario=self.ana).fields["periodo"].queryset)
-        self.assertEqual(opciones, {self.abierto, self.cerrado})
-
-    def test_sin_periodos_abiertos_se_avisa(self):
-        Periodo.objects.update(abierto=False)
-        self.client.force_login(self.ana)
-        respuesta = self.client.get(reverse("proyectos:crear"))
-        self.assertTrue(respuesta.context["form"].sin_periodos)
-        self.assertContains(respuesta, "no hay ningún periodo académico abierto")
-
-    def test_no_acepta_un_periodo_cerrado_en_un_proyecto_nuevo(self):
-        form = FormularioProyecto({"periodo": self.cerrado.pk}, usuario=self.ana)
-        form.is_valid()
-        self.assertIn("periodo", form.errors)
+    def test_el_formulario_ya_no_pide_periodo(self):
+        """Spec 009: el período se asigna al enviar, no se elige."""
+        self.assertNotIn("periodo", FormularioProyecto(usuario=crear_usuario("ana@correo.com")).fields)
 
 
 class PeriodoEnLaVitrinaTests(TestCase):

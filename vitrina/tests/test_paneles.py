@@ -11,7 +11,7 @@ from cuentas.models import Rol
 from cuentas.tests.utilidades import CLAVE, crear_usuario
 from proyectos.models import Estado
 from proyectos.servicios import cambiar_estado
-from proyectos.tests.utilidades import crear_proyecto
+from proyectos.tests.utilidades import crear_proyecto, tomar
 
 URL = reverse("vitrina:panel")
 
@@ -29,7 +29,7 @@ class PanelBase(TestCase):
         cambiar_estado(p, Estado.ENVIADO, self.ana)
         if estado == Estado.ENVIADO:
             return p
-        cambiar_estado(p, Estado.EN_REVISION, self.profe)
+        tomar(p, self.profe)
         if estado != Estado.EN_REVISION:
             cambiar_estado(p, estado, self.profe, comentario)
         p.refresh_from_db()
@@ -84,17 +84,20 @@ class PanelEstudianteTests(PanelBase):
             self.proyecto_en(Estado.CON_OBSERVACIONES, f"Corregir {i}")
         self.client.force_login(self.ana)
         self.client.get(URL)  # calienta sesión y caché de tipos de contenido
-        # 8 = las 7 de antes + 1 de los roles de la persona (RolActivoMiddleware, spec 008)
-        with self.assertNumQueries(8):
+        # 9 = las 7 de antes + 1 de los roles de la persona (RolActivoMiddleware, spec 008)
+        #     + 1 del perfil, para la invitación "Completa tu perfil" (spec 009)
+        #     + 1 de los proyectos que esperan que elija revisor (spec 009)
+        with self.assertNumQueries(10):
             self.client.get(URL)
         self.proyecto_en(Estado.CON_OBSERVACIONES, "Uno más")
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(10):
             self.client.get(URL)
 
 
 class PanelProfesorTests(PanelBase):
     def test_cifras_y_listas(self):
-        self.proyecto_en(Estado.ENVIADO, "Esperando")
+        esperando = self.proyecto_en(Estado.ENVIADO, "Esperando")
+        type(esperando).objects.filter(pk=esperando.pk).update(revisor=self.profe)  # asignado, sin empezar (spec 009)
         self.proyecto_en(Estado.EN_REVISION, "Tomado")
         self.proyecto_en(Estado.APROBADO, "Aprobado uno")
         self.proyecto_en(Estado.RECHAZADO, "Rechazado uno", comentario="No aplica")

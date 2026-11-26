@@ -92,6 +92,10 @@ class RespuestasTests(BaseComunidad):
                     [r.autor.nombre_completo for r in comentario.hilo]
             return len(consultas)
 
+        # La medida base ya incluye una respuesta: la consulta que precarga los roles de quien
+        # responde (para enlazar su perfil, spec 009) solo corre si hay respuestas.
+        base = Comentario.objects.create(proyecto=self.proyecto, autor=self.visita, texto="Pregunta base")
+        Comentario.objects.create(proyecto=self.proyecto, autor=self.ana, texto="Respuesta base", respuesta_a=base)
         con_uno = contar()
         for i in range(5):
             padre = Comentario.objects.create(proyecto=self.proyecto, autor=self.visita, texto=f"Pregunta {i}")

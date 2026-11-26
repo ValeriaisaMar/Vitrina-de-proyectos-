@@ -20,9 +20,9 @@
       <div class="tarjeta-sobria p-6 sm:p-8">
         <h2 class="text-xl font-extrabold">{% translate "Configuración rápida" %}</h2>
         <div class="mt-4 flex flex-wrap gap-3" data-proveedores>
-          <a href="?proveedor=gmail" class="btn btn-secundario" data-servidor="smtp.gmail.com" data-puerto="587" data-seguridad="starttls">Gmail</a>
-          <a href="?proveedor=outlook" class="btn btn-secundario" data-servidor="smtp.office365.com" data-puerto="587" data-seguridad="starttls">Outlook / Office 365</a>
-          <a href="{% url 'cuentas:correo_envio' %}" class="btn btn-secundario" data-personalizado>{% translate "Personalizado" %}</a>
+          <a href="?proveedor=gmail" class="btn btn-secundario gap-2" data-proveedor="gmail" data-servidor="smtp.gmail.com" data-puerto="587" data-seguridad="starttls">{% icono "mail" tam=18 %}Gmail</a>
+          <a href="?proveedor=outlook" class="btn btn-secundario gap-2" data-proveedor="outlook" data-servidor="smtp.office365.com" data-puerto="587" data-seguridad="starttls">{% icono "mail" tam=18 %}Outlook / Microsoft 365</a>
+          <a href="?proveedor=personalizado" class="btn btn-secundario gap-2" data-proveedor="personalizado">{% icono "settings" tam=18 %}{% translate "Personalizado" %}</a>
         </div>
 
         {% if form.non_field_errors %}
@@ -46,8 +46,8 @@
             {% include "componentes/campo.html" with campo=form.correo_remitente %}
           </div>
           <div class="flex flex-wrap gap-4">
-            <button type="submit" name="accion" value="guardar" class="btn btn-primario">{% translate "Guardar" %}</button>
-            <button type="submit" name="accion" value="probar" class="btn btn-secundario">{% translate "Probar configuración" %}</button>
+            <button type="submit" name="accion" value="guardar" class="btn btn-primario gap-2">{% icono "check" tam=18 %}{% translate "Guardar" %}</button>
+            <button type="submit" name="accion" value="probar" class="btn btn-secundario gap-2">{% icono "send" tam=18 %}{% translate "Probar configuración" %}</button>
           </div>
           <p class="campo-ayuda">{% blocktranslate with correo=user.email %}«Probar configuración» usa lo que escribiste, sin guardarlo, y envía un correo de prueba a {{ correo }}.{% endblocktranslate %}</p>
         </form>
@@ -80,16 +80,42 @@
           </dl>
         </section>
 
-        <section class="tarjeta-sobria p-6" aria-labelledby="titulo-ayuda-gmail">
-          <h2 id="titulo-ayuda-gmail" class="text-sm font-bold uppercase tracking-wider text-texto-suave">{% translate "Contraseña de aplicación de Gmail" %}</h2>
-          <ol class="mt-4 flex list-decimal flex-col gap-2 pl-5 text-sm leading-relaxed">
-            <li>{% translate "Entra a la cuenta de Google desde la que se enviarán los correos." %}</li>
-            <li>{% translate "Activa la verificación en dos pasos (Seguridad → Verificación en dos pasos). Sin ella Google no ofrece contraseñas de aplicación." %}</li>
-            <li>{% translate "Busca «Contraseñas de aplicación» en la configuración de la cuenta y crea una con el nombre «Vitrina»." %}</li>
-            <li>{% translate "Copia los 16 caracteres y pégalos aquí. Los espacios se quitan solos." %}</li>
-          </ol>
-          <p class="mt-4 text-sm text-texto-suave">{% translate "La contraseña se guarda cifrada y nunca se vuelve a mostrar." %}</p>
-        </section>
+        {# Instrucciones por proveedor (spec 009). Se dibujan las tres en el servidor; con JS se ve solo la del #}
+        {# botón elegido. Sin JS se ven las tres, cada una con su título. #}
+        <div class="flex flex-col gap-6" data-ayudas data-inicial="{{ proveedor_activo }}">
+          <section class="tarjeta-sobria p-6" aria-labelledby="titulo-ayuda-gmail" data-ayuda="gmail">
+            <h2 id="titulo-ayuda-gmail" class="text-sm font-bold uppercase tracking-wider text-texto-suave">Gmail <span class="font-semibold normal-case tracking-normal">· smtp.gmail.com · 587 · STARTTLS</span></h2>
+            <ol class="mt-4 flex list-decimal flex-col gap-2 pl-5 text-sm leading-relaxed">
+              <li>{% translate "Activa la verificación en dos pasos en tu cuenta de Google." %}</li>
+              <li>{% translate "Inicia sesión con la cuenta que enviará los correos." %}</li>
+              <li>{% translate "Busca «Contraseñas de aplicación» en la configuración de la cuenta." %}
+                <a class="enlace mt-1 inline-flex items-center gap-1 font-semibold" href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer">{% translate "Abrir contraseñas de aplicación de Google" %}{% icono "external-link" tam=16 %}<span class="sr-only"> ({% translate "se abre en una pestaña nueva" %})</span></a>
+              </li>
+              <li>{% translate "Crea una con el nombre «Vitrina» y copia los 16 caracteres (sin espacios)." %}</li>
+              <li>{% translate "Pégala en el campo «Contraseña de aplicación» y pulsa «Probar configuración»." %}</li>
+            </ol>
+          </section>
+
+          <section class="tarjeta-sobria p-6" aria-labelledby="titulo-ayuda-outlook" data-ayuda="outlook">
+            <h2 id="titulo-ayuda-outlook" class="text-sm font-bold uppercase tracking-wider text-texto-suave">Outlook / Microsoft 365 <span class="font-semibold normal-case tracking-normal">· smtp.office365.com · 587 · STARTTLS</span></h2>
+            <div class="mt-4">{% translate "Solo funciona con cuentas institucionales de Microsoft 365 que tengan habilitado el envío SMTP autenticado (lo activa el área de TI). Las cuentas personales @outlook.com y @hotmail.com ya no permiten enviar correos con contraseña desde otras aplicaciones." as aviso_outlook %}{% include "componentes/aviso.html" with tipo="warning" texto=aviso_outlook %}</div>
+            <ol class="mt-4 flex list-decimal flex-col gap-2 pl-5 text-sm leading-relaxed">
+              <li>{% translate "Pide a TI que confirme que tu cuenta tiene habilitado SMTP AUTH." %}</li>
+              <li>{% translate "Activa la verificación en dos pasos en tu cuenta de Microsoft." %}</li>
+              <li>{% translate "Busca «Contraseñas de aplicación» en la configuración de la cuenta." %}
+                <a class="enlace mt-1 inline-flex items-center gap-1 font-semibold" href="https://mysignins.microsoft.com/security-info" target="_blank" rel="noopener noreferrer">{% translate "Abrir información de seguridad de Microsoft" %}{% icono "external-link" tam=16 %}<span class="sr-only"> ({% translate "se abre en una pestaña nueva" %})</span></a>
+                <span class="mt-1 block text-texto-suave">{% translate "Ahí: Agregar método → Contraseña de aplicación. Si no aparece esa opción, TI no la tiene habilitada." %}</span>
+              </li>
+              <li>{% translate "Pégala en el campo «Contraseña de aplicación» y pulsa «Probar configuración»." %}</li>
+            </ol>
+          </section>
+
+          <section class="tarjeta-sobria p-6" aria-labelledby="titulo-ayuda-personalizado" data-ayuda="personalizado">
+            <h2 id="titulo-ayuda-personalizado" class="text-sm font-bold uppercase tracking-wider text-texto-suave">{% translate "Personalizado" %}</h2>
+            <p class="mt-4 text-sm leading-relaxed">{% translate "Pide a quien administra tu correo el servidor SMTP, el puerto y el tipo de seguridad. Si tu cuenta usa verificación en dos pasos, crea una contraseña de aplicación en la configuración de seguridad de tu cuenta y úsala aquí." %}</p>
+          </section>
+          <p class="text-sm text-texto-suave">{% translate "La contraseña se guarda cifrada y nunca se vuelve a mostrar." %}</p>
+        </div>
       </div>
     </div>
   </div>
@@ -98,17 +124,30 @@
 
 {% block scripts %}
 <script>
-  /* Configuración rápida: llena servidor, puerto y seguridad sin recargar (sin JS, el enlace recarga con ?proveedor=). */
-  document.querySelectorAll("[data-proveedores] a").forEach(function (boton) {
-    boton.addEventListener("click", function (evento) {
-      evento.preventDefault();
-      var servidor = document.getElementById("id_servidor");
-      if (boton.hasAttribute("data-personalizado")) { servidor.value = ""; servidor.focus(); return; }
-      servidor.value = boton.dataset.servidor;
-      document.getElementById("id_puerto").value = boton.dataset.puerto;
-      document.getElementById("id_seguridad").value = boton.dataset.seguridad;
-      document.getElementById("id_usuario").focus();
+  /* Configuración rápida: llena servidor, puerto y seguridad sin recargar (sin JS, el enlace recarga con ?proveedor=).
+     También deja a la vista solo las instrucciones del proveedor elegido (sin JS se ven las tres). */
+  (function () {
+    var ayudas = document.querySelectorAll("[data-ayuda]");
+    var botones = document.querySelectorAll("[data-proveedores] a");
+    function mostrar(proveedor) {
+      ayudas.forEach(function (bloque) { bloque.hidden = bloque.dataset.ayuda !== proveedor; });
+      botones.forEach(function (boton) { boton.setAttribute("aria-pressed", boton.dataset.proveedor === proveedor ? "true" : "false"); });
+    }
+    var contenedor = document.querySelector("[data-ayudas]");
+    if (contenedor) mostrar(contenedor.dataset.inicial || "gmail");
+
+    botones.forEach(function (boton) {
+      boton.addEventListener("click", function (evento) {
+        evento.preventDefault();
+        var servidor = document.getElementById("id_servidor");
+        mostrar(boton.dataset.proveedor);
+        if (boton.dataset.proveedor === "personalizado") { servidor.value = ""; servidor.focus(); return; }
+        servidor.value = boton.dataset.servidor;
+        document.getElementById("id_puerto").value = boton.dataset.puerto;
+        document.getElementById("id_seguridad").value = boton.dataset.seguridad;
+        document.getElementById("id_usuario").focus();
+      });
     });
-  });
+  })();
 </script>
 {% endblock %}

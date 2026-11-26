@@ -8,8 +8,11 @@
   <div class="contenedor grid gap-8 lg:grid-cols-[1fr_1.4fr]">
 
     <div class="tarjeta-sobria h-fit p-6 sm:p-8">
-      <div class="flex h-16 w-16 items-center justify-center border-2 border-linea bg-uteq-verde font-titulo text-xl font-extrabold text-white" aria-hidden="true">{{ user.nombres|slice:":1" }}{{ user.apellidos|slice:":1" }}</div>
+      {% include "parciales/avatar.html" with perfil=user.perfil tam="h-16 w-16" texto="text-xl" %}
       <h1 class="mt-5 text-2xl font-extrabold">{{ user.nombre_completo }}</h1>
+      {% if user.tiene_perfil_publico %}
+        <a class="enlace mt-2 inline-flex items-center gap-1 text-sm font-semibold" href="{{ user.perfil.get_absolute_url }}">{% icono "user-circle" tam=16 %}{% translate "Ver mi perfil público" %}</a>
+      {% endif %}
       <dl class="mt-6 flex flex-col gap-4 text-sm">
         <div>
           <dt class="font-bold text-texto-suave">{% translate "Correo" %}</dt>
@@ -48,13 +51,13 @@
           {% include "componentes/campo.html" with campo=form.nombres %}
           {% include "componentes/campo.html" with campo=form.apellidos %}
         </div>
-        <div><button type="submit" class="btn btn-primario">{% translate "Guardar cambios" %}</button></div>
+        <div><button type="submit" class="btn btn-primario gap-2">{% icono "check" tam=18 %}{% translate "Guardar cambios" %}</button></div>
       </form>
 
       <hr class="my-8 border-t-2 border-linea-suave">
       <h2 class="text-xl font-extrabold">{% translate "Contraseña" %}</h2>
       <p class="mt-2 text-texto-suave">{% translate "Te pediremos la actual para confirmar que eres tú." %}</p>
-      <a href="{% url 'cuentas:cambiar_contrasena' %}" class="btn btn-secundario mt-5">{% translate "Cambiar contraseña" %}</a>
+      <a href="{% url 'cuentas:cambiar_contrasena' %}" class="btn btn-secundario mt-5 gap-2">{% icono "pencil" tam=18 %}{% translate "Cambiar contraseña" %}</a>
     </div>
   </div>
 </section>

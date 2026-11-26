@@ -10,13 +10,13 @@ from cuentas.models import Rol
 from cuentas.tests.utilidades import crear_usuario
 from proyectos.models import Estado
 from proyectos.servicios import cambiar_estado
-from proyectos.tests.utilidades import crear_proyecto
+from proyectos.tests.utilidades import crear_proyecto, tomar
 from vitrina.verificacion import normalizar_codigo, qr_png, url_verificacion
 
 
 def aprobar(proyecto, autor, profe):
     cambiar_estado(proyecto, Estado.ENVIADO, autor)
-    cambiar_estado(proyecto, Estado.EN_REVISION, profe)
+    tomar(proyecto, profe)
     cambiar_estado(proyecto, Estado.APROBADO, profe, "Comentario interno del docente")
     proyecto.refresh_from_db()
     return proyecto

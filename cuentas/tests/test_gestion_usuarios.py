@@ -105,13 +105,13 @@ class EditarTests(TestCase):
     def test_avisa_si_el_profesor_tiene_revisiones(self):
         from proyectos.models import Estado
         from proyectos.servicios import cambiar_estado
-        from proyectos.tests.utilidades import crear_proyecto
+        from proyectos.tests.utilidades import crear_proyecto, tomar
 
         profe = crear_usuario("profe@correo.com", rol=Rol.PROFESOR)
         proyecto = crear_proyecto(self.ana)
         cambiar_estado(proyecto, Estado.ENVIADO, self.ana)
-        cambiar_estado(proyecto, Estado.EN_REVISION, profe)
-        self.assertContains(self.client.get(editar(profe)), "un admin tendrá que decidirlos")
+        tomar(proyecto, profe)
+        self.assertContains(self.client.get(editar(profe)), "tendrás que reasignarlos a otro profesor")
 
     def test_usuario_inexistente(self):
         self.assertEqual(self.client.get(reverse("cuentas:usuario_editar", args=[99999])).status_code, 404)

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n formularios %}
+{% load i18n formularios static %}
 
 {% block titulo %}{% if es_nuevo %}{% translate "Nuevo proyecto" %}{% else %}{% translate "Editar proyecto" %}{% endif %}{% endblock %}
 
@@ -13,9 +13,6 @@
     <h1 class="mt-3 text-3xl font-extrabold sm:text-4xl">{% if es_nuevo %}{% translate "Nuevo proyecto" %}{% else %}{% translate "Editar proyecto" %}{% endif %}</h1>
     <p class="mt-2 max-w-2xl text-texto-suave">{% translate "Se guarda como borrador. Solo tú y tus coautores lo ven hasta que sea aprobado." %}</p>
 
-    {% if form.sin_periodos %}
-      <div class="mt-6">{% translate "Por ahora no hay ningún periodo académico abierto para registrar proyectos. Puedes escribir tu proyecto cuando la administración abra uno." as texto_periodos %}{% include "componentes/aviso.html" with tipo="warning" texto=texto_periodos %}</div>
-    {% endif %}
     {% if form.errors %}
       <div class="mt-6">{% translate "Revisa los campos marcados en rojo." as texto_errores %}{% include "componentes/aviso.html" with tipo="error" texto=texto_errores %}</div>
     {% endif %}
@@ -35,10 +32,10 @@
         <fieldset class="tarjeta-sobria flex flex-col gap-5 p-6 sm:p-8">
           <legend class="sr-only">{% translate "Contexto académico" %}</legend>
           <h2 class="text-lg font-extrabold">2. {% translate "Contexto académico" %}</h2>
-          <div class="grid gap-5 sm:grid-cols-[2fr_1fr]">
-            {% include "componentes/campo.html" with campo=form.asignatura %}
-            {% include "componentes/campo.html" with campo=form.periodo %}
-          </div>
+          {% include "componentes/campo.html" with campo=form.asignatura %}
+          {# selector.js agrega un buscador encima del <select data-buscable> (sin JS, el select normal) #}
+          {# Spec 009: el período no se elige; se asigna el período actual al enviar el proyecto #}
+          <p class="text-sm text-texto-suave">{% translate "El período académico se asigna solo: el proyecto toma el período actual cuando lo envías a revisión." %}</p>
         </fieldset>
 
         <fieldset class="tarjeta-sobria flex flex-col gap-4 p-6 sm:p-8" aria-describedby="ayuda-tecnologias">
@@ -60,12 +57,44 @@
           <h2 class="text-lg font-extrabold">4. {% translate "Enlaces y documento" %}</h2>
           {% include "componentes/campo.html" with campo=form.repositorio %}
           {% include "componentes/campo.html" with campo=form.demo %}
+          {% include "componentes/campo.html" with campo=form.video %}
           {% include "componentes/campo.html" with campo=form.documento_pdf %}
         </fieldset>
 
         <fieldset class="tarjeta-sobria flex flex-col gap-5 p-6 sm:p-8">
           <legend class="sr-only">{% translate "Imágenes" %}</legend>
           <h2 class="text-lg font-extrabold">5. {% translate "Imágenes" %}</h2>
+
+          {# Portada (spec 009): imagen propia o un color de la paleta, con vista previa en vivo (portada.js) #}
+          <div class="flex flex-col gap-4 border-b-2 border-linea-suave pb-6" data-portada>
+            <h3 class="font-extrabold">{% translate "Portada" %}</h3>
+            <div class="relative aspect-[16/9] w-full max-w-md overflow-hidden border-2 border-linea" aria-hidden="true" data-vista-portada>
+              <img src="{% if proyecto.imagen_portada %}{{ proyecto.imagen_portada.url }}{% endif %}" alt="" class="h-full w-full object-cover {% if not proyecto.imagen_portada %}hidden{% endif %}" data-vista-imagen>
+              <div class="flex h-full w-full items-center justify-center {% if proyecto.imagen_portada %}hidden{% endif %}" style="background-color: {{ form.instance.color_hex }}" data-vista-color>
+                <span class="font-titulo text-6xl font-extrabold text-white" data-vista-inicial>{{ form.instance.titulo|default:"V"|inicial }}</span>
+              </div>
+            </div>
+            {% include "componentes/campo.html" with campo=form.portada %}
+            {% if form.quitar_portada %}
+              <label class="flex min-h-11 items-center gap-2 text-sm font-semibold">{{ form.quitar_portada }} {{ form.quitar_portada.label }}</label>
+            {% endif %}
+            <fieldset>
+              <legend class="campo-etiqueta">{{ form.color_portada.label }}</legend>
+              <p class="campo-ayuda mt-0">{{ form.color_portada.help_text }}</p>
+              <div class="mt-2 flex flex-wrap gap-2">
+                {% with elegido=form.color_portada.value %}{% for clave, nombre, hex in form.colores %}
+                  <label class="relative flex cursor-pointer items-center gap-2 border-2 border-linea-suave p-1.5 pr-3 text-sm font-semibold has-checked:border-linea has-checked:shadow-duro-verde has-focus-visible:outline-3 has-focus-visible:outline-uteq-amarillo">
+                    <input type="radio" name="{{ form.color_portada.html_name }}" value="{{ clave }}" {% if elegido == clave %}checked{% endif %} class="sr-only" data-color="{{ hex }}">
+                    <span class="h-8 w-8 border-2 border-linea" style="background-color: {{ hex }}" aria-hidden="true"></span>
+                    {{ nombre }}
+                  </label>
+                {% endfor %}{% endwith %}
+              </div>
+              {% for error in form.color_portada.errors %}<p class="campo-error">{{ error }}</p>{% endfor %}
+            </fieldset>
+          </div>
+
+          <h3 class="font-extrabold">{% translate "Galería" %}</h3>
           {% if proyecto and proyecto.imagenes.all %}
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {% for imagen in proyecto.imagenes.all %}
@@ -96,10 +125,12 @@
             <li>→ {% translate "Las capturas ayudan mucho a que el docente entienda tu trabajo." %}</li>
           </ul>
         </div>
-        <button type="submit" class="btn btn-primario w-full">{% if es_nuevo %}{% translate "Crear proyecto" %}{% else %}{% translate "Guardar cambios" %}{% endif %}</button>
-        <a href="{% if proyecto %}{{ proyecto.get_absolute_url }}{% else %}{% url 'proyectos:mis_proyectos' %}{% endif %}" class="btn btn-secundario w-full">{% translate "Cancelar" %}</a>
+        <button type="submit" class="btn btn-primario w-full gap-2">{% icono "check" tam=18 %}{% if es_nuevo %}{% translate "Crear proyecto" %}{% else %}{% translate "Guardar cambios" %}{% endif %}</button>
+        <a href="{% if proyecto %}{{ proyecto.get_absolute_url }}{% else %}{% url 'proyectos:mis_proyectos' %}{% endif %}" class="btn btn-secundario w-full gap-2">{% icono "arrow-left" tam=18 %}{% translate "Cancelar" %}</a>
       </aside>
     </form>
   </div>
 </section>
 {% endblock %}
+
+{% block scripts %}<script src="{% static 'js/portada.js' %}" defer></script>{% endblock %}

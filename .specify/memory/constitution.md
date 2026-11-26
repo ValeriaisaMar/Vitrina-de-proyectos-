@@ -1,5 +1,21 @@
 <!--
 Sync Impact Report
+Version change: 2.1.0 → 3.0.0 (MAJOR: cambian reglas existentes de revisión, estados y archivos)
+Principios modificados:
+  III. Entradas no confiables → la foto de perfil y la portada del proyecto admiten hasta 5 MB y se
+       reprocesan a webp en el servidor (spec 009). La galería sigue en 3 MB.
+  V. Permisos por rol → el creador elige al profesor revisor; solo el profesor asignado revisa y
+       decide; el admin reasigna el revisor (ya no decide).
+  VII. Estados e historial → mismos seis estados; Enviado → En revisión lo hace el profesor asignado
+       (al aceptar la solicitud o al retomar un reenvío). El historial registra también las acciones
+       de las solicitudes de revisión.
+  X. Interfaz → íconos SVG guardados en el repositorio (sin CDN).
+Aprobación: pedida por el equipo en el documento de la spec 009; se confirma al revisar el Pull Request.
+Plantillas revisadas: sin cambios de estructura.
+Documentos a actualizar: docs/sdd/constitucion.md ✅, README.md ✅.
+Pendientes: ninguno.
+
+Historial anterior:
 Version change: 2.0.0 → 2.1.0 (MINOR: se amplía la lista de dependencias aprobadas)
 Principios modificados:
   XII. Dependencias → se aprueba cryptography (y cffi y pycparser, que instala) para cifrar la
@@ -64,7 +80,9 @@ MUST tratarse como no confiable:
   usarse sobre contenido de usuarios.
 - Los enlaces externos MUST validarse como URL `http` o `https` antes de guardarse.
 - Los archivos MUST validarse por extensión, tipo y tamaño: PDF de hasta 10 MB e imágenes
-  JPG, PNG o WEBP de hasta 3 MB. Se guardan en `media/` con nombres generados por el sistema.
+  JPG, PNG o WEBP de hasta 3 MB (galería) o 5 MB (foto de perfil y portada del proyecto). Las
+  imágenes MUST abrirse con Pillow para comprobar que son reales. Se guardan en `media/` con
+  nombres generados por el sistema; la foto de perfil y la portada se reprocesan a webp.
 - Todo formulario que cambia datos MUST usar POST con protección CSRF.
 
 ### IV. Autenticación segura
@@ -86,7 +104,9 @@ rol y, cuando aplica, la relación con el objeto:
 
 - Un estudiante MUST editar solo proyectos de los que es autor o coautor, y solo en estado
   Borrador o Con observaciones.
-- Solo profesores y admins MUST poder tomar, aprobar, pedir cambios o rechazar proyectos.
+- El creador del proyecto MUST ser el único que elige al profesor revisor, y el profesor elegido
+  MUST aceptar la solicitud antes de revisar. Solo el profesor asignado MUST poder aprobar, pedir
+  cambios o rechazar ese proyecto. El admin MUST poder reasignar el revisor, pero no decide.
 - Solo el autor del proyecto y los admins MUST poder ocultar comentarios.
 
 Ocultar un botón en la plantilla MUST NOT considerarse control de acceso.
@@ -106,15 +126,20 @@ Los estados son Borrador, Enviado, En revisión, Con observaciones, Aprobado y R
 
 | Desde | Hacia | Quién |
 |---|---|---|
-| Borrador | Enviado | autor |
-| Enviado | En revisión | profesor o admin |
-| En revisión | Aprobado, Con observaciones o Rechazado | profesor o admin que lo tomó, o admin |
-| Con observaciones | Enviado | autor |
+| Borrador | Enviado | autor (con un período académico actual definido) |
+| Enviado | En revisión | el profesor asignado (al aceptar la solicitud o al retomar un reenvío) |
+| En revisión | Aprobado, Con observaciones o Rechazado | el profesor asignado |
+| Con observaciones | Enviado | autor (vuelve al mismo profesor) |
+
+Mientras está Enviado, el proyecto espera revisor, espera la aceptación del profesor elegido o
+espera que el profesor asignado lo retome; esos subestados se deducen de las solicitudes de
+revisión y no son estados nuevos.
 
 Todo cambio de estado MUST pasar por una única función de servicio en
 `proyectos/servicios.py`, que valida la transición y el permiso y registra un evento con estado
 anterior, estado nuevo, actor, comentario y fecha. Pedir cambios o rechazar MUST exigir un
-comentario. El historial MUST NOT editarse ni borrarse, y un proyecto que ya salió de Borrador
+comentario. Las solicitudes de revisión (solicitada, aceptada, no aceptada, retirada,
+reasignada) MUST quedar también en el historial. El historial MUST NOT editarse ni borrarse, y un proyecto que ya salió de Borrador
 MUST NOT eliminarse.
 
 ### VIII. Pruebas
@@ -147,6 +172,8 @@ El código MUST poder leerlo un estudiante que está aprendiendo Django:
   botones que se hunden; los paneles usan bordes sin sombras ni elementos girados; el sello de
   verificación y el certificado son formales y usan solo verde.
 - Tipografía: Unbounded para títulos y Archivo para todo lo demás.
+- Íconos: SVG guardados en el repositorio (Tabler Icons y logos de Simple Icons), insertados con
+  la etiqueta `{% icono %}`; MUST NOT cargarse desde un CDN.
 - Accesibilidad: contraste mínimo 4.5:1 en texto, áreas táctiles de 44 px, foco visible,
   etiquetas en todos los campos, y las animaciones MUST respetar `prefers-reduced-motion`.
 - Responsive: toda página MUST funcionar sin desplazamiento horizontal desde 360 px hasta 1920 px.
@@ -213,4 +240,4 @@ Quienes revisen Pull Requests MUST verificar la conformidad con esta constituci�
 conflicto, esta constitución prevalece sobre cualquier práctica local hasta que se apruebe una
 enmienda.
 
-**Version**: 2.1.0 | **Ratified**: 2026-11-22 | **Last Amended**: 2026-11-24
+**Version**: 3.0.0 | **Ratified**: 2026-11-22 | **Last Amended**: 2026-11-25

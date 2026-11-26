@@ -19,17 +19,24 @@
     </div>
 
     {# Configuración de la plataforma (spec 008) #}
-    <nav class="grid gap-4 sm:grid-cols-2" aria-label="{% translate 'Configuración' %}">
+    <nav class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="{% translate 'Configuración' %}">
       <a href="{% url 'proyectos:periodos' %}" class="tarjeta-sobria flex items-center justify-between gap-4 p-5 hover:shadow-duro-verde">
         <span>
-          <span class="block font-extrabold">{% translate "Periodos académicos" %}</span>
-          <span class="mt-1 block text-sm text-texto-suave">{% blocktranslate count n=periodos_abiertos %}{{ n }} abierto para entregas{% plural %}{{ n }} abiertos para entregas{% endblocktranslate %}</span>
+          <span class="flex items-center gap-2 font-extrabold">{% icono "calendar" tam=20 %}{% translate "Periodos académicos" %}</span>
+          <span class="mt-1 block text-sm text-texto-suave">{% if periodo_actual_panel %}{% blocktranslate with nombre=periodo_actual_panel.nombre %}Actual: {{ nombre }}{% endblocktranslate %}{% else %}{% translate "Sin período actual: marca uno" %}{% endif %}</span>
+        </span>
+        <span aria-hidden="true" class="text-xl font-bold">→</span>
+      </a>
+      <a href="{% url 'proyectos:planes' %}" class="tarjeta-sobria flex items-center justify-between gap-4 p-5 hover:shadow-duro-verde">
+        <span>
+          <span class="flex items-center gap-2 font-extrabold">{% icono "school" tam=20 %}{% translate "Plan de estudios" %}</span>
+          <span class="mt-1 block text-sm text-texto-suave">{% blocktranslate count n=planes_activos %}{{ n }} plan activo{% plural %}{{ n }} planes activos{% endblocktranslate %}</span>
         </span>
         <span aria-hidden="true" class="text-xl font-bold">→</span>
       </a>
       <a href="{% url 'cuentas:correo_envio' %}" class="tarjeta-sobria flex items-center justify-between gap-4 p-5 hover:shadow-duro-verde">
         <span>
-          <span class="block font-extrabold">{% translate "Correo de envío" %}</span>
+          <span class="flex items-center gap-2 font-extrabold">{% icono "mail-cog" tam=20 %}{% translate "Correo de envío" %}</span>
           <span class="mt-1 block break-all text-sm text-texto-suave">{% if correo_envio %}{{ correo_envio }}{% else %}{% translate "Usa los datos del archivo .env" %}{% endif %}</span>
         </span>
         <span aria-hidden="true" class="text-xl font-bold">→</span>
@@ -78,9 +85,9 @@
       <section class="tarjeta h-fit p-6" aria-labelledby="titulo-atajos">
         <h2 id="titulo-atajos" class="font-extrabold">{% translate "Atajos" %}</h2>
         <div class="mt-4 flex flex-col gap-3">
-          <a href="{% url 'cuentas:usuarios' %}" class="btn btn-primario w-full">{% translate "Usuarios y roles" %}</a>
-          <a href="{% url 'proyectos:bandeja' %}" class="btn btn-secundario w-full">{% translate "Bandeja de revisión" %}</a>
-          {% if user.is_staff %}<a href="{% url 'admin:index' %}" class="btn btn-secundario w-full">{% translate "Asignaturas y tecnologías" %}</a>{% endif %}
+          <a href="{% url 'cuentas:usuarios' %}" class="btn btn-primario w-full gap-2">{% icono "users" tam=18 %}{% translate "Usuarios y roles" %}</a>
+          <a href="{% url 'proyectos:bandeja' %}" class="btn btn-secundario w-full gap-2">{% icono "inbox" tam=18 %}{% translate "Bandeja de revisión" %}</a>
+          {% if user.is_staff %}<a href="{% url 'admin:index' %}" class="btn btn-secundario w-full gap-2">{% icono "book" tam=18 %}{% translate "Asignaturas y tecnologías" %}</a>{% endif %}
         </div>
         {% if user.is_staff %}<p class="mt-3 text-xs text-texto-suave">{% translate "Los catálogos se editan en el panel técnico de Django." %}</p>{% endif %}
       </section>

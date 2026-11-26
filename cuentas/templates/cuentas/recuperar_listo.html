@@ -8,5 +8,5 @@
 <span class="insignia insignia-aprobado">{% translate "Listo" %}</span>
 <h1 class="mt-5 text-3xl font-extrabold">{% translate "Tu contraseña cambió" %}</h1>
 <p class="mt-4 leading-relaxed text-texto-suave">{% translate "Ya puedes iniciar sesión con tu contraseña nueva." %}</p>
-<a href="{% url 'cuentas:entrar' %}" class="btn btn-primario mt-8">{% translate "Iniciar sesión" %}</a>
+<a href="{% url 'cuentas:entrar' %}" class="btn btn-primario mt-8 gap-2">{% icono "login" tam=18 %}{% translate "Iniciar sesión" %}</a>
 {% endblock %}

@@ -1,0 +1,10 @@
+{% load i18n %}{% autoescape off %}{% if recordatorio %}{% blocktranslate with dias=3 %}Te recordamos que tienes una solicitud de revisión sin responder desde hace {{ dias }} días.{% endblocktranslate %}
+
+{% endif %}{% blocktranslate with estudiante=solicitud.creada_por.nombre_completo titulo=proyecto.titulo %}{{ estudiante }} te pide que revises su proyecto «{{ titulo }}».{% endblocktranslate %}
+
+{% blocktranslate with asignatura=proyecto.asignatura.nombre %}Asignatura: {{ asignatura }}{% endblocktranslate %}
+
+{% translate "Entra a «Solicitudes de revisión» para aceptarla o no aceptarla:" %} {{ enlace }}
+
+{% translate "Vitrina de Proyectos · UTEQ" %}
+{% endautoescape %}

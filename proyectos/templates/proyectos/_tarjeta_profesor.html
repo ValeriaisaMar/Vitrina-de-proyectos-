@@ -1,0 +1,45 @@
+{% load i18n %}{% comment %}
+Tarjeta de un profesor para elegirlo como revisor (spec 009). Recibe "p" (profesor anotado por
+proyectos/views._contexto_eleccion o por solicitudes.sugerir_profesores), "motivos" (opcional) y
+"elegido" (el id elegido, para volver a marcarlo si el formulario vuelve con errores).
+La cantidad de pendientes es solo informativa: nunca impide elegirlo.
+Quien no está recibiendo proyectos sale con su etiqueta y no se puede elegir.
+{% endcomment %}
+{% with no_disponible=p.perfil.recibiendo_proyectos|yesno:",1" %}
+<li class="tarjeta-profesor" data-profesor
+    data-nombre="{{ p.nombre_completo|lower }}"
+    data-asignaturas="{% for a in p.perfil.asignaturas_imparte.all %}{{ a.pk }} {% endfor %}"
+    data-semestres="{% for a in p.perfil.asignaturas_imparte.all %}{{ a.semestre }} {% endfor %}"
+    data-disponible="{{ p.perfil.recibiendo_proyectos|yesno:'1,0' }}"
+    data-imparte="{{ p.imparte_la_asignatura|yesno:'1,0' }}"
+    data-pendientes="{{ p.solicitudes_pendientes|add:p.asignados }}">
+  <label class="flex gap-3 border-2 p-4 {% if no_disponible %}border-dashed border-linea-suave opacity-80{% else %}cursor-pointer border-linea has-checked:bg-uteq-tinte has-checked:shadow-duro-verde dark:has-checked:bg-uteq-verde/40{% endif %}">
+    <input type="radio" name="profesor" value="{{ p.pk }}" class="mt-1 h-5 w-5 shrink-0 accent-uteq-verde"
+           {% if no_disponible %}disabled{% endif %} {% if elegido == p.pk|stringformat:"s" %}checked{% endif %}>
+    <span class="flex min-w-0 flex-1 gap-3">
+      <a href="{{ p.perfil.get_absolute_url }}" target="_blank" rel="noopener" data-resumen="resumen-{{ p.pk }}" class="shrink-0" tabindex="-1" aria-hidden="true">
+        {% include "parciales/avatar.html" with perfil=p.perfil tam="h-12 w-12" %}
+      </a>
+      <span class="min-w-0">
+        <a href="{{ p.perfil.get_absolute_url }}" target="_blank" rel="noopener" data-resumen="resumen-{{ p.pk }}" class="font-bold underline decoration-2 underline-offset-4 hover:text-acento">{{ p.nombre_completo }}<span class="sr-only"> ({% translate "ver resumen del perfil" %})</span></a>
+        {% with asignaturas=p.perfil.asignaturas_imparte.all %}
+          {% if asignaturas %}<span class="mt-1 block text-sm text-texto-suave">{% translate "Imparte:" %} {% for a in asignaturas %}{{ a.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>{% endif %}
+        {% endwith %}
+        <span class="mt-1 block text-xs font-semibold text-texto-suave">
+          {% blocktranslate count n=p.revisados %}{{ n }} proyecto revisado{% plural %}{{ n }} proyectos revisados{% endblocktranslate %}
+          · {% with pendientes=p.solicitudes_pendientes|add:p.asignados %}{% blocktranslate count n=pendientes %}{{ n }} pendiente{% plural %}{{ n }} pendientes{% endblocktranslate %}{% endwith %}
+        </span>
+        {% if motivos %}
+          <ul class="mt-2 flex flex-wrap gap-1.5">{% for m in motivos %}<li class="inline-flex items-center gap-1 border border-linea-suave px-2 py-0.5 text-xs font-semibold">{% icono "sparkles" tam=12 %}{{ m }}</li>{% endfor %}</ul>
+        {% endif %}
+        {% if no_disponible or p.ya_rechazo %}
+          <span class="mt-2 flex flex-wrap gap-1.5">
+            {% if no_disponible %}<span class="insignia insignia-borrador gap-1">{% icono "hand-stop" tam=12 %}{% translate "No está recibiendo proyectos" %}</span>{% endif %}
+            {% if p.ya_rechazo %}<span class="insignia insignia-rechazado">{% translate "Ya rechazó este proyecto" %}</span>{% endif %}
+          </span>
+        {% endif %}
+      </span>
+    </span>
+  </label>
+</li>
+{% endwith %}

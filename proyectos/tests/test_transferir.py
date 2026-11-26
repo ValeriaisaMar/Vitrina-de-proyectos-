@@ -8,7 +8,7 @@ from cuentas.models import Rol
 from cuentas.tests.utilidades import crear_usuario
 from proyectos.models import Estado
 from proyectos.servicios import cambiar_estado
-from proyectos.tests.utilidades import crear_proyecto
+from proyectos.tests.utilidades import crear_proyecto, tomar
 
 
 class TransferirTests(TestCase):
@@ -70,7 +70,7 @@ class TransferirTests(TestCase):
     def test_con_observaciones_si_se_transfiere(self):
         profe = crear_usuario("profe@correo.com", rol=Rol.PROFESOR)
         cambiar_estado(self.proyecto, Estado.ENVIADO, self.ana)
-        cambiar_estado(self.proyecto, Estado.EN_REVISION, profe)
+        tomar(self.proyecto, profe)
         cambiar_estado(self.proyecto, Estado.CON_OBSERVACIONES, profe, "Faltan pruebas")
         self.client.force_login(self.ana)
         self.client.post(self.url, {"nuevo_creador": self.luis.pk})

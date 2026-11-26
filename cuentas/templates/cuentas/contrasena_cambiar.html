@@ -11,8 +11,8 @@
   {% include "componentes/campo.html" with campo=form.new_password1 %}
   {% include "componentes/campo.html" with campo=form.new_password2 %}
   <div class="flex flex-wrap gap-4">
-    <button type="submit" class="btn btn-primario">{% translate "Cambiar contraseña" %}</button>
-    <a href="{% url 'cuentas:perfil' %}" class="btn btn-fantasma">{% translate "Cancelar" %}</a>
+    <button type="submit" class="btn btn-primario gap-2">{% icono "pencil" tam=18 %}{% translate "Cambiar contraseña" %}</button>
+    <a href="{% url 'cuentas:perfil' %}" class="btn btn-fantasma gap-2">{% icono "arrow-left" tam=18 %}{% translate "Cancelar" %}</a>
   </div>
 </form>
 {% endblock %}

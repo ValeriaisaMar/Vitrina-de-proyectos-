@@ -1,0 +1,12 @@
+Íconos de la interfaz (static/iconos/*.svg, salvo marca-*.svg)
+  Tabler Icons 3.31.0 — https://tabler.io/icons
+  Licencia MIT. Copyright (c) 2020-2025 Paweł Kuna.
+  Se permite usar, copiar, modificar y distribuir con este aviso. Se entregan "tal cual", sin garantía.
+
+Logos de marca (static/iconos/marca-github.svg, marca-linkedin.svg, marca-orcid.svg)
+  Simple Icons 9.21.0 — https://simpleicons.org
+  Licencia CC0 1.0 (dominio público). Las marcas pertenecen a sus dueños (GitHub, LinkedIn, ORCID);
+  se usan solo para enlazar a los perfiles de las personas, como piden sus guías de marca.
+
+Los archivos se limpiaron (sin width, height, class ni title) para insertarlos en línea con la
+etiqueta {% icono "nombre" %} (vitrina/templatetags/iconos.py).

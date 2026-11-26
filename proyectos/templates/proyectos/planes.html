@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block titulo %}{% translate "Plan de estudios" %}{% endblock %}
+
+{% block contenido %}
+<section class="bg-seccion py-10 sm:py-14">
+  <div class="contenedor">
+    <nav aria-label="{% translate 'Ruta' %}" class="text-sm text-texto-suave">
+      <a class="enlace" href="{% url 'vitrina:panel' %}">{% translate "Mi panel" %}</a><span aria-hidden="true"> / </span>{% translate "Plan de estudios" %}
+    </nav>
+    <div class="mt-3 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="flex items-center gap-3 text-3xl font-extrabold sm:text-4xl">{% icono "school" tam=34 %}{% translate "Plan de estudios" %}</h1>
+        <p class="mt-2 max-w-2xl text-texto-suave">{% translate "Los planes de la carrera y sus asignaturas. Puede haber más de un plan activo mientras se hace la transición de uno a otro." %}</p>
+      </div>
+      <a href="{% url 'proyectos:plan_nuevo' %}" class="btn btn-primario gap-2">{% icono "plus" tam=18 %}{% translate "Nuevo plan" %}</a>
+    </div>
+
+    {% if planes %}
+      <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {% for p in planes %}
+          <li class="tarjeta-sobria flex flex-col gap-3 p-5">
+            <div class="flex items-start justify-between gap-3">
+              <h2 class="text-lg font-extrabold"><a class="enlace" href="{% url 'proyectos:plan' p.pk %}">{{ p.nombre }}</a></h2>
+              {% if p.activo %}<span class="insignia insignia-aprobado">{% translate "Activo" %}</span>{% else %}<span class="insignia insignia-borrador">{% translate "Inactivo" %}</span>{% endif %}
+            </div>
+            <p class="text-sm text-texto-suave">{% blocktranslate with anio=p.anio %}Año {{ anio }}{% endblocktranslate %} · {% blocktranslate count n=p.activas %}{{ n }} asignatura activa{% plural %}{{ n }} asignaturas activas{% endblocktranslate %} ({% blocktranslate with total=p.total %}{{ total }} en total{% endblocktranslate %})</p>
+            <div class="mt-auto flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold">
+              <a class="enlace inline-flex items-center gap-1" href="{% url 'proyectos:plan' p.pk %}">{% icono "book" tam=16 %}{% translate "Ver asignaturas" %}<span class="sr-only"> {{ p.nombre }}</span></a>
+              <a class="enlace inline-flex items-center gap-1" href="{% url 'proyectos:plan_editar' p.pk %}">{% icono "pencil" tam=16 %}{% translate "Editar" %}<span class="sr-only"> {{ p.nombre }}</span></a>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="tarjeta-sobria mt-8 p-8">
+        <p class="font-bold">{% translate "Todavía no hay planes de estudio." %}</p>
+        <p class="mt-1 text-texto-suave">{% translate "Crea uno y agrégale sus asignaturas para que los estudiantes puedan elegirlas." %}</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

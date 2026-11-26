@@ -1,0 +1,6 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with titulo=proyecto.titulo %}Se retiró la solicitud para que revisaras el proyecto «{{ titulo }}»: pasaron varios días sin respuesta y el estudiante eligió a otra persona.{% endblocktranslate %}
+
+{% translate "No tienes que hacer nada." %}
+
+{% translate "Vitrina de Proyectos · UTEQ" %}
+{% endautoescape %}

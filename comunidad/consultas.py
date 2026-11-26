@@ -17,8 +17,14 @@ def datos_comunidad(usuario, proyecto, form=None):
     moderador = puede_moderar(usuario, proyecto)
     ids_autores = set(proyecto.autorias.values_list("usuario_id", flat=True))
 
-    respuestas = Comentario.objects.select_related("autor").order_by("creado_en", "id")
-    comentarios = Comentario.objects.filter(proyecto=proyecto).principales().select_related("autor")
+    # Con perfil y roles del autor: su nombre enlaza a su perfil sin consultas extra (spec 009)
+    respuestas = (
+        Comentario.objects.select_related("autor__perfil").prefetch_related("autor__roles_asignados").order_by("creado_en", "id")
+    )
+    comentarios = (
+        Comentario.objects.filter(proyecto=proyecto).principales()
+        .select_related("autor__perfil").prefetch_related("autor__roles_asignados")
+    )
     if not moderador:
         # Ocultar un comentario oculta también su hilo: sus respuestas ya no se muestran
         comentarios = comentarios.visibles()
@@ -34,7 +40,7 @@ def datos_comunidad(usuario, proyecto, form=None):
     return {
         "total_me_gusta": proyecto.me_gustas.count(),
         "le_gusta": con_sesion and proyecto.me_gustas.filter(usuario=usuario).exists(),
-        "es_favorito": con_sesion and proyecto.favoritos.filter(usuario=usuario).exists(),
+        "guardado": con_sesion and proyecto.guardados.filter(usuario=usuario).exists(),
         "puede_dar_me_gusta": con_sesion and usuario.pk not in ids_autores,
         "moderador": moderador,
         "ids_autores": ids_autores,

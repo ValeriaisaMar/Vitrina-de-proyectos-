@@ -21,10 +21,9 @@
     {% include "componentes/campo.html" with campo=form.fecha_inicio %}
     {% include "componentes/campo.html" with campo=form.fecha_fin %}
   </div>
-  {% include "componentes/campo.html" with campo=form.abierto %}
   <div class="flex flex-wrap gap-4">
-    <button type="submit" class="btn btn-primario">{% translate "Guardar" %}</button>
-    <a href="{% url 'proyectos:periodos' %}" class="btn btn-secundario">{% translate "Cancelar" %}</a>
+    <button type="submit" class="btn btn-primario gap-2">{% icono "check" tam=18 %}{% translate "Guardar" %}</button>
+    <a href="{% url 'proyectos:periodos' %}" class="btn btn-secundario gap-2">{% icono "arrow-left" tam=18 %}{% translate "Cancelar" %}</a>
   </div>
 </form>
 {% endblock %}

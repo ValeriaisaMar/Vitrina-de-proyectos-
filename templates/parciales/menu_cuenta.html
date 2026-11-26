@@ -1,0 +1,72 @@
+{% load i18n %}{% comment %}
+Contenido del menú de la cuenta (spec 009). Se usa en el menú del avatar del encabezado y en la
+página "Mi cuenta" (la que se abre sin JavaScript). Cada opción lleva su ícono.
+Los contadores y el período vienen de config.contexto (menu_cuenta y periodo_actual).
+{% endcomment %}
+<div class="flex flex-col gap-1">
+  <div class="flex items-center gap-3 border-b-2 border-linea-suave px-2 pb-3">
+    {% include "parciales/avatar.html" with perfil=user.perfil tam="h-12 w-12" %}
+    <div class="min-w-0">
+      <p class="truncate font-extrabold">{{ user.nombre_completo }}</p>
+      <p class="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs">
+        <span class="insignia-rol {% if rol_activo == 'admin' %}insignia-rol-admin{% endif %}"><span class="sr-only">{% translate "Rol activo:" %} </span>{{ rol_activo_etiqueta }}</span>
+      </p>
+      {% if periodo_actual %}<p class="mt-1 flex items-center gap-1 text-xs text-texto-suave">{% icono "calendar" tam=14 %}{% blocktranslate with nombre=periodo_actual.nombre %}Período académico actual: {{ nombre }}{% endblocktranslate %}</p>{% endif %}
+    </div>
+  </div>
+
+  {# Cambio de rol directo: un clic (POST con CSRF), sin abrir otra página #}
+  {% if roles_disponibles|length > 1 %}
+    <form method="post" action="{% url 'cuentas:cambiar_rol' %}" class="border-b-2 border-linea-suave px-1 py-2">
+      {% csrf_token %}
+      <p class="px-1 pb-1 text-xs font-bold uppercase tracking-wider text-texto-suave">{% translate "Cambiar de rol" %}</p>
+      <div class="flex flex-wrap gap-1.5" role="group" aria-label="{% translate 'Cambiar de rol' %}">
+        {% for valor, etiqueta in roles_disponibles %}
+          <button type="submit" name="rol" value="{{ valor }}" data-menu-item
+                  class="inline-flex min-h-11 items-center gap-1.5 border-2 px-3 text-sm font-bold {% if valor == rol_activo %}border-linea bg-uteq-tinte text-uteq-verde dark:bg-uteq-verde dark:text-white{% else %}border-linea-suave hover:border-linea{% endif %}"
+                  {% if valor == rol_activo %}aria-current="true" disabled{% endif %}>
+            {% if valor == rol_activo %}{% icono "check" tam=16 %}{% endif %}{{ etiqueta }}
+          </button>
+        {% endfor %}
+      </div>
+    </form>
+  {% endif %}
+
+  {% with clase="flex min-h-11 items-center gap-3 px-2 text-sm font-semibold hover:bg-uteq-tinte dark:hover:bg-uteq-verde/40" %}
+  <nav aria-label="{% translate 'Cuenta' %}" class="flex flex-col py-1">
+    {% if user.tiene_perfil_publico %}<a data-menu-item class="{{ clase }}" href="{{ user.perfil.get_absolute_url }}">{% icono "user-circle" %}{% translate "Mi perfil" %}</a>{% endif %}
+    <a data-menu-item class="{{ clase }}" href="{% url 'vitrina:panel' %}">{% icono "layout-dashboard" %}{% translate "Panel" %}</a>
+  </nav>
+
+  <nav aria-label="{% translate 'Opciones rápidas' %}" class="flex flex-col border-t-2 border-linea-suave py-1">
+    {% if rol_activo == "estudiante" %}
+      <a data-menu-item class="{{ clase }}" href="{% url 'proyectos:mis_proyectos' %}">{% icono "folder" %}{% translate "Mis proyectos" %}</a>
+      <a data-menu-item class="{{ clase }}" href="{% url 'proyectos:crear' %}">{% icono "file-upload" %}{% translate "Subir proyecto" %}</a>
+      <a data-menu-item class="{{ clase }}" href="{% url 'comunidad:guardados' %}">{% icono "bookmark" %}{% translate "Guardados" %}</a>
+    {% elif rol_activo == "profesor" %}
+      <a data-menu-item class="{{ clase }}" href="{% url 'proyectos:solicitudes' %}">{% icono "mail-forward" %}<span class="flex-1">{% translate "Solicitudes de revisión" %}</span>{% if menu_cuenta.solicitudes %}<span class="insignia insignia-enviado">{{ menu_cuenta.solicitudes }}<span class="sr-only"> {% translate "pendientes" %}</span></span>{% endif %}</a>
+      <a data-menu-item class="{{ clase }}" href="{% url 'proyectos:bandeja' %}">{% icono "inbox" %}<span class="flex-1">{% translate "Bandeja de revisión" %}</span>{% if menu_cuenta.bandeja %}<span class="insignia insignia-en_revision">{{ menu_cuenta.bandeja }}<span class="sr-only"> {% translate "pendientes" %}</span></span>{% endif %}</a>
+      <a data-menu-item class="{{ clase }}" href="{% url 'proyectos:bandeja' %}?vista=decididos">{% icono "clipboard-check" %}{% translate "Proyectos que revisé" %}</a>
+      <a data-menu-item class="{{ clase }}" href="{% url 'comunidad:guardados' %}">{% icono "bookmark" %}{% translate "Guardados" %}</a>
+      <div class="px-1 py-1">{% include "parciales/disponibilidad.html" with clase_boton="flex min-h-11 w-full items-center gap-3 px-1 text-sm font-semibold hover:bg-uteq-tinte dark:hover:bg-uteq-verde/40" %}</div>
+    {% elif rol_activo == "admin" %}
+      <a data-menu-item class="{{ clase }}" href="{% url 'cuentas:usuarios' %}">{% icono "users" %}{% translate "Usuarios" %}</a>
+      <a data-menu-item class="{{ clase }}" href="{% url 'proyectos:bandeja' %}">{% icono "folder" %}{% translate "Proyectos" %}</a>
+      <a data-menu-item class="{{ clase }}" href="{% url 'proyectos:periodos' %}">{% icono "calendar" %}{% translate "Periodos" %}</a>
+      <a data-menu-item class="{{ clase }}" href="{% url 'proyectos:planes' %}">{% icono "school" %}{% translate "Plan de estudios" %}</a>
+      <a data-menu-item class="{{ clase }}" href="{% url 'cuentas:correo_envio' %}">{% icono "mail-cog" %}{% translate "Correo de envío" %}</a>
+    {% endif %}
+  </nav>
+
+  <div class="border-t-2 border-linea-suave py-2">
+    <p class="px-2 pb-1 text-xs font-bold uppercase tracking-wider text-texto-suave">{% translate "Ajustes" %}</p>
+    {% include "parciales/ajustes.html" %}
+    <a data-menu-item class="{{ clase }} mt-1" href="{% url 'cuentas:perfil' %}">{% icono "settings" %}{% translate "Datos de la cuenta" %}</a>
+  </div>
+
+  <form method="post" action="{% url 'cuentas:salir' %}" class="border-t-2 border-linea-suave pt-1">
+    {% csrf_token %}
+    <button type="submit" data-menu-item class="{{ clase }} w-full text-left">{% icono "logout" %}{% translate "Cerrar sesión" %}</button>
+  </form>
+  {% endwith %}
+</div>
