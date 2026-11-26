@@ -32,16 +32,11 @@ botón de menú accesible (aria-expanded, foco, Esc, clic fuera).
     {# Inicio: con sesión lleva al panel del rol activo; al visitante, a la portada #}
     <nav aria-label="{% translate 'Principal' %}" class="flex items-center gap-1 sm:gap-2">
       {% if user.is_authenticated %}{% url 'vitrina:panel' as url_inicio %}{% else %}{% url 'vitrina:inicio' as url_inicio %}{% endif %}
-      {% if user.is_authenticated and actual == 'panel' or not user.is_authenticated and actual == 'inicio' %}
-      <a href="{{ url_inicio }}" class="flex min-h-11 items-center gap-2 border-2 border-linea bg-uteq-tinte px-2.5 text-sm font-bold text-uteq-verde sm:px-3 dark:bg-uteq-verde dark:text-white" aria-current="page">
+      {# Inicio y Explorar: el recuadro solo en hover (como página actual parecía que el cursor estaba encima); la actual se marca con aria-current #}
+      <a href="{{ url_inicio }}" class="flex min-h-11 items-center gap-2 border-2 border-transparent px-2.5 text-sm font-bold hover:border-linea hover:bg-uteq-tinte sm:px-3 dark:hover:bg-uteq-verde/40" {% if user.is_authenticated and actual == 'panel' or not user.is_authenticated and actual == 'inicio' %}aria-current="page"{% endif %}>
         {% icono "home" %}<span class="max-sm:sr-only">{% translate "Inicio" %}</span>
       </a>
-      {% else %}
-      <a href="{{ url_inicio }}" class="flex min-h-11 items-center gap-2 border-2 border-transparent px-2.5 text-sm font-bold hover:border-linea hover:bg-uteq-tinte sm:px-3 dark:hover:bg-uteq-verde/40">
-        {% icono "home" %}<span class="max-sm:sr-only">{% translate "Inicio" %}</span>
-      </a>
-      {% endif %}
-      <a href="{% url 'vitrina:explorar' %}" class="flex min-h-11 items-center gap-2 border-2 px-2.5 text-sm font-bold sm:px-3 {% if actual == 'explorar' %}border-linea bg-uteq-tinte text-uteq-verde dark:bg-uteq-verde dark:text-white{% else %}border-transparent hover:border-linea hover:bg-uteq-tinte dark:hover:bg-uteq-verde/40{% endif %}" {% if actual == 'explorar' %}aria-current="page"{% endif %}>
+      <a href="{% url 'vitrina:explorar' %}" class="flex min-h-11 items-center gap-2 border-2 border-transparent px-2.5 text-sm font-bold hover:border-linea hover:bg-uteq-tinte sm:px-3 dark:hover:bg-uteq-verde/40" {% if actual == 'explorar' %}aria-current="page"{% endif %}>
         {% icono "compass" %}<span class="max-sm:sr-only">{% translate "Explorar" %}</span>
       </a>
     </nav>
