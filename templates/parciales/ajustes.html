@@ -6,7 +6,7 @@ engranaje del visitante. El tema lo cambia static/js/tema.js; el idioma, la vist
   <button type="button" data-boton-tema data-menu-item
           data-texto-oscuro="{% translate 'Cambiar a modo oscuro' %}" data-texto-claro="{% translate 'Cambiar a modo claro' %}"
           aria-pressed="false"
-          class="flex min-h-11 items-center gap-3 text-sm font-semibold">
+          class="-mx-2 flex min-h-11 items-center gap-3 px-2 text-left text-sm font-semibold hover:bg-uteq-tinte dark:hover:bg-uteq-verde/40">
     <span class="dark:hidden">{% icono "moon" %}</span><span class="hidden dark:inline">{% icono "sun" %}</span>
     <span class="dark:hidden">{% translate "Modo oscuro" %}</span><span class="hidden dark:inline">{% translate "Modo claro" %}</span>
   </button>
@@ -17,10 +17,10 @@ engranaje del visitante. El tema lo cambia static/js/tema.js; el idioma, la vist
     <span id="etiqueta-idioma-{{ sufijo|default:'menu' }}">{% translate "Idioma" %}</span>
     <span class="ml-auto flex border-2 border-linea" role="group" aria-labelledby="etiqueta-idioma-{{ sufijo|default:'menu' }}">
       <button type="submit" name="language" value="es" lang="es" data-menu-item
-              class="min-h-10 min-w-11 px-2.5 text-xs font-bold {% if IDIOMA == 'es' %}bg-uteq-verde text-white{% else %}bg-superficie text-texto{% endif %}"
+              class="min-h-10 min-w-11 px-2.5 text-xs font-bold {% if IDIOMA == 'es' %}bg-uteq-verde text-white{% else %}bg-superficie text-texto hover:bg-uteq-tinte dark:hover:bg-uteq-verde/40{% endif %}"
               aria-pressed="{% if IDIOMA == 'es' %}true{% else %}false{% endif %}" title="Español">ES</button>
       <button type="submit" name="language" value="en" lang="en" data-menu-item
-              class="min-h-10 min-w-11 border-l-2 border-linea px-2.5 text-xs font-bold {% if IDIOMA == 'en' %}bg-uteq-verde text-white{% else %}bg-superficie text-texto{% endif %}"
+              class="min-h-10 min-w-11 border-l-2 border-linea px-2.5 text-xs font-bold {% if IDIOMA == 'en' %}bg-uteq-verde text-white{% else %}bg-superficie text-texto hover:bg-uteq-tinte dark:hover:bg-uteq-verde/40{% endif %}"
               aria-pressed="{% if IDIOMA == 'en' %}true{% else %}false{% endif %}" title="English">EN</button>
     </span>
   </form>
